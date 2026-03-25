@@ -4,11 +4,99 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Document</title>
+    <style>
+
+        body{
+            background-color: #f2f2f2;
+        }
+        .container {
+            width: 90%;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 40px;
+            background-color: #fafafa;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        .container h1 {
+            font-size: 28px;
+            text-align: center;
+            color: #1a1a1a;
+            margin-bottom: 30px;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            border-bottom: 2px solid #e0e0e0;
+            padding-bottom: 20px;
+        }
+
+        .container p {
+            font-size: 18px;
+            text-indent: 2em;
+            line-height: 1.8;
+            color: #333;
+            margin-bottom: 1.2em;
+            text-align: justify;
+        }
+               
+        .container a{
+            display: inline-block;
+            margin: 20px;
+            padding: 10px 20px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+        }
+
+        /* 针对小屏幕的响应式调整 */
+        @media (max-width: 768px) {
+            .container {
+                width: 95%;
+                padding: 24px;
+                border-radius: 8px;
+            }
+            
+            .container h1 {
+                font-size: 22px;
+                margin-bottom: 20px;
+                padding-bottom: 15px;
+            }
+            
+            .container p {
+                font-size: 16px;
+                line-height: 1.7;
+                text-indent: 1.5em;
+            }
+        }
+
+        /* 打印优化 */
+        @media print {
+            .container {
+                width: 100%;
+                max-width: none;
+                box-shadow: none;
+                background: white;
+                padding: 20px;
+            }
+            
+            .container p {
+                line-height: 1.6;
+            }
+        }
+
+ 
+    </style>
+
+
 </head>
 <body>
-    <div>
-        <h1>Welcome to my website</h1>
+    <div class = "container">
+        <h1>欢迎访问我的网站</h1>
+        <p>这里是我的个人网站，欢迎来到我的地盘。这里是一些有用的小工具，欢迎使用。我会不定期更新，欢迎关注！</p>
+        
         <a href="paipan.html">八字排盘</a>
+        <a href="GanZhiWNL.html">干支万年历</a>
     </div>
 </body>
 </html>
