@@ -90,7 +90,7 @@
 
         /* 让干支可以点击 */
         .pillar-ganzhi {
-            font-size: 1.5rem;
+            font-size: 1.6rem;
             font-weight: 700;
             color: #8B4513;
             margin: 6px 0;
@@ -177,7 +177,7 @@
         }
 
         .calendar-title {
-            font-size: 0.9rem;
+            font-size: 1.0rem;
             font-weight: 600;
             color: #8B4513;
         }
@@ -197,7 +197,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
         }
 
@@ -214,7 +214,7 @@
             border: none;
             border-radius: 6px;
             padding: 6px 12px;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             cursor: pointer;
             transition: all 0.2s;
             margin-left: 8px;
@@ -274,7 +274,7 @@
             justify-content: center;
             background: white;
             cursor: pointer;
-            font-size: 0.8rem;
+            font-size: 0.85rem;
             transition: all 0.2s;
             position: relative;
             min-height: 32px;
@@ -345,7 +345,7 @@
         }
 
         .form-label {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #666;
             margin-bottom: 4px;
             display: block;
@@ -409,7 +409,7 @@
             padding: 8px 10px;
             border-radius: 0 6px 6px 0;
             margin-top: 12px;
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #8B4513;
             line-height: 1.4;
         }
@@ -439,7 +439,7 @@
         }
 
         .info-label {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #888;
         }
 
@@ -472,17 +472,17 @@
         }
 
         .section-header h2 {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: #333;
             font-weight: 600;
         }
 
         .tag {
-            background: #8B4513;
-            color: white;
+            background: #ffebd7 ;
+            color:black;
             padding: 3px 10px;
             border-radius: 20px;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
         }
 
         /* 四柱容器 - 桌面端横向排列，包含四柱和动态三柱 */
@@ -592,7 +592,7 @@
         }
 
         .pillar-label {
-            font-size: 0.75rem;
+            font-size: 0.85rem;
             color: #888;
             margin-bottom: 6px;
             font-weight: 500;
@@ -612,7 +612,7 @@
             color: white;
             padding: 2px 8px;
             border-radius: 10px;
-            font-size: 0.7rem;
+            font-size: 0.8rem;
             margin-bottom: 6px;
         }
 
@@ -629,13 +629,13 @@
             border-radius: 6px;
             padding: 6px;
             margin: 6px 0;
-            font-size: 0.85rem;
+            font-size: 0.95rem;
             color: #666;
             border: 1px solid #eee;
         }
 
         .nayin-text {
-            font-size: 0.8rem;
+            font-size: 0.9rem;
             color: #999;
             margin-top: 4px;
         }
@@ -665,7 +665,7 @@
         }
 
         .yun-header h2 {
-            font-size: 1rem;
+            font-size: 1.1rem;
             color: #333;
             font-weight: 600;
         }
@@ -730,7 +730,7 @@
         }
 
         .dayun-ganzhi {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #8B4513;
             margin-bottom: 2px;
@@ -790,7 +790,7 @@
         }
 
         .liunian-ganzhi {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 700;
             color: #8B4513;
             margin-bottom: 2px;
@@ -866,7 +866,7 @@
         }
 
         .liuyue-ganzhi {
-            font-size: 1.2rem;
+            font-size: 1.3rem;
             font-weight: 600;
             color: #333;
         }
@@ -964,7 +964,7 @@
             }
 
             .info-label {
-                font-size: 1rem;
+                font-size: 1.1rem;
             }
 
             .info-value {
@@ -1057,6 +1057,18 @@
             .tips-box {
                 font-size: 0.95rem;
                 padding: 12px;
+            }
+            /* 弹窗 */
+              .modal-title {
+            font-size: 1.8rem;
+            }
+
+            .modal-close {
+                font-size: 1.8rem;
+            }
+
+            .modal-body {
+                font-size: 1.6rem;
             }
 
             /* 手机端：四柱和动态柱垂直排列 */
@@ -1402,7 +1414,8 @@
     </div>
 
     <script>
-        let currentBazi = null; // 存储当前八字
+        // let currentBazi = null; // 存储当前八字
+        let currentMingli = null; // 存储当前四柱和大运流年流月七组干支
         if (typeof Lunar === 'undefined') {
             document.body.innerHTML = '<div style="text-align:center;padding:50px;color:red;">错误：无法加载 lunar-javascript 库<br>请检查网络连接或CDN链接</div>';
         } else {
@@ -1434,7 +1447,7 @@
             let currentDayunIndex = 0, currentLiunianIndex = -1, currentLiuyueIndex = -1;
             let riGan = '', yunObj = null, daYunList = [];
             let currentLiuNianList = [], currentLiuYueList = [];
-            // let currentBazi = null; // 存储当前八字
+            let currentBazi = null; // 存储当前八字
             let currentEightChar = null; // 存储当前EightChar对象
 
             const yearSelect = document.getElementById('yearSelect');
@@ -1645,7 +1658,7 @@
                     currentLiunianIndex = -1;
                     currentLiuyueIndex = -1;
                     renderDaYun();
-
+                    
                 } catch (e) {
                     console.error('排盘错误:', e);
                     document.getElementById('pillarsContainer').innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">日期有误，请重选<br>${e.message}</div>`;
@@ -1653,6 +1666,11 @@
             }
 
             function renderPillars() {
+                let dygz =null;
+                let liuniangz = null;
+                let liuyuegz = null;
+
+
                 if (!currentBazi || !currentEightChar) {
                     document.getElementById('pillarsContainer').innerHTML = '<div style="text-align: center; color: #999; padding: 40px;">请选择出生日期</div>';
                     return;
@@ -1679,6 +1697,10 @@
                     liuyueGanZhi = currentLiuYueList[currentLiuyueIndex].getGanZhi();
                     liuyueNaYin = getNaYin(liuyueGanZhi);
                 }
+
+                dygz = dayunGanZhi;
+                liuniangz = liunianGanZhi;
+                liuyuegz = liuyueGanZhi;    
 
                 let html = '<div class="sizhu-group">';
 
@@ -1708,7 +1730,8 @@
                     const cangHtml = cangList.length > 0 ? `<div class="canggan-box">${cangList.map(c => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + '</span>').join('<br> ')}</div>` : '';
                     const dy = daYunList[currentDayunIndex];
                     const ageInfo = dy ? `${dy.getStartAge()}-${dy.getEndAge()}岁` : '';
-                    html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span style="font-size:0.7rem;opacity:0.8;">${ageInfo}</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text">${dayunNaYin}</div></div>`;
+                    let idx = 4;
+                    html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span style="font-size:0.7rem;opacity:0.8;">${ageInfo}</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${dayunGanZhi}', ${idx})">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text">${dayunNaYin}</div></div>`;
                 } else {
                     html += `<div class="pillar-card dynamic"><div class="pillar-label">大运</div><div class="pillar-ganzhi">—</div></div>`;
                 }
@@ -1720,7 +1743,8 @@
                     const ganShiShen = getShiShen(riGan, gan);
                     const cangHtml = cangList.length > 0 ? `<div class="canggan-box">${cangList.map(c => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + '</span>').join('<br> ')}</div>` : '';
                     const year = currentLiuNianList[currentLiunianIndex] ? currentLiuNianList[currentLiunianIndex].getYear() : '';
-                    html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span style="font-size:0.7rem;opacity:0.8;">${year}年</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text">${liunianNaYin}</div></div>`;
+                    const idx = 5;
+                    html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span style="font-size:0.7rem;opacity:0.8;">${year}年</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liunianGanZhi}', ${idx})">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text">${liunianNaYin}</div></div>`;
                 } else {
                     html += `<div class="pillar-card dynamic"><div class="pillar-label">流年</div><div class="pillar-ganzhi">—</div></div>`;
                 }
@@ -1733,12 +1757,15 @@
                     const cangHtml = cangList.length > 0 ? `<div class="canggan-box">${cangList.map(c => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + '</span>').join('<br> ')}</div>` : '';
                     const months = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '冬月', '腊月'];
                     const monthName = months[currentLiuyueIndex] || '';
-                    html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text">${liuyueNaYin}</div></div>`;
+                    const idx = 6;
+                    html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liuyueGanZhi}', ${idx})">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text">${liuyueNaYin}</div></div>`;
                 } else {
                     html += `<div class="pillar-card dynamic"><div class="pillar-label">流月</div><div class="pillar-ganzhi">—</div></div>`;
                 }
 
                 html += '</div>';
+                currentMingli = [currentBazi[0], currentBazi[1], currentBazi[2], currentBazi[3],dygz,liuniangz,liuyuegz];
+
 
                 document.getElementById('pillarsContainer').innerHTML = html;
             }
@@ -1773,8 +1800,10 @@
                 }
                 let html = '';
                 daYunList.forEach((dy, index) => {
-                    const ganzhi = dy.getGanZhi();
-                    html += `<div class="dayun-item ${index === currentDayunIndex ? 'active' : ''}" onclick="selectDayun(${index})"><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
+                    let ganzhi = dy.getGanZhi();
+                    if (ganzhi===''){ganzhi='.'}
+                    // html += `<div class="dayun-item ${index === currentDayunIndex ? 'active' : ''}" onclick="selectDayun(${index})"><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
+                    html += `<div class="dayun-item ${index === currentDayunIndex ? 'active' : ''}" onclick="selectDayun(${index})"><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
                 });
                 document.getElementById('dayunContainer').innerHTML = html;
                 renderLiuNian();
@@ -1834,7 +1863,8 @@
                 currentLiuNianList.forEach((ln, idx) => {
                     const ganzhi = ln.getGanZhi();
                     const sui = currentDaYun.getStartAge() + idx;
-                    html += `<div class="liunian-item ${idx === currentLiunianIndex ? 'active' : ''}" onclick="selectLiunian(${idx})"><div class="liunian-ganzhi">${ganzhi}</div><div class="liunian-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liunian-year">${ln.getYear()}年</div><div class="liunian-sui">${sui}岁</div></div>`;
+                    // html += `<div class="liunian-item ${idx === currentLiunianIndex ? 'active' : ''}" onclick="selectLiunian(${idx})"><div class="liunian-ganzhi">${ganzhi}</div><div class="liunian-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liunian-year">${ln.getYear()}年</div><div class="liunian-sui">${sui}岁</div></div>`;
+                    html += `<div class="liunian-item ${idx === currentLiunianIndex ? 'active' : ''}" onclick="selectLiunian(${idx})"><div class="liunian-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liunian-ganzhi">${ganzhi}</div><div class="liunian-year">${ln.getYear()}年</div><div class="liunian-sui">${sui}岁</div></div>`;
                 });
                 document.getElementById('liunianContainer').innerHTML = html;
                 renderLiuYue();
@@ -1886,7 +1916,8 @@
                 let html = '';
                 currentLiuYueList.forEach((ly, idx) => {
                     const ganzhi = ly.getGanZhi();
-                    html += `<div class="liuyue-item ${idx === currentLiuyueIndex ? 'active' : ''}" onclick="selectLiuyue(${idx})"><div class="liuyue-month">${months[idx]}</div><div class="liuyue-ganzhi">${ganzhi}</div><div class="liuyue-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div></div>`;
+                    // html += `<div class="liuyue-item ${idx === currentLiuyueIndex ? 'active' : ''}" onclick="selectLiuyue(${idx})"><div class="liuyue-month">${months[idx]}</div><div class="liuyue-ganzhi">${ganzhi}</div><div class="liuyue-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div></div>`;
+                    html += `<div class="liuyue-item ${idx === currentLiuyueIndex ? 'active' : ''}" onclick="selectLiuyue(${idx})"><div class="liuyue-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liuyue-ganzhi">${ganzhi}</div><div class="liuyue-month">${months[idx]}</div></div>`;
                 });
                 document.getElementById('liuyueContainer').innerHTML = html;
 
@@ -1936,7 +1967,7 @@
 
     <script>
         // 索引从0开始
-        const pillars = ['年柱', '月柱', '日柱', '时柱'];
+        const pillars = ['年柱', '月柱', '日柱', '时柱', '大运', '流年', '流月'];
         const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
         const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
         // 日主喜忌
@@ -2019,60 +2050,61 @@
 
         // 显示弹窗
         function showModal(gz, idx) {
+
             let title = pillars[idx] + '：' + gz;
             let shensha = '*神煞：';
             let content = `<div>`;
             if (idx === 2) {
-                // console.log(gz[0] + '----' + currentBazi[2]);
-                content += `*日主喜忌：${currentBazi[2][0]}，${rizhuxiji[gz[0]]}<br>*十干所喜歌：${ganxige[gz[0]]}<br>`;
+                // console.log(gz[0] + '----' + currentMingli[2]);
+                content += `*日主喜忌：${currentMingli[2][0]}，${rizhuxiji[gz[0]]}<br>*十干所喜歌：${ganxige[gz[0]]}<br>`;
 
             };
 
-            // console.log(gz[0]+ '----' +currentBazi[2]);
-            if (yuede[dizhi.indexOf(currentBazi[1][1])] === currentBazi[idx][0]) {
+            console.log(gz + idx +'----' +currentMingli[2]);
+            if (yuede[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]) {
                 shensha += `月德 `;
             }
-            if (tiande[dizhi.indexOf(currentBazi[1][1])] === currentBazi[idx][0] || tiande[dizhi.indexOf(currentBazi[1][1])] === currentBazi[idx][1]) {
+            if (tiande[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0] || tiande[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][1]) {
                 shensha += `天德 `;
             }
-            if (yima[dizhi.indexOf(currentBazi[2][1])] === currentBazi[idx][1]) {
+            if (yima[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
                 shensha += `驿马 `;
             }
-            if (huagai[dizhi.indexOf(currentBazi[2][1])] === currentBazi[idx][1]) {
+            if (huagai[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
                 shensha += `华盖 `;
             }
-            if (taohua[dizhi.indexOf(currentBazi[2][1])] === currentBazi[idx][1]) {
+            if (taohua[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
                 shensha += `桃花 `;
             }
-            if (jiesha[dizhi.indexOf(currentBazi[2][1])] === currentBazi[idx][1]) {
+            if (jiesha[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
                 shensha += `劫煞 `;
             }
-            if (jiangxing[dizhi.indexOf(currentBazi[2][1])] === currentBazi[idx][1]) {
+            if (jiangxing[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
                 shensha += `将星 `;
             }
-            if (yangren[dizhi.indexOf(currentBazi[2][0])] === currentBazi[idx][1]) {
+            if (yangren[dizhi.indexOf(currentMingli[2][0])] === currentMingli[idx][1]) {
                 shensha += `羊刃 `;
             }
-            if (tianyi[tiangan.indexOf(currentBazi[2][0])].indexOf(currentBazi[idx][1])!==-1) {
+            if (tianyi[tiangan.indexOf(currentMingli[2][0])].indexOf(currentMingli[idx][1])!==-1) {
                 shensha += `天乙 `;
             }
-            if (wenchang[tiangan.indexOf(currentBazi[2][0])].indexOf(currentBazi[idx][1])!==-1) {
+            if (wenchang[tiangan.indexOf(currentMingli[2][0])].indexOf(currentMingli[idx][1])!==-1) {
                 shensha += `文昌 `;
             }
-            if (guchen[dizhi.indexOf(currentBazi[0][1])] === currentBazi[idx][1]) {
+            if (guchen[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]) {
                 shensha += `孤辰 `;
             }
-            if (guasu[dizhi.indexOf(currentBazi[0][1])] === currentBazi[idx][1]) {
+            if (guasu[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]) {
                 shensha += `寡宿 `;
             }
 
             if (shensha !== '*神煞：') {
                 content += `${shensha}<br>`;
             }
-// console.log(changsheng[tiangan.indexOf(currentBazi[2][0])][dizhi.indexOf(currentBazi[idx][1])]);
+            // console.log(changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]);
 
-            content += `*${gz[0]}禄在‘${GanLu[tiangan.indexOf(gz[0])]}’，绝在‘${GanJue[tiangan.indexOf(gz[0])]}’。<br></div>`;
-            content += `*日干${currentBazi[2][0]}在${currentBazi[idx][1]}是  ${changsheng[tiangan.indexOf(currentBazi[2][0])][dizhi.indexOf(currentBazi[idx][1])]}。<br></div>`;
+            content += `*${gz[0]}禄在${GanLu[tiangan.indexOf(gz[0])]}，绝在${GanJue[tiangan.indexOf(gz[0])]}。<br></div>`;
+            content += `*日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
 
 
 
