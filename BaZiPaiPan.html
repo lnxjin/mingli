@@ -1,610 +1,619 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport"
-            content="width=device-width, initial-scale=0.6, maximum-scale=1.0, user-scalable=no">
-        <title>灵机八字排盘</title>
-        <script
-            src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
-        <style>
-        /* 添加弹窗样式 */
-        .modal-overlay {
-            display: none;
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.5);
-            z-index: 1000;
-            justify-content: center;
-            align-items: center;
-        }
-
-        .modal-overlay.active {
-            display: flex;
-        }
-
-        .modal-content {
-            background: white;
-            border-radius: 12px;
-            padding: 24px;
-            max-width: 400px;
-            width: 90%;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
-            animation: modalSlideIn 0.3s ease;
-            cursor: grab;
-        }
-        .modal-content.dragging {
-    cursor: grabbing;
-    user-select: none;
-}
-
-        @keyframes modalSlideIn {
-            from {
-                opacity: 0;
-                transform: translateY(-20px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
-        }
-
-        .modal-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .modal-title {
-            font-size: 1.2rem;
-            font-weight: 600;
-            color: #8B4513;
-        }
-
-        .modal-close {
-            width: 32px;
-            height: 32px;
-            border: none;
-            background: #f5f5f5;
-            border-radius: 50%;
-            cursor: pointer;
-            font-size: 1.2rem;
-            color: #666;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .modal-close:hover {
-            background: #e0e0e0;
-            color: #333;
-        }
-
-        .modal-body {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #555;
-        }
-
-        /* 让干支可以点击 */
-        .pillar-ganzhi {
-            font-size: 1.6rem;
-            font-weight: 700;
-            color: #8B4513;
-            margin: 6px 0;
-            font-family: 'Noto Serif SC', serif;
-            cursor: pointer;
-            /* 鼠标变成手型 */
-            transition: all 0.2s;
-            padding: 4px 8px;
-            border-radius: 6px;
-        }
-
-        .pillar-ganzhi:hover {
-            background: rgba(139, 69, 19, 0.1);
-            transform: scale(1.05);
-        }
-
-
-
-
-        /* 样式保持不变 */
-        * {
-            box-sizing: border-box;
-            margin: 0;
-            padding: 0;
-        }
-
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', sans-serif;
-            background: #f5f5f5;
-            min-height: 100vh;
-            color: #333;
-        }
-
-        .header {
-            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
-            color: white;
-            padding: 12px 20px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        }
-
-        .header h1 {
-            font-size: 1.2rem;
-            font-weight: 600;
-            letter-spacing: 1px;
-        }
-
-        .header .subtitle {
-            font-size: 0.8rem;
-            opacity: 0.9;
-            margin-top: 2px;
-        }
-
-        .main-container {
-            max-width: 1400px;
-            margin: 0 auto;
-            display: grid;
-            grid-template-columns: 300px 1fr;
-            gap: 0;
-            min-height: calc(100vh - 52px);
-        }
-
-        .control-sidebar {
-            background: #fff;
-            border-right: 1px solid #e0e0e0;
-            padding: 16px;
-            overflow-y: auto;
-        }
-
-        .calendar-section {
-            background: #fafafa;
-            border-radius: 10px;
-            padding: 12px;
-            margin-bottom: 16px;
-            border: 1px solid #e8e8e8;
-        }
-
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 8px;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #eee;
-        }
-
-        .calendar-title {
-            font-size: 1.0rem;
-            font-weight: 600;
-            color: #8B4513;
-        }
-
-        .calendar-nav {
-            display: flex;
-            gap: 14px;
-        }
-
-        .nav-btn {
-            width: 22px;
-            height: 22px;
-            border: 1px solid #ddd;
-            background: white;
-            border-radius: 4px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-        }
-
-        .nav-btn:hover {
-            background: #8B4513;
-            color: white;
-            border-color: #8B4513;
-        }
-
-        /* 回到今天按钮样式 */
-        .today-btn {
-            background: linear-gradient(135deg, #8B4513 0%, #A0522D 100%);
-            color: white;
-            border: none;
-            border-radius: 6px;
-            padding: 6px 12px;
-            font-size: 0.85rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-left: 8px;
-            font-weight: 500;
-        }
-
-        .today-btn:hover {
-            opacity: 0.9;
-            transform: translateY(-1px);
-        }
-
-        .ym-selector {
-            display: flex;
-            gap: 6px;
-            margin-bottom: 8px;
-        }
-
-        .ym-select {
-            flex: 1;
-            padding: 6px 4px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.8rem;
-            background: white;
-            outline: none;
-            cursor: pointer;
-        }
-
-        .ym-select:focus {
-            border-color: #8B4513;
-        }
-
-        .calendar-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 1px;
-            text-align: center;
-            background: #e8e8e8;
-            border-radius: 6px;
-            overflow: hidden;
-            border: 1px solid #e8e8e8;
-        }
-
-        .weekday-header {
-            font-size: 0.7rem;
-            color: #666;
-            padding: 6px 0;
-            font-weight: 600;
-            background: #f5f5f5;
-        }
-
-        .calendar-day {
-            aspect-ratio: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            background: white;
-            cursor: pointer;
-            font-size: 0.85rem;
-            transition: all 0.2s;
-            position: relative;
-            min-height: 32px;
-            padding: 2px;
-        }
-
-        .calendar-day:hover {
-            background: #f8f4f0;
-        }
-
-        .calendar-day.selected {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            font-weight: 600;
-            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
-        }
-
-        .calendar-day.other-month {
-            color: #ccc;
-            background: #fafafa;
-        }
-
-        .calendar-day.today {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            font-weight: 600;
-        }
-
-        .calendar-day.today::after {
-            content: '';
-            position: absolute;
-            bottom: 2px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 4px;
-            height: 4px;
-            background: white;
-            border-radius: 50%;
-        }
-
-        .lunar-date {
-            font-size: 0.6rem;
-            opacity: 0.8;
-            margin-top: 1px;
-            transform: scale(0.85);
-            line-height: 1;
-        }
-
-        .time-section {
-            background: #fafafa;
-            border-radius: 10px;
-            padding: 12px;
-            border: 1px solid #e8e8e8;
-        }
-
-        .section-title {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #555;
-            margin-bottom: 10px;
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .form-row {
-            margin-bottom: 10px;
-        }
-
-        .form-label {
-            font-size: 0.85rem;
-            color: #666;
-            margin-bottom: 4px;
-            display: block;
-        }
-
-        .form-select,
-        .form-input {
-            width: 100%;
-            padding: 8px 10px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 0.85rem;
-            background: white;
-            outline: none;
-            transition: border-color 0.2s;
-        }
-
-        .form-select:focus,
-        .form-input:focus {
-            border-color: #8B4513;
-        }
-
-        .late-zi-options {
-            background: white;
-            border-radius: 6px;
-            padding: 10px;
-            margin-top: 8px;
-            border: 1px solid #eee;
-        }
-
-        .late-zi-title {
-            font-size: 0.75rem;
-            color: #666;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        .radio-group {
-            display: flex;
-            gap: 12px;
-        }
-
-        .radio-item {
-            display: flex;
-            align-items: center;
-            gap: 4px;
-            cursor: pointer;
-            font-size: 0.8rem;
-            color: #555;
-        }
-
-        .radio-item input {
-            width: 14px;
-            height: 14px;
-            accent-color: #8B4513;
-        }
-
-        .tips-box {
-            background: #fff8e6;
-            border-left: 3px solid #D2691E;
-            padding: 8px 10px;
-            border-radius: 0 6px 6px 0;
-            margin-top: 12px;
-            font-size: 0.85rem;
-            color: #8B4513;
-            line-height: 1.4;
-        }
-
-        .content-area {
-            padding: 20px;
-            overflow-y: auto;
-            background: #f5f5f5;
-        }
-
-        .info-bar {
-            background: white;
-            border-radius: 10px;
-            padding: 12px 16px;
-            margin-bottom: 16px;
-            display: flex;
-            flex-wrap: wrap;
-            gap: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e8e8e8;
-        }
-
-        .info-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .info-label {
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .info-value {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: #333;
-        }
-
-        .info-value.highlight {
-            color: #8B4513;
-        }
-
-        .sizhu-section {
-            background: white;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e8e8e8;
-        }
-
-        .section-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
-        }
-
-        .section-header h2 {
-            font-size: 1.1rem;
-            color: #333;
-            font-weight: 600;
-        }
-
-        .tag {
-            background: #ffebd7 ;
-            color:black;
-            padding: 3px 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-        }
-
-        /* 四柱容器 - 桌面端横向排列，包含四柱和动态三柱 */
-        .pillars-container {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            gap: 12px;
-            overflow-x: auto;
-            padding-bottom: 8px;
-        }
-
-        /* 四柱分组 */
-        .sizhu-group {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            gap: 12px;
-            flex: 0 0 auto;
-        }
-
-        /* 分隔线 */
-        .pillars-divider {
-            width: 2px;
-            background: linear-gradient(180deg, transparent 0%, #d4a574 50%, transparent 100%);
-            margin: 0 8px;
-            flex-shrink: 0;
-        }
-
-        /* 动态三柱分组 */
-        .dynamic-group {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            gap: 12px;
-            flex: 0 0 auto;
-        }
-
-        .pillar-card {
-            flex: 0 0 auto;
-            min-width: 120px;
-            background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
-            border-radius: 10px;
-            padding: 12px;
-            text-align: center;
-            border: 1px solid #e8e8e8;
-            transition: all 0.3s;
-            position: relative;
-            overflow: hidden;
-        }
-
-        .pillar-card:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
-            border-color: #d4a574;
-        }
-
-        .pillar-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, #8B4513, #D2691E);
-        }
-
-        /* 动态柱特殊样式 */
-        .pillar-card.dynamic {
-            background: linear-gradient(180deg, #fff9f0 0%, #fff5e6 100%);
-            border-color: #e8d5c4;
-            cursor: pointer;
-        }
-
-        .pillar-card.dynamic::before {
-            background: linear-gradient(90deg, #D2691E, #FF8C00);
-        }
-
-        .pillar-card.dynamic:hover {
-            background: linear-gradient(180deg, #fff0e0 0%, #ffe8d0 100%);
-            border-color: #D2691E;
-        }
-
-        .pillar-card.dynamic.active {
-            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
-            color: white;
-            border-color: #f12711;
-            box-shadow: 0 4px 12px rgba(241, 39, 17, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .pillar-card.dynamic.active .pillar-ganzhi,
-        .pillar-card.dynamic.active .pillar-label,
-        .pillar-card.dynamic.active .pillar-shishen,
-        .pillar-card.dynamic.active .nayin-text,
-        .pillar-card.dynamic.active .canggan-box {
-            color: white;
-        }
-
-        .pillar-card.dynamic.active .canggan-box {
-            background: rgba(255, 255, 255, 0.2);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        .pillar-card.dynamic.active .canggan-box span {
-            color: rgba(255, 255, 255, 0.9) !important;
-        }
-
-        .pillar-label {
-            font-size: 0.85rem;
-            color: #888;
-            margin-bottom: 6px;
-            font-weight: 500;
-        }
-
-        /* .pillar-ganzhi {
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=0.6, maximum-scale=1.0, user-scalable=no" />
+    <title>灵机八字排盘</title>
+    <script
+      src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
+    <style>
+      /* 添加弹窗样式 */
+      .modal-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 1000;
+        justify-content: center;
+        align-items: center;
+      }
+
+      .modal-overlay.active {
+        display: flex;
+      }
+
+      .modal-content {
+        position: relative;
+        left: 50%;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        background: white;
+        border-radius: 12px;
+        padding: 24px;
+        max-width: 400px;
+        width: 90%;
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+        animation: modalSlideIn 0.3s ease;
+        cursor: grab;
+      }
+      .modal-content.dragging {
+        cursor: grabbing;
+        user-select: none;
+      }
+
+      @keyframes modalSlideIn {
+        from {
+          opacity: 0;
+          transform: translateY(-20px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      .modal-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        padding-bottom: 12px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .modal-title {
+        font-size: 1.2rem;
+        font-weight: 600;
+        color: #8b4513;
+      }
+
+      .modal-close {
+        width: 32px;
+        height: 32px;
+        border: none;
+        background: #f5f5f5;
+        border-radius: 50%;
+        cursor: pointer;
+        font-size: 1.2rem;
+        color: #666;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s;
+      }
+
+      .modal-close:hover {
+        background: #e0e0e0;
+        color: #333;
+      }
+
+      .modal-body {
+        font-size: 1rem;
+        line-height: 1.6;
+        color: #555;
+      }
+
+      /* 让干支可以点击 */
+      .pillar-ganzhi {
+        font-size: 1.6rem;
+        font-weight: 700;
+        color: #8b4513;
+        margin: 6px 0;
+        font-family: "Noto Serif SC", serif;
+        cursor: pointer;
+        /* 鼠标变成手型 */
+        transition: all 0.2s;
+        padding: 4px 8px;
+        border-radius: 6px;
+      }
+
+      .pillar-ganzhi:hover {
+        background: rgba(139, 69, 19, 0.1);
+        transform: scale(1.05);
+      }
+
+      /* 样式保持不变 */
+      * {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+          sans-serif;
+        background: #f5f5f5;
+        min-height: 100vh;
+        color: #333;
+      }
+
+      .header {
+        background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+        color: white;
+        padding: 12px 20px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      }
+
+      .header h1 {
+        font-size: 1.2rem;
+        font-weight: 600;
+        letter-spacing: 1px;
+      }
+
+      .header .subtitle {
+        font-size: 0.8rem;
+        opacity: 0.9;
+        margin-top: 2px;
+      }
+
+      .main-container {
+        max-width: 1400px;
+        margin: 0 auto;
+        display: grid;
+        grid-template-columns: 300px 1fr;
+        gap: 0;
+        min-height: calc(100vh - 52px);
+      }
+
+      .control-sidebar {
+        background: #fff;
+        border-right: 1px solid #e0e0e0;
+        padding: 16px;
+        overflow-y: auto;
+      }
+
+      .calendar-section {
+        background: #fafafa;
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 16px;
+        border: 1px solid #e8e8e8;
+      }
+
+      .calendar-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 8px;
+        padding-bottom: 8px;
+        border-bottom: 1px solid #eee;
+      }
+
+      .calendar-title {
+        font-size: 1rem;
+        font-weight: 600;
+        color: #8b4513;
+      }
+
+      .calendar-nav {
+        display: flex;
+        gap: 14px;
+      }
+
+      .nav-btn {
+        width: 22px;
+        height: 22px;
+        border: 1px solid #ddd;
+        background: white;
+        border-radius: 4px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+      }
+
+      .nav-btn:hover {
+        background: #8b4513;
+        color: white;
+        border-color: #8b4513;
+      }
+
+      /* 回到今天按钮样式 */
+      .today-btn {
+        background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 6px 12px;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        margin-left: 8px;
+        font-weight: 500;
+      }
+
+      .today-btn:hover {
+        opacity: 0.9;
+        transform: translateY(-1px);
+      }
+
+      .ym-selector {
+        display: flex;
+        gap: 6px;
+        margin-bottom: 8px;
+      }
+
+      .ym-select {
+        flex: 1;
+        padding: 6px 4px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.8rem;
+        background: white;
+        outline: none;
+        cursor: pointer;
+      }
+
+      .ym-select:focus {
+        border-color: #8b4513;
+      }
+
+      .calendar-grid {
+        display: grid;
+        grid-template-columns: repeat(7, 1fr);
+        gap: 1px;
+        text-align: center;
+        background: #e8e8e8;
+        border-radius: 6px;
+        overflow: hidden;
+        border: 1px solid #e8e8e8;
+      }
+
+      .weekday-header {
+        font-size: 0.7rem;
+        color: #666;
+        padding: 6px 0;
+        font-weight: 600;
+        background: #f5f5f5;
+      }
+
+      .calendar-day {
+        aspect-ratio: 1;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background: white;
+        cursor: pointer;
+        font-size: 0.85rem;
+        transition: all 0.2s;
+        position: relative;
+        min-height: 32px;
+        padding: 2px;
+      }
+
+      .calendar-day:hover {
+        background: #f8f4f0;
+      }
+
+      .calendar-day.selected {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        font-weight: 600;
+        box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+      }
+
+      .calendar-day.other-month {
+        color: #ccc;
+        background: #fafafa;
+      }
+
+      .calendar-day.today {
+        background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+        color: white;
+        font-weight: 600;
+      }
+
+      .calendar-day.today::after {
+        content: "";
+        position: absolute;
+        bottom: 2px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: 4px;
+        height: 4px;
+        background: white;
+        border-radius: 50%;
+      }
+
+      .lunar-date {
+        font-size: 0.6rem;
+        opacity: 0.8;
+        margin-top: 1px;
+        transform: scale(0.85);
+        line-height: 1;
+      }
+
+      .time-section {
+        background: #fafafa;
+        border-radius: 10px;
+        padding: 12px;
+        border: 1px solid #e8e8e8;
+      }
+
+      .section-title {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #555;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .form-row {
+        margin-bottom: 10px;
+      }
+
+      .form-label {
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 4px;
+        display: block;
+      }
+
+      .form-select,
+      .form-input {
+        width: 100%;
+        padding: 8px 10px;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        font-size: 0.85rem;
+        background: white;
+        outline: none;
+        transition: border-color 0.2s;
+      }
+
+      .form-select:focus,
+      .form-input:focus {
+        border-color: #8b4513;
+      }
+
+      .late-zi-options {
+        background: white;
+        border-radius: 6px;
+        padding: 10px;
+        margin-top: 8px;
+        border: 1px solid #eee;
+      }
+
+      .late-zi-title {
+        font-size: 0.75rem;
+        color: #666;
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+
+      .radio-group {
+        display: flex;
+        gap: 12px;
+      }
+
+      .radio-item {
+        display: flex;
+        align-items: center;
+        gap: 4px;
+        cursor: pointer;
+        font-size: 0.8rem;
+        color: #555;
+      }
+
+      .radio-item input {
+        width: 14px;
+        height: 14px;
+        accent-color: #8b4513;
+      }
+
+      .tips-box {
+        background: #fff8e6;
+        border-left: 3px solid #d2691e;
+        padding: 8px 10px;
+        border-radius: 0 6px 6px 0;
+        margin-top: 12px;
+        font-size: 0.85rem;
+        color: #8b4513;
+        line-height: 1.4;
+      }
+
+      .content-area {
+        padding: 20px;
+        overflow-y: auto;
+        background: #f5f5f5;
+      }
+
+      .info-bar {
+        background: white;
+        border-radius: 10px;
+        padding: 12px 16px;
+        margin-bottom: 16px;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e8e8e8;
+      }
+
+      .info-item {
+        display: flex;
+        align-items: center;
+        gap: 6px;
+      }
+
+      .info-label {
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .info-value {
+        font-size: 0.9rem;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .info-value.highlight {
+        color: #8b4513;
+      }
+
+      .sizhu-section {
+        background: white;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e8e8e8;
+      }
+
+      .section-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .section-header h2 {
+        font-size: 1.1rem;
+        color: #333;
+        font-weight: 600;
+      }
+
+      .tag {
+        background: #ffebd7;
+        color: black;
+        padding: 3px 10px;
+        border-radius: 20px;
+        font-size: 0.8rem;
+      }
+
+      /* 四柱容器 - 桌面端横向排列，包含四柱和动态三柱 */
+      .pillars-container {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
+      }
+
+      /* 四柱分组 */
+      .sizhu-group {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 12px;
+        flex: 0 0 auto;
+      }
+
+      /* 分隔线 */
+      .pillars-divider {
+        width: 2px;
+        background: linear-gradient(
+          180deg,
+          transparent 0%,
+          #d4a574 50%,
+          transparent 100%
+        );
+        margin: 0 8px;
+        flex-shrink: 0;
+      }
+
+      /* 动态三柱分组 */
+      .dynamic-group {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 12px;
+        flex: 0 0 auto;
+      }
+
+      .pillar-card {
+        flex: 0 0 auto;
+        min-width: 120px;
+        background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+        border-radius: 10px;
+        padding: 12px;
+        text-align: center;
+        border: 1px solid #e8e8e8;
+        transition: all 0.3s;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .pillar-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+        border-color: #d4a574;
+      }
+
+      .pillar-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        height: 3px;
+        background: linear-gradient(90deg, #8b4513, #d2691e);
+      }
+
+      /* 动态柱特殊样式 */
+      .pillar-card.dynamic {
+        background: linear-gradient(180deg, #fff9f0 0%, #fff5e6 100%);
+        border-color: #e8d5c4;
+        cursor: pointer;
+      }
+
+      .pillar-card.dynamic::before {
+        background: linear-gradient(90deg, #d2691e, #ff8c00);
+      }
+
+      .pillar-card.dynamic:hover {
+        background: linear-gradient(180deg, #fff0e0 0%, #ffe8d0 100%);
+        border-color: #d2691e;
+      }
+
+      .pillar-card.dynamic.active {
+        background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        color: white;
+        border-color: #f12711;
+        box-shadow: 0 4px 12px rgba(241, 39, 17, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .pillar-card.dynamic.active .pillar-ganzhi,
+      .pillar-card.dynamic.active .pillar-label,
+      .pillar-card.dynamic.active .pillar-shishen,
+      .pillar-card.dynamic.active .nayin-text,
+      .pillar-card.dynamic.active .canggan-box {
+        color: white;
+      }
+
+      .pillar-card.dynamic.active .canggan-box {
+        background: rgba(255, 255, 255, 0.2);
+        border-color: rgba(255, 255, 255, 0.3);
+      }
+
+      .pillar-card.dynamic.active .canggan-box span {
+        color: rgba(255, 255, 255, 0.9) !important;
+      }
+
+      .pillar-label {
+        font-size: 0.85rem;
+        color: #888;
+        margin-bottom: 6px;
+        font-weight: 500;
+      }
+
+      /* .pillar-ganzhi {
             font-size: 1.5rem;
             font-weight: 700;
             color: #8B4513;
@@ -612,1833 +621,2550 @@
             font-family: 'Noto Serif SC', serif;
         } */
 
-        .pillar-shishen {
-            display: inline-block;
-            background: #8B4513;
-            color: white;
-            padding: 2px 8px;
-            border-radius: 10px;
-            font-size: 0.8rem;
-            margin-bottom: 6px;
+      .pillar-shishen {
+        display: inline-block;
+        background: #8b4513;
+        color: white;
+        padding: 2px 8px;
+        border-radius: 10px;
+        font-size: 0.8rem;
+        margin-bottom: 6px;
+      }
+
+      .pillar-card.dynamic .pillar-shishen {
+        background: #d2691e;
+      }
+
+      .pillar-card.dynamic.active .pillar-shishen {
+        background: rgba(255, 255, 255, 0.25);
+      }
+
+      .canggan-box {
+        background: white;
+        border-radius: 6px;
+        padding: 6px;
+        margin: 6px 0;
+        font-size: 0.95rem;
+        color: #666;
+        border: 1px solid #eee;
+      }
+
+      .nayin-text {
+        font-size: 0.9rem;
+        color: #999;
+        margin-top: 4px;
+      }
+
+      .yun-section {
+        background: white;
+        border-radius: 10px;
+        padding: 16px;
+        margin-bottom: 16px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+        border: 1px solid #e8e8e8;
+      }
+
+      .yun-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 12px;
+        padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+      }
+
+      .yun-header-main {
+        display: flex;
+        align-items: baseline;
+        gap: 12px;
+      }
+
+      .yun-header h2 {
+        font-size: 1.1rem;
+        color: #333;
+        font-weight: 600;
+      }
+
+      .yun-meta {
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .yun-meta span {
+        color: #8b4513;
+        font-weight: 500;
+      }
+
+      .yun-subtitle {
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .dayun-scroll,
+      .liunian-scroll,
+      .liuyue-scroll {
+        overflow-x: auto;
+        margin-bottom: 16px;
+        padding-bottom: 8px;
+        -webkit-overflow-scrolling: touch;
+      }
+
+      .dayun-row,
+      .liunian-row,
+      .liuyue-row {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 8px;
+        min-width: max-content;
+      }
+
+      .dayun-item {
+        flex: 0 0 auto;
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 10px 14px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        min-width: 80px;
+      }
+
+      .dayun-item:hover {
+        background: #f5f5f5;
+        border-color: #d4a574;
+      }
+
+      .dayun-item.active {
+        background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+        color: white;
+        border-color: #f12711;
+        box-shadow: 0 4px 12px rgba(241, 39, 17, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .dayun-ganzhi {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #8b4513;
+        margin-bottom: 2px;
+      }
+
+      .dayun-item.active .dayun-ganzhi {
+        color: white;
+      }
+
+      .dayun-shishen {
+        font-size: 0.9rem;
+        background: #f0f0f0;
+        padding: 1px 6px;
+        border-radius: 8px;
+        color: #666;
+        display: inline-block;
+        margin-bottom: 4px;
+      }
+
+      .dayun-item.active .dayun-shishen {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+      }
+
+      .dayun-age {
+        font-size: 0.85rem;
+        color: #666;
+      }
+
+      .dayun-item.active .dayun-age {
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .liunian-item {
+        flex: 0 0 auto;
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 8px;
+        padding: 8px 12px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        min-width: 70px;
+      }
+
+      .liunian-item:hover {
+        background: #f5f5f5;
+        border-color: #d4a574;
+      }
+
+      .liunian-item.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #764ba2;
+        box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .liunian-ganzhi {
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: #8b4513;
+        margin-bottom: 2px;
+      }
+
+      .liunian-item.active .liunian-ganzhi {
+        color: white;
+      }
+
+      .liunian-shishen {
+        font-size: 0.9rem;
+        background: #f0f0f0;
+        padding: 1px 4px;
+        border-radius: 6px;
+        color: #666;
+        display: inline-block;
+        margin-bottom: 2px;
+      }
+
+      .liunian-item.active .liunian-shishen {
+        background: rgba(255, 255, 255, 0.25);
+        color: white;
+      }
+
+      .liunian-year {
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .liunian-sui {
+        font-size: 0.85rem;
+        color: #888;
+      }
+
+      .liunian-item.active .liunian-year,
+      .liunian-item.active .liunian-sui {
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .liuyue-item {
+        flex: 0 0 auto;
+        background: #fafafa;
+        border: 1px solid #e8e8e8;
+        border-radius: 6px;
+        padding: 6px 10px;
+        cursor: pointer;
+        transition: all 0.2s;
+        text-align: center;
+        min-width: 60px;
+      }
+
+      .liuyue-item:hover {
+        background: #f5f5f5;
+        border-color: #d4a574;
+      }
+
+      .liuyue-item.active {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        color: white;
+        border-color: #764ba2;
+        box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+        transform: translateY(-2px);
+      }
+
+      .liuyue-month {
+        font-size: 0.8rem;
+        color: #888;
+        margin-bottom: 2px;
+      }
+
+      .liuyue-item.active .liuyue-month {
+        color: rgba(255, 255, 255, 0.95);
+      }
+
+      .liuyue-ganzhi {
+        font-size: 1.3rem;
+        font-weight: 600;
+        color: #333;
+      }
+
+      .liuyue-item.active .liuyue-ganzhi {
+        color: white;
+      }
+
+      .liuyue-shishen {
+        font-size: 0.85rem;
+        color: #8b4513;
+        margin-top: 1px;
+      }
+
+      .liuyue-item.active .liuyue-shishen {
+        color: rgba(255, 255, 255, 0.9);
+      }
+
+      /* 平板端适配 (768px - 1024px) */
+      @media (max-width: 1024px) {
+        .main-container {
+          grid-template-columns: 1fr;
         }
 
-        .pillar-card.dynamic .pillar-shishen {
-            background: #D2691E;
+        .control-sidebar {
+          border-right: none;
+          border-bottom: 1px solid #e0e0e0;
+          max-height: none;
+          padding: 20px;
         }
 
-        .pillar-card.dynamic.active .pillar-shishen {
-            background: rgba(255, 255, 255, 0.25);
+        body {
+          font-size: 16px;
         }
 
-        .canggan-box {
-            background: white;
-            border-radius: 6px;
-            padding: 6px;
-            margin: 6px 0;
-            font-size: 0.95rem;
-            color: #666;
-            border: 1px solid #eee;
+        .calendar-title {
+          font-size: 1.1rem;
         }
 
-        .nayin-text {
-            font-size: 0.9rem;
-            color: #999;
-            margin-top: 4px;
+        .section-title {
+          font-size: 1.1rem;
         }
 
-        .yun-section {
-            background: white;
-            border-radius: 10px;
-            padding: 16px;
-            margin-bottom: 16px;
-            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-            border: 1px solid #e8e8e8;
+        .form-label {
+          font-size: 0.9rem;
+        }
+
+        .form-select {
+          font-size: 1rem;
+          padding: 10px;
+        }
+
+        .tips-box {
+          font-size: 0.9rem;
+          padding: 12px;
+        }
+
+        .pillar-card {
+          min-width: 110px;
+          padding: 10px;
+        }
+
+        .pillar-ganzhi {
+          font-size: 1.5rem;
+        }
+      }
+
+      /* 手机端适配 (小于 768px) - 动态三柱显示在四柱下方 */
+      @media (max-width: 768px) {
+        body {
+          font-size: 18px;
+        }
+
+        .header h1 {
+          font-size: 1.4rem;
+        }
+
+        .header .subtitle {
+          font-size: 1rem;
+        }
+
+        .content-area {
+          padding: 16px;
+        }
+
+        .info-bar {
+          flex-direction: column;
+          gap: 10px;
+          padding: 14px;
+        }
+
+        .info-item {
+          justify-content: space-between;
+          width: 100%;
+        }
+
+        .info-label {
+          font-size: 1.1rem;
+        }
+
+        .info-value {
+          font-size: 1.15rem;
         }
 
         .yun-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid #f0f0f0;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
         }
 
         .yun-header-main {
-            display: flex;
-            align-items: baseline;
-            gap: 12px;
+          flex-direction: column;
+          gap: 6px;
         }
 
         .yun-header h2 {
-            font-size: 1.1rem;
-            color: #333;
-            font-weight: 600;
+          font-size: 1.2rem;
         }
 
         .yun-meta {
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .yun-meta span {
-            color: #8B4513;
-            font-weight: 500;
+          font-size: 1rem;
         }
 
         .yun-subtitle {
-            font-size: 0.85rem;
-            color: #888;
+          font-size: 0.95rem;
         }
 
-        .dayun-scroll,
-        .liunian-scroll,
-        .liuyue-scroll {
-            overflow-x: auto;
-            margin-bottom: 16px;
-            padding-bottom: 8px;
-            -webkit-overflow-scrolling: touch;
+        .control-sidebar {
+          padding: 20px;
         }
 
-        .dayun-row,
-        .liunian-row,
-        .liuyue-row {
-            display: flex;
-            flex-direction: row;
-            flex-wrap: nowrap;
-            gap: 8px;
-            min-width: max-content;
+        .calendar-title {
+          font-size: 1.2rem;
+        }
+
+        .nav-btn {
+          width: 32px;
+          height: 32px;
+          font-size: 1rem;
+        }
+
+        .today-btn {
+          font-size: 0.95rem;
+          padding: 8px 14px;
+        }
+
+        .ym-select {
+          font-size: 1rem;
+          padding: 10px 8px;
+        }
+
+        .weekday-header {
+          font-size: 1rem;
+          padding: 10px 0;
+        }
+
+        .calendar-day {
+          font-size: 1.15rem;
+          min-height: 48px;
+        }
+
+        .lunar-date {
+          font-size: 0.85rem;
+          transform: scale(0.9);
+        }
+
+        .section-title {
+          font-size: 1.15rem;
+        }
+
+        .form-label {
+          font-size: 0.95rem;
+        }
+
+        .form-select {
+          font-size: 1.05rem;
+          padding: 12px;
+        }
+
+        .late-zi-title {
+          font-size: 0.95rem;
+        }
+
+        .radio-item {
+          font-size: 1rem;
+        }
+
+        .tips-box {
+          font-size: 0.95rem;
+          padding: 12px;
+        }
+        /* 弹窗 */
+        .modal-title {
+          font-size: 1.8rem;
+        }
+
+        .modal-close {
+          font-size: 1.8rem;
+        }
+
+        .modal-body {
+          font-size: 1.6rem;
+        }
+
+        /* 手机端：四柱和动态柱垂直排列 */
+        .pillars-container {
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .sizhu-group {
+          justify-content: center;
+          width: 100%;
+        }
+
+        .pillars-divider {
+          width: 100%;
+          height: 2px;
+          margin: 8px 0;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            #d4a574 50%,
+            transparent 100%
+          );
+        }
+
+        .dynamic-group {
+          justify-content: center;
+          width: 100%;
+        }
+
+        .pillar-card {
+          min-width: 100px;
+          flex: 1;
+          max-width: 130px;
+          padding: 14px 10px;
+        }
+
+        .pillar-ganzhi {
+          font-size: 1.6rem;
+        }
+
+        .pillar-label {
+          font-size: 0.95rem;
+        }
+
+        .pillar-shishen {
+          font-size: 0.85rem;
+          padding: 3px 10px;
+        }
+
+        .canggan-box {
+          font-size: 0.9rem;
+          padding: 8px;
+        }
+
+        .nayin-text {
+          font-size: 0.85rem;
+        }
+
+        .yun-meta span {
+          color: #8b4513;
+          font-size: 1.25rem;
         }
 
         .dayun-item {
-            flex: 0 0 auto;
-            background: #fafafa;
-            border: 1px solid #e8e8e8;
-            border-radius: 8px;
-            padding: 10px 14px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            min-width: 80px;
-        }
-
-        .dayun-item:hover {
-            background: #f5f5f5;
-            border-color: #d4a574;
-        }
-
-        .dayun-item.active {
-            background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
-            color: white;
-            border-color: #f12711;
-            box-shadow: 0 4px 12px rgba(241, 39, 17, 0.3);
-            transform: translateY(-2px);
+          min-width: 95px;
+          padding: 14px 16px;
         }
 
         .dayun-ganzhi {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #8B4513;
-            margin-bottom: 2px;
-        }
-
-        .dayun-item.active .dayun-ganzhi {
-            color: white;
+          font-size: 1.35rem;
         }
 
         .dayun-shishen {
-            font-size: 0.9rem;
-            background: #f0f0f0;
-            padding: 1px 6px;
-            border-radius: 8px;
-            color: #666;
-            display: inline-block;
-            margin-bottom: 4px;
-        }
-
-        .dayun-item.active .dayun-shishen {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
+          font-size: 0.95rem;
+          padding: 3px 10px;
         }
 
         .dayun-age {
-            font-size: 0.85rem;
-            color: #666;
-        }
-
-        .dayun-item.active .dayun-age {
-            color: rgba(255, 255, 255, 0.95);
+          font-size: 0.95rem;
         }
 
         .liunian-item {
-            flex: 0 0 auto;
-            background: #fafafa;
-            border: 1px solid #e8e8e8;
-            border-radius: 8px;
-            padding: 8px 12px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            min-width: 70px;
-        }
-
-        .liunian-item:hover {
-            background: #f5f5f5;
-            border-color: #d4a574;
-        }
-
-        .liunian-item.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #764ba2;
-            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
-            transform: translateY(-2px);
+          min-width: 85px;
+          padding: 12px 14px;
         }
 
         .liunian-ganzhi {
-            font-size: 1.3rem;
-            font-weight: 700;
-            color: #8B4513;
-            margin-bottom: 2px;
-        }
-
-        .liunian-item.active .liunian-ganzhi {
-            color: white;
+          font-size: 1.25rem;
         }
 
         .liunian-shishen {
-            font-size: 0.9rem;
-            background: #f0f0f0;
-            padding: 1px 4px;
-            border-radius: 6px;
-            color: #666;
-            display: inline-block;
-            margin-bottom: 2px;
+          font-size: 0.9rem;
+          padding: 3px 8px;
         }
 
-        .liunian-item.active .liunian-shishen {
-            background: rgba(255, 255, 255, 0.25);
-            color: white;
-        }
-
-        .liunian-year {
-            font-size: 0.85rem;
-            color: #888;
-        }
-
+        .liunian-year,
         .liunian-sui {
-            font-size: 0.85rem;
-            color: #888;
-        }
-
-        .liunian-item.active .liunian-year,
-        .liunian-item.active .liunian-sui {
-            color: rgba(255, 255, 255, 0.95);
+          font-size: 0.9rem;
         }
 
         .liuyue-item {
-            flex: 0 0 auto;
-            background: #fafafa;
-            border: 1px solid #e8e8e8;
-            border-radius: 6px;
-            padding: 6px 10px;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: center;
-            min-width: 60px;
-        }
-
-        .liuyue-item:hover {
-            background: #f5f5f5;
-            border-color: #d4a574;
-        }
-
-        .liuyue-item.active {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border-color: #764ba2;
-            box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
-            transform: translateY(-2px);
-        }
-
-        .liuyue-month {
-            font-size: 0.8rem;
-            color: #888;
-            margin-bottom: 2px;
-        }
-
-        .liuyue-item.active .liuyue-month {
-            color: rgba(255, 255, 255, 0.95);
+          min-width: 75px;
+          padding: 10px 14px;
         }
 
         .liuyue-ganzhi {
-            font-size: 1.3rem;
-            font-weight: 600;
-            color: #333;
+          font-size: 1.15rem;
         }
 
-        .liuyue-item.active .liuyue-ganzhi {
-            color: white;
-        }
-
+        .liuyue-month,
         .liuyue-shishen {
-            font-size: 0.85rem;
-            color: #8B4513;
-            margin-top: 1px;
+          font-size: 0.9rem;
+        }
+      }
+
+      /* 超小屏幕手机适配 (小于 480px) */
+      @media (max-width: 480px) {
+        body {
+          font-size: 16px;
         }
 
-        .liuyue-item.active .liuyue-shishen {
-            color: rgba(255, 255, 255, 0.9);
+        .info-label {
+          font-size: 0.95rem;
         }
 
-        /* 平板端适配 (768px - 1024px) */
-        @media (max-width: 1024px) {
-            .main-container {
-                grid-template-columns: 1fr;
-            }
-
-            .control-sidebar {
-                border-right: none;
-                border-bottom: 1px solid #e0e0e0;
-                max-height: none;
-                padding: 20px;
-            }
-
-            body {
-                font-size: 16px;
-            }
-
-            .calendar-title {
-                font-size: 1.1rem;
-            }
-
-            .section-title {
-                font-size: 1.1rem;
-            }
-
-            .form-label {
-                font-size: 0.9rem;
-            }
-
-            .form-select {
-                font-size: 1rem;
-                padding: 10px;
-            }
-
-            .tips-box {
-                font-size: 0.9rem;
-                padding: 12px;
-            }
-
-            .pillar-card {
-                min-width: 110px;
-                padding: 10px;
-            }
-
-            .pillar-ganzhi {
-                font-size: 1.5rem;
-            }
+        .info-value {
+          font-size: 1.05rem;
         }
 
-        /* 手机端适配 (小于 768px) - 动态三柱显示在四柱下方 */
-        @media (max-width: 768px) {
-            body {
-                font-size: 18px;
-            }
-
-            .header h1 {
-                font-size: 1.4rem;
-            }
-
-            .header .subtitle {
-                font-size: 1rem;
-            }
-
-            .content-area {
-                padding: 16px;
-            }
-
-            .info-bar {
-                flex-direction: column;
-                gap: 10px;
-                padding: 14px;
-            }
-
-            .info-item {
-                justify-content: space-between;
-                width: 100%;
-            }
-
-            .info-label {
-                font-size: 1.1rem;
-            }
-
-            .info-value {
-                font-size: 1.15rem;
-            }
-
-            .yun-header {
-                flex-direction: column;
-                align-items: flex-start;
-                gap: 8px;
-            }
-
-            .yun-header-main {
-                flex-direction: column;
-                gap: 6px;
-            }
-
-            .yun-header h2 {
-                font-size: 1.2rem;
-            }
-
-            .yun-meta {
-                font-size: 1rem;
-            }
-
-            .yun-subtitle {
-                font-size: 0.95rem;
-            }
-
-            .control-sidebar {
-                padding: 20px;
-            }
-
-            .calendar-title {
-                font-size: 1.2rem;
-            }
-
-            .nav-btn {
-                width: 32px;
-                height: 32px;
-                font-size: 1rem;
-            }
-
-            .today-btn {
-                font-size: 0.95rem;
-                padding: 8px 14px;
-            }
-
-            .ym-select {
-                font-size: 1rem;
-                padding: 10px 8px;
-            }
-
-            .weekday-header {
-                font-size: 1rem;
-                padding: 10px 0;
-            }
-
-            .calendar-day {
-                font-size: 1.15rem;
-                min-height: 48px;
-            }
-
-            .lunar-date {
-                font-size: 0.85rem;
-                transform: scale(0.9);
-            }
-
-            .section-title {
-                font-size: 1.15rem;
-            }
-
-            .form-label {
-                font-size: 0.95rem;
-            }
-
-            .form-select {
-                font-size: 1.05rem;
-                padding: 12px;
-            }
-
-            .late-zi-title {
-                font-size: 0.95rem;
-            }
-
-            .radio-item {
-                font-size: 1rem;
-            }
-
-            .tips-box {
-                font-size: 0.95rem;
-                padding: 12px;
-            }
-            /* 弹窗 */
-              .modal-title {
-            font-size: 1.8rem;
-            }
-
-            .modal-close {
-                font-size: 1.8rem;
-            }
-
-            .modal-body {
-                font-size: 1.6rem;
-            }
-
-            /* 手机端：四柱和动态柱垂直排列 */
-            .pillars-container {
-                flex-direction: column;
-                gap: 16px;
-            }
-
-            .sizhu-group {
-                justify-content: center;
-                width: 100%;
-            }
-
-            .pillars-divider {
-                width: 100%;
-                height: 2px;
-                margin: 8px 0;
-                background: linear-gradient(90deg, transparent 0%, #d4a574 50%, transparent 100%);
-            }
-
-            .dynamic-group {
-                justify-content: center;
-                width: 100%;
-            }
-
-            .pillar-card {
-                min-width: 100px;
-                flex: 1;
-                max-width: 130px;
-                padding: 14px 10px;
-            }
-
-            .pillar-ganzhi {
-                font-size: 1.6rem;
-            }
-
-            .pillar-label {
-                font-size: 0.95rem;
-            }
-
-            .pillar-shishen {
-                font-size: 0.85rem;
-                padding: 3px 10px;
-            }
-
-            .canggan-box {
-                font-size: 0.9rem;
-                padding: 8px;
-            }
-
-            .nayin-text {
-                font-size: 0.85rem;
-            }
-
-            .yun-meta span {
-                color: #8B4513;
-                font-size: 1.25rem;
-            }
-
-            .dayun-item {
-                min-width: 95px;
-                padding: 14px 16px;
-            }
-
-            .dayun-ganzhi {
-                font-size: 1.35rem;
-            }
-
-            .dayun-shishen {
-                font-size: 0.95rem;
-                padding: 3px 10px;
-            }
-
-            .dayun-age {
-                font-size: 0.95rem;
-            }
-
-            .liunian-item {
-                min-width: 85px;
-                padding: 12px 14px;
-            }
-
-            .liunian-ganzhi {
-                font-size: 1.25rem;
-            }
-
-            .liunian-shishen {
-                font-size: 0.9rem;
-                padding: 3px 8px;
-            }
-
-            .liunian-year,
-            .liunian-sui {
-                font-size: 0.9rem;
-            }
-
-            .liuyue-item {
-                min-width: 75px;
-                padding: 10px 14px;
-            }
-
-            .liuyue-ganzhi {
-                font-size: 1.15rem;
-            }
-
-            .liuyue-month,
-            .liuyue-shishen {
-                font-size: 0.9rem;
-            }
+        .weekday-header {
+          font-size: 0.9rem;
         }
 
-        /* 超小屏幕手机适配 (小于 480px) */
-        @media (max-width: 480px) {
-            body {
-                font-size: 16px;
-            }
-
-            .info-label {
-                font-size: 0.95rem;
-            }
-
-            .info-value {
-                font-size: 1.05rem;
-            }
-
-            .weekday-header {
-                font-size: 0.9rem;
-            }
-
-            .calendar-day {
-                font-size: 1rem;
-                min-height: 42px;
-            }
-
-            .lunar-date {
-                font-size: 0.75rem;
-            }
-
-            .pillar-card {
-                min-width: 85px;
-                padding: 12px 8px;
-            }
-
-            .pillar-ganzhi {
-                font-size: 1.4rem;
-            }
-
-            .dayun-item {
-                min-width: 85px;
-                padding: 12px 14px;
-            }
-
-            .liunian-item {
-                min-width: 78px;
-                padding: 10px 12px;
-            }
-
-            .liuyue-item {
-                min-width: 68px;
-                padding: 8px 12px;
-            }
+        .calendar-day {
+          font-size: 1rem;
+          min-height: 42px;
         }
 
-        ::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
+        .lunar-date {
+          font-size: 0.75rem;
         }
 
-        ::-webkit-scrollbar-track {
-            background: #f1f1f1;
-            border-radius: 3px;
+        .pillar-card {
+          min-width: 85px;
+          padding: 12px 8px;
         }
 
-        ::-webkit-scrollbar-thumb {
-            background: #c1c1c1;
-            border-radius: 3px;
+        .pillar-ganzhi {
+          font-size: 1.4rem;
         }
 
-        ::-webkit-scrollbar-thumb:hover {
-            background: #a1a1a1;
+        .dayun-item {
+          min-width: 85px;
+          padding: 12px 14px;
         }
 
-        .dayun-scroll::-webkit-scrollbar,
-        .liunian-scroll::-webkit-scrollbar,
-        .liuyue-scroll::-webkit-scrollbar,
-        .pillars-container::-webkit-scrollbar {
-            height: 4px;
+        .liunian-item {
+          min-width: 78px;
+          padding: 10px 12px;
         }
+
+        .liuyue-item {
+          min-width: 68px;
+          padding: 8px 12px;
+        }
+      }
+
+      ::-webkit-scrollbar {
+        width: 6px;
+        height: 6px;
+      }
+
+      ::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+      }
+
+      ::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+      }
+
+      ::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a1;
+      }
+
+      .dayun-scroll::-webkit-scrollbar,
+      .liunian-scroll::-webkit-scrollbar,
+      .liuyue-scroll::-webkit-scrollbar,
+      .pillars-container::-webkit-scrollbar {
+        height: 4px;
+      }
     </style>
-    </head>
-    <body>
-        <div class="header">
-            <h1>八字命理排盘系统</h1>
-            <div class="subtitle">专业命理分析工具</div>
-        </div>
-        <div class="main-container">
-            <div class="control-sidebar">
-                <div class="calendar-section">
-                    <div class="calendar-header">
-                        <div class="calendar-title">选择出生日期</div>
-                        <div style="display: flex; align-items: center;">
-                            <div class="calendar-nav">
-                                <button class="nav-btn"
-                                    onclick="changeMonth(-1)">‹</button>
-                                <button class="nav-btn"
-                                    onclick="changeMonth(1)">›</button>
-                            </div>
-                            <button class="today-btn"
-                                onclick="goToToday()">今天</button>
-                        </div>
-                    </div>
-                    <div class="ym-selector">
-                        <select class="ym-select" id="yearSelect"
-                            onchange="onYearMonthChange()">
-                        </select>
-                        <select class="ym-select" id="monthSelect"
-                            onchange="onYearMonthChange()">
-                            <option value="0">1月</option>
-                            <option value="1">2月</option>
-                            <option value="2">3月</option>
-                            <option value="3">4月</option>
-                            <option value="4">5月</option>
-                            <option value="5">6月</option>
-                            <option value="6">7月</option>
-                            <option value="7">8月</option>
-                            <option value="8">9月</option>
-                            <option value="9">10月</option>
-                            <option value="10">11月</option>
-                            <option value="11">12月</option>
-                        </select>
-                    </div>
-                    <div class="calendar-grid" id="calendarGrid"></div>
-                </div>
-                <div class="time-section">
-                    <div class="section-title">⏰ 出生时间</div>
-                    <div class="form-row">
-                        <label class="form-label">时辰选择</label>
-                        <select class="form-select" id="hourSelect"
-                            onchange="onHourChange()">
-                            <option value="0">子时 23:00-00:59</option>
-                            <option value="1">丑时 01:00-02:59</option>
-                            <option value="2">寅时 03:00-04:59</option>
-                            <option value="3">卯时 05:00-06:59</option>
-                            <option value="4">辰时 07:00-08:59</option>
-                            <option value="5">巳时 09:00-10:59</option>
-                            <option value="6">午时 11:00-12:59</option>
-                            <option value="7">未时 13:00-14:59</option>
-                            <option value="8">申时 15:00-16:59</option>
-                            <option value="9">酉时 17:00-18:59</option>
-                            <option value="10">戌时 19:00-20:59</option>
-                            <option value="11">亥时 21:00-22:59</option>
-                        </select>
-                    </div>
-                    <div class="form-row">
-                        <label class="form-label">性别</label>
-                        <select class="form-select" id="genderSelect"
-                            onchange="renderAll()">
-                            <option value="1">乾造 (男)</option>
-                            <option value="0">坤造 (女)</option>
-                        </select>
-                    </div>
-                    <div class="late-zi-options" id="lateZiBox"
-                        style="display: none;">
-                        <div class="late-zi-title">晚子时设置 (23:00-00:00)</div>
-                        <div class="radio-group">
-                            <label class="radio-item">
-                                <input type="radio" name="lateZiType"
-                                    value="next" checked onChange="renderAll()">
-                                <span>日柱算明天</span> </label>
-                            <label class="radio-item">
-                                <input type="radio" name="lateZiType"
-                                    value="same" onChange="renderAll()">
-                                <span>日柱算当天</span> </label>
-                        </div>
-                    </div>
-                    <div class="tips-box"> 💡 点击日历选择日期自动排盘<br>
-                        💡 23:00-00:00为晚子时，可设置日柱归属<br>
-                        💡 点击大运/流年/流月卡片可切换上方显示 </div>
-                </div>
+  </head>
+  <body>
+    <div class="header">
+      <h1>八字命理排盘系统</h1>
+      <div class="subtitle">专业命理分析工具</div>
+    </div>
+    <div class="main-container">
+      <div class="control-sidebar">
+        <div class="calendar-section">
+          <div class="calendar-header">
+            <div class="calendar-title">选择出生日期</div>
+            <div style="display: flex; align-items: center">
+              <div class="calendar-nav">
+                <button class="nav-btn"
+                  onclick="changeMonth(-1)">‹</button>
+                <button class="nav-btn"
+                  onclick="changeMonth(1)">›</button>
+              </div>
+              <button class="today-btn"
+                onclick="goToToday()">今天</button>
             </div>
-            <div class="content-area">
-                <div class="info-bar">
-                    <div class="info-item"><span class="info-label">命造：
-                        </span><span class="info-value highlight"
-                            id="genderText">乾造</span></div>
-                    <div class="info-item"><span
-                            class="info-label">公历：</span><span
-                            class="info-value"
-                            id="solarDate">—</span></div>
-                    <div class="info-item"><span
-                            class="info-label">农历：</span><span
-                            class="info-value"
-                            id="lunarDate">—</span></div>
-                    <div class="info-item"><span
-                            class="info-label">生肖：</span><span
-                            class="info-value highlight"
-                            id="shengxiao">—</span></div>
-                    <div class="info-item"><span
-                            class="info-label">当月节气：</span><span
-                            class="info-value"
-                            id="jqInfo">—</span></div>
-                </div>
-                <div class="sizhu-section">
-                    <div class="section-header">
-                        <h2>🌲 四柱八字 & 当前运势</h2>
-                        <span class="tag" id="rizhuTag">日主：—</span> </div>
-                    <div class="pillars-container" id="pillarsContainer">
-                        <div
-                            style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">请选择出生日期</div>
-                    </div>
-                </div>
-                <div class="yun-section">
-                    <div class="yun-header">
-                        <div class="yun-header-main">
-                            <h2>⚡ 大运</h2>
-                            <div class="yun-meta" id="dayunMeta">起运：<span
-                                    id="qiyunText">—</span> · 交运：<span
-                                    id="jiaoyunText">—</span></div>
-                        </div>
-                        <span class="yun-subtitle">点击选择大运查看流年</span> </div>
-                    <div class="dayun-scroll">
-                        <div class="dayun-row" id="dayunContainer">
-                            <div
-                                style="color: #999; padding: 10px;">等待排盘...</div>
-                        </div>
-                    </div>
-                    <div class="yun-header">
-                        <div class="yun-header-main">
-                            <h2>📆 流年</h2>
-                            <div class="yun-meta"
-                                id="currentDayunLabel">请先选择大运</div>
-                        </div>
-                        <span class="yun-subtitle">点击选择流年查看流月</span> </div>
-                    <div class="liunian-scroll">
-                        <div class="liunian-row" id="liunianContainer">
-                            <div style="color: #999; padding: 10px;">—</div>
-                        </div>
-                    </div>
-                    <div class="yun-header">
-                        <div class="yun-header-main">
-                            <h2>🌙 流月</h2>
-                            <div class="yun-meta"
-                                id="currentLiunianLabel">请先选择流年</div>
-                        </div>
-                    </div>
-                    <div class="liuyue-scroll">
-                        <div class="liuyue-row" id="liuyueContainer">
-                            <div style="color: #999; padding: 10px;">—</div>
-                        </div>
-                    </div>
-                </div>
-            </div>
+          </div>
+          <div class="ym-selector">
+            <select
+              class="ym-select"
+              id="yearSelect"
+              onchange="onYearMonthChange()"></select>
+            <select
+              class="ym-select"
+              id="monthSelect"
+              onchange="onYearMonthChange()">
+              <option value="0">1月</option>
+              <option value="1">2月</option>
+              <option value="2">3月</option>
+              <option value="3">4月</option>
+              <option value="4">5月</option>
+              <option value="5">6月</option>
+              <option value="6">7月</option>
+              <option value="7">8月</option>
+              <option value="8">9月</option>
+              <option value="9">10月</option>
+              <option value="10">11月</option>
+              <option value="11">12月</option>
+            </select>
+          </div>
+          <div class="calendar-grid" id="calendarGrid"></div>
         </div>
-        <script>
-        // let currentBazi = null; // 存储当前八字
-        let currentMingli = null; // 存储当前四柱和大运流年流月七组干支
-        let tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-        let wuxingMap = { '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土', '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水', '寅': '木', '卯': '木', '巳': '火', '午': '火', '辰': '土', '戌': '土', '丑': '土', '未': '土', '申': '金', '酉': '金', '亥': '水', '子': '水' };
-        let cangGan = { '子': ['癸'], '丑': ['己', '癸', '辛'], '寅': ['甲', '丙', '戊'], '卯': ['乙'], '辰': ['戊', '乙', '癸'], '巳': ['丙', '庚', '戊'], '午': ['丁', '己'], '未': ['己', '丁', '乙'], '申': ['庚', '壬', '戊'], '酉': ['辛'], '戌': ['戊', '辛', '丁'], '亥': ['壬', '甲'] };
-        let dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-
-        if (typeof Lunar === 'undefined') {
-            document.body.innerHTML = '<div style="text-align:center;padding:50px;color:red;">错误：无法加载 lunar-javascript 库<br>请检查网络连接或CDN链接</div>';
-        } else {
-            // 十神计算
-            // const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-            // const wuxingMap = { '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土', '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水', '寅': '木', '卯': '木', '巳': '火', '午': '火', '辰': '土', '戌': '土', '丑': '土', '未': '土', '申': '金', '酉': '金', '亥': '水', '子': '水' };
-            // let cangGan = { '子': ['癸'], '丑': ['己', '癸', '辛'], '寅': ['甲', '丙', '戊'], '卯': ['乙'], '辰': ['戊', '乙', '癸'], '巳': ['丙', '庚', '戊'], '午': ['丁', '己'], '未': ['己', '丁', '乙'], '申': ['庚', '壬', '戊'], '酉': ['辛'], '戌': ['戊', '辛', '丁'], '亥': ['壬', '甲'] };
-
-            function getShiShen(riGan, targetGan) {
-                if (!riGan || !targetGan || riGan === targetGan) return '比肩';
-                const wRi = wuxingMap[riGan], wTarget = wuxingMap[targetGan];
-                const isYang = (gan) => tiangan.indexOf(gan) % 2 === 0;
-                const riYang = isYang(riGan), targetYang = isYang(targetGan);
-                if (wRi === wTarget) return riYang === targetYang ? '比肩' : '劫财';
-                if ((wRi === '木' && wTarget === '火') || (wRi === '火' && wTarget === '土') || (wRi === '土' && wTarget === '金') || (wRi === '金' && wTarget === '水') || (wRi === '水' && wTarget === '木')) return riYang === targetYang ? '食神' : '伤官';
-                if ((wRi === '木' && wTarget === '土') || (wRi === '火' && wTarget === '金') || (wRi === '土' && wTarget === '水') || (wRi === '金' && wTarget === '木') || (wRi === '水' && wTarget === '火')) return riYang === targetYang ? '偏财' : '正财';
-                if ((wRi === '木' && wTarget === '金') || (wRi === '火' && wTarget === '水') || (wRi === '土' && wTarget === '木') || (wRi === '金' && wTarget === '火') || (wRi === '水' && wTarget === '土')) return riYang === targetYang ? '七杀' : '正官';
-                return riYang === targetYang ? '偏印' : '正印';
-            }
-
-            // 状态管理
-            let displayYear = new Date().getFullYear();
-            let displayMonth = new Date().getMonth();
-            let selectedYear = displayYear;
-            let selectedMonth = displayMonth;
-            let selectedDay = new Date().getDate();
-            const today = new Date();
-
-            let currentDayunIndex = 0, currentLiunianIndex = -1, currentLiuyueIndex = -1;
-            let riGan = '', yunObj = null, daYunList = [];
-            let currentLiuNianList = [], currentLiuYueList = [];
-            let currentBazi = null; // 存储当前八字
-            let currentEightChar = null; // 存储当前EightChar对象
-
-            const yearSelect = document.getElementById('yearSelect');
-            const monthSelect = document.getElementById('monthSelect');
-            const hourSelect = document.getElementById('hourSelect');
-            const genderSelect = document.getElementById('genderSelect');
-            const lateZiBox = document.getElementById('lateZiBox');
-
-            function initYearSelect() {
-                let html = '';
-                for (let y = 2100; y >= 1900; y--) {
-                    html += `<option value="${y}" ${y === displayYear ? 'selected' : ''}>${y}年</option>`;
-                }
-                yearSelect.innerHTML = html;
-                monthSelect.value = displayMonth;
-            }
-
-            function onYearMonthChange() {
-                displayYear = parseInt(yearSelect.value);
-                displayMonth = parseInt(monthSelect.value);
-                selectedYear = displayYear;
-                selectedMonth = displayMonth;
-                const maxDay = new Date(displayYear, displayMonth + 1, 0).getDate();
-                selectedDay = Math.min(selectedDay, maxDay);
-                renderCalendar();
-                renderAll();
-            }
-
-            function goToToday() {
-                const now = new Date();
-                displayYear = now.getFullYear();
-                displayMonth = now.getMonth();
-                selectedYear = displayYear;
-                selectedMonth = displayMonth;
-                selectedDay = now.getDate();
-
-                yearSelect.value = displayYear;
-                monthSelect.value = displayMonth;
-
-                const currentShiChen = getCurrentShiChenIndex();
-                hourSelect.value = currentShiChen;
-
-                if (currentShiChen === 0) {
-                    lateZiBox.style.display = 'block';
-                } else {
-                    lateZiBox.style.display = 'none';
-                }
-
-                renderCalendar();
-                renderAll();
-            }
-
-            function createBeijingDate(year, month, day, hour = 12, minute = 0) {
-                const utcTime = Date.UTC(year, month - 1, day, hour - 8, minute);
-                return new Date(utcTime);
-            }
-
-            function renderCalendar() {
-                yearSelect.value = displayYear;
-                monthSelect.value = displayMonth;
-
-                const firstDay = new Date(displayYear, displayMonth, 1);
-                const lastDay = new Date(displayYear, displayMonth + 1, 0);
-                const startPadding = firstDay.getDay();
-                const grid = document.getElementById('calendarGrid');
-                grid.innerHTML = '';
-
-                const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
-                weekdays.forEach(day => {
-                    const header = document.createElement('div');
-                    header.className = 'weekday-header';
-                    header.textContent = day;
-                    grid.appendChild(header);
-                });
-
-                const prevMonthLastDay = new Date(displayYear, displayMonth, 0).getDate();
-                for (let i = startPadding - 1; i >= 0; i--) {
-                    const dayDiv = document.createElement('div');
-                    dayDiv.className = 'calendar-day other-month';
-                    dayDiv.innerHTML = `<div>${prevMonthLastDay - i}</div>`;
-                    grid.appendChild(dayDiv);
-                }
-
-                for (let i = 1; i <= lastDay.getDate(); i++) {
-                    const dayDiv = document.createElement('div');
-                    dayDiv.className = 'calendar-day';
-                    if (displayYear === today.getFullYear() && displayMonth === today.getMonth() && i === today.getDate()) dayDiv.classList.add('today');
-                    if (displayYear === selectedYear && displayMonth === selectedMonth && i === selectedDay) dayDiv.classList.add('selected');
-
-                    try {
-                        const beijingDate = createBeijingDate(displayYear, displayMonth + 1, i);
-                        const lunar = Lunar.fromDate(beijingDate);
-                        const lunarDay = lunar.getDayInChinese();
-                        dayDiv.innerHTML = `<div>${i}</div><div class="lunar-date">${lunarDay}</div>`;
-                    } catch (e) {
-                        dayDiv.innerHTML = `<div>${i}</div>`;
-                    }
-
-                    dayDiv.onclick = () => {
-                        selectedYear = displayYear;
-                        selectedMonth = displayMonth;
-                        selectedDay = i;
-                        renderCalendar();
-                        renderAll();
-                    };
-                    grid.appendChild(dayDiv);
-                }
-
-                const remaining = (7 - ((startPadding + lastDay.getDate()) % 7)) % 7;
-                for (let i = 1; i <= remaining; i++) {
-                    const dayDiv = document.createElement('div');
-                    dayDiv.className = 'calendar-day other-month';
-                    dayDiv.innerHTML = `<div>${i}</div>`;
-                    grid.appendChild(dayDiv);
-                }
-            }
-
-            function changeMonth(delta) {
-                const newDate = new Date(displayYear, displayMonth + delta, 1);
-                displayYear = newDate.getFullYear();
-                displayMonth = newDate.getMonth();
-                selectedYear = displayYear;
-                selectedMonth = displayMonth;
-                selectedDay = Math.min(selectedDay, new Date(displayYear, displayMonth + 1, 0).getDate());
-                renderCalendar();
-                renderAll();
-            }
-
-            function onHourChange() {
-                lateZiBox.style.display = parseInt(hourSelect.value) === 0 ? 'block' : 'none';
-                renderAll();
-            }
-
-            function renderAll() {
-                try {
-                    let year = selectedYear;
-                    let month = selectedMonth + 1;
-                    let day = selectedDay;
-
-                    const hourIndex = parseInt(hourSelect.value);
-                    const isLateZi = (hourIndex === 0);
-                    let lateZiType = 'next';
-                    if (isLateZi) {
-                        const radios = document.getElementsByName('lateZiType');
-                        for (let radio of radios) if (radio.checked) { lateZiType = radio.value; break; }
-                    }
-
-                    let hour = isLateZi ? 23 : hourIndex * 2 - 1;
-                    let minute = 30;
-
-                    let calcYear = year;
-                    let calcMonth = month;
-                    let calcDay = day;
-
-                    if (isLateZi && lateZiType === 'next' && hourSelect.value == 0) {
-                        const nextDate = new Date(year, month - 1, day + 1);
-                        calcYear = nextDate.getFullYear();
-                        calcMonth = nextDate.getMonth() + 1;
-                        calcDay = nextDate.getDate();
-                    }
-
-                    const beijingDate = createBeijingDate(calcYear, calcMonth, calcDay, hour, minute);
-                    const lunar = Lunar.fromDate(beijingDate);
-                    const eightChar = lunar.getEightChar();
-
-                    // 保存当前八字数据
-                    currentEightChar = eightChar;
-                    currentBazi = [eightChar.getYear(), eightChar.getMonth(), eightChar.getDay(), eightChar.getTime()];
-                    riGan = currentBazi[2].charAt(0);
-
-                    nianKong = lunar.getYearXunKongExact()
-                    riKong = lunar.getDayXunKong()
-
-                    document.getElementById('genderText').innerText = parseInt(genderSelect.value) === 1 ? '乾造 (男)' : '坤造 (女)';
-                    document.getElementById('solarDate').innerText = `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(minute).padStart(2, '0')}`;
-                    document.getElementById('lunarDate').innerText = lunar.toString();
-                    document.getElementById('shengxiao').innerText = lunar.getYearShengXiao();
-                    document.getElementById('jqInfo').innerText = (lunar.getJie() || '—') + ' / ' + (lunar.getQi() || '—');
-                    document.getElementById('rizhuTag').innerText = '年空：' + nianKong + ' 日空：' + riKong;
-
-                    // 初始渲染四柱（动态三柱会在大运计算后更新）
-                    renderPillars();
-
-                    const birthBeijingDate = createBeijingDate(year, month, day, hour, minute);
-                    const birthLunar = Lunar.fromDate(birthBeijingDate);
-                    const birthEightChar = birthLunar.getEightChar();
-                    yunObj = birthEightChar.getYun(parseInt(genderSelect.value));
-
-                    const startSolar = yunObj.getStartSolar();
-                    document.getElementById('qiyunText').innerText = yunObj.getStartYear() + '岁' + (yunObj.getStartMonth() > 0 ? yunObj.getStartMonth() + '个月' : '');
-                    document.getElementById('jiaoyunText').innerText = `${startSolar.getYear()}-${String(startSolar.getMonth()).padStart(2, '0')}-${String(startSolar.getDay()).padStart(2, '0')}`;
-
-                    daYunList = yunObj.getDaYun();
-
-                    // 找到当前所在的大运（根据当前日期）
-                    const now = new Date();
-                    currentDayunIndex = 0;
-                    for (let i = 0; i < daYunList.length; i++) {
-                        const dy = daYunList[i];
-                        const startYear = dy.getStartYear();
-                        const endYear = dy.getEndYear();
-                        if (now.getFullYear() >= startYear && now.getFullYear() <= endYear) {
-                            currentDayunIndex = i;
-                            break;
-                        }
-                    }
-                    // 下面的两行原来都是0
-                    currentLiunianIndex = -1;
-                    currentLiuyueIndex = -1;
-                    renderDaYun();
-                    
-                } catch (e) {
-                    console.error('排盘错误:', e);
-                    document.getElementById('pillarsContainer').innerHTML = `<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">日期有误，请重选<br>${e.message}</div>`;
-                }
-            }
-
-            function renderPillars() {
-                let dygz =null;
-                let liuniangz = null;
-                let liuyuegz = null;
-
-
-                if (!currentBazi || !currentEightChar) {
-                    document.getElementById('pillarsContainer').innerHTML = '<div style="text-align: center; color: #999; padding: 40px;">请选择出生日期</div>';
-                    return;
-                }
-
-                const pillars = ['年柱', '月柱', '日柱', '时柱'];
-                const naYins = [currentEightChar.getYearNaYin(), currentEightChar.getMonthNaYin(), currentEightChar.getDayNaYin(), currentEightChar.getTimeNaYin()];
-
-                // 获取当前选中的大运、流年、流月
-                let dayunGanZhi = '', liunianGanZhi = '', liuyueGanZhi = '';
-                let dayunNaYin = '', liunianNaYin = '', liuyueNaYin = '';
-
-                if (daYunList && daYunList[currentDayunIndex]) {
-                    dayunGanZhi = daYunList[currentDayunIndex].getGanZhi();
-                    dayunNaYin = getNaYin(dayunGanZhi);
-                }
-
-                if (currentLiuNianList && currentLiuNianList[currentLiunianIndex]) {
-                    liunianGanZhi = currentLiuNianList[currentLiunianIndex].getGanZhi();
-                    liunianNaYin = getNaYin(liunianGanZhi);
-                }
-
-                if (currentLiuYueList && currentLiuYueList[currentLiuyueIndex]) {
-                    liuyueGanZhi = currentLiuYueList[currentLiuyueIndex].getGanZhi();
-                    liuyueNaYin = getNaYin(liuyueGanZhi);
-                }
-
-                dygz = dayunGanZhi;
-                liuniangz = liunianGanZhi;
-                liuyuegz = liuyueGanZhi;    
-
-                let html = '<div class="sizhu-group">';
-
-                // 四柱
-                currentBazi.forEach((gz, idx) => {
-                    // console.log(gz + '|' + idx)
-                    const gan = gz.charAt(0), zhi = gz.charAt(1);
-                    const cangList = cangGan[zhi] || [];
-                    const ganShiShen = getShiShen(riGan, gan);
-                    const cangHtml = cangList.length > 0 ? `<div class="canggan-box">${cangList.map(c => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + '</span>').join('<br> ')}</div>` : '';
-                    html += `<div class="pillar-card"><div class="pillar-label">${pillars[idx]}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${gz}', ${idx})">${gz}</div>${cangHtml}<div class="nayin-text">${naYins[idx]}</div></div>`;
-                });
-
-                html += '</div>';
-
-                // 分隔线
-                html += '<div class="pillars-divider"></div>';
-
-                // 动态三柱（大运、流年、流月）
-                html += '<div class="dynamic-group">';
-
-                // 大运柱
-                if (dayunGanZhi) {
-                    const gan = dayunGanZhi.charAt(0), zhi = dayunGanZhi.charAt(1);
-                    const cangList = cangGan[zhi] || [];
-                    const ganShiShen = getShiShen(riGan, gan);
-                    const cangHtml = cangList.length > 0 ? `<div class="canggan-box">${cangList.map(c => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + '</span>').join('<br> ')}</div>` : '';
-                    const dy = daYunList[currentDayunIndex];
-                    const ageInfo = dy ? `${dy.getStartAge()}-${dy.getEndAge()}岁` : '';
-                    let idx = 4;
-                    html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span style="font-size:0.7rem;opacity:0.8;">${ageInfo}</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${dayunGanZhi}', ${idx})">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text">${dayunNaYin}</div></div>`;
-                } else {
-                    html += `<div class="pillar-card dynamic"><div class="pillar-label">大运</div><div class="pillar-ganzhi">—</div></div>`;
-                }
-
-                // 流年柱
-                if (liunianGanZhi) {
-                    const gan = liunianGanZhi.charAt(0), zhi = liunianGanZhi.charAt(1);
-                    const cangList = cangGan[zhi] || [];
-                    const ganShiShen = getShiShen(riGan, gan);
-                    const cangHtml = cangList.length > 0 ? `<div class="canggan-box">${cangList.map(c => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + '</span>').join('<br> ')}</div>` : '';
-                    const year = currentLiuNianList[currentLiunianIndex] ? currentLiuNianList[currentLiunianIndex].getYear() : '';
-                    const idx = 5;
-                    html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span style="font-size:0.7rem;opacity:0.8;">${year}年</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liunianGanZhi}', ${idx})">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text">${liunianNaYin}</div></div>`;
-                } else {
-                    html += `<div class="pillar-card dynamic"><div class="pillar-label">流年</div><div class="pillar-ganzhi">—</div></div>`;
-                }
-
-                // 流月柱
-                if (liuyueGanZhi) {
-                    const gan = liuyueGanZhi.charAt(0), zhi = liuyueGanZhi.charAt(1);
-                    const cangList = cangGan[zhi] || [];
-                    const ganShiShen = getShiShen(riGan, gan);
-                    const cangHtml = cangList.length > 0 ? `<div class="canggan-box">${cangList.map(c => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + '</span>').join('<br> ')}</div>` : '';
-                    const months = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '冬月', '腊月'];
-                    const monthName = months[currentLiuyueIndex] || '';
-                    const idx = 6;
-                    html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liuyueGanZhi}', ${idx})">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text">${liuyueNaYin}</div></div>`;
-                } else {
-                    html += `<div class="pillar-card dynamic"><div class="pillar-label">流月</div><div class="pillar-ganzhi">—</div></div>`;
-                }
-
-                html += '</div>';
-                currentMingli = [currentBazi[0], currentBazi[1], currentBazi[2], currentBazi[3],dygz,liuniangz,liuyuegz];
-
-
-                document.getElementById('pillarsContainer').innerHTML = html;
-            }
-
-            // 简化的纳音计算
-            function getNaYin(ganzhi) {
-                const naYinMap = {
-                    '甲子': '海中金', '乙丑': '海中金', '丙寅': '炉中火', '丁卯': '炉中火',
-                    '戊辰': '大林木', '己巳': '大林木', '庚午': '路旁土', '辛未': '路旁土',
-                    '壬申': '剑锋金', '癸酉': '剑锋金', '甲戌': '山头火', '乙亥': '山头火',
-                    '丙子': '涧下水', '丁丑': '涧下水', '戊寅': '城头土', '己卯': '城头土',
-                    '庚辰': '白蜡金', '辛巳': '白蜡金', '壬午': '杨柳木', '癸未': '杨柳木',
-                    '甲申': '泉中水', '乙酉': '泉中水', '丙戌': '屋上土', '丁亥': '屋上土',
-                    '戊子': '霹雳火', '己丑': '霹雳火', '庚寅': '松柏木', '辛卯': '松柏木',
-                    '壬辰': '长流水', '癸巳': '长流水', '甲午': '砂中金', '乙未': '砂中金',
-                    '丙申': '山下火', '丁酉': '山下火', '戊戌': '平地木', '己亥': '平地木',
-                    '庚子': '壁上土', '辛丑': '壁上土', '壬寅': '金箔金', '癸卯': '金箔金',
-                    '甲辰': '覆灯火', '乙巳': '覆灯火', '丙午': '天河水', '丁未': '天河水',
-                    '戊申': '大驿土', '己酉': '大驿土', '庚戌': '钗钏金', '辛亥': '钗钏金',
-                    '壬子': '桑柘木', '癸丑': '桑柘木', '甲寅': '大溪水', '乙卯': '大溪水',
-                    '丙辰': '沙中土', '丁巳': '沙中土', '戊午': '天上火', '己未': '天上火',
-                    '庚申': '石榴木', '辛酉': '石榴木', '壬戌': '大海水', '癸亥': '大海水'
-                };
-                return naYinMap[ganzhi] || '—';
-            }
-
-            function renderDaYun() {
-                if (!daYunList?.length) {
-                    document.getElementById('dayunContainer').innerHTML = '<div style="color: #999; padding: 10px;">无大运数据</div>';
-                    renderPillars(); // 更新动态三柱显示
-                    return;
-                }
-                let html = '';
-                daYunList.forEach((dy, index) => {
-                    let ganzhi = dy.getGanZhi();
-                    if (ganzhi===''){ganzhi='.'}
-                    // html += `<div class="dayun-item ${index === currentDayunIndex ? 'active' : ''}" onclick="selectDayun(${index})"><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
-                    html += `<div class="dayun-item ${index === currentDayunIndex ? 'active' : ''}" onclick="selectDayun(${index})"><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
-                });
-                document.getElementById('dayunContainer').innerHTML = html;
-                renderLiuNian();
-            }
-
-            function selectDayun(index) {
-                currentDayunIndex = index;
-                currentLiunianIndex = -1;  // 重置为-1，让renderLiuNian自动查找当前年份
-                currentLiuyueIndex = -1;   // 重置为-1，让renderLiuYue自动查找当前月份
-                renderDaYun();
-            }
-
-
-            function selectDayunFromPillar() {
-                // 点击大运柱时，滚动到当前大运并高亮
-                const container = document.querySelector('.dayun-scroll');
-                const activeItem = document.querySelector('.dayun-item.active');
-                if (activeItem && container) {
-                    activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                }
-            }
-
-            function renderLiuNian() {
-                if (!daYunList?.length || currentDayunIndex >= daYunList.length) {
-                    document.getElementById('liunianContainer').innerHTML = '<div style="color: #999; padding: 10px;">无流年数据</div>';
-                    currentLiuNianList = [];
-                    renderPillars(); // 更新动态三柱显示
-                    return;
-                }
-                const currentDaYun = daYunList[currentDayunIndex];
-                currentLiuNianList = currentDaYun.getLiuNian();
-
-                document.getElementById('currentDayunLabel').innerText = '当前大运：' + currentDaYun.getGanZhi();
-
-                if (!currentLiuNianList?.length) {
-                    document.getElementById('liunianContainer').innerHTML = '<div style="color: #999; padding: 10px;">无流年数据</div>';
-                    renderPillars(); // 更新动态三柱显示
-                    return;
-                }
-
-                // 找到当前年份所在的流年索引
-                // 只在初始化时（currentLiunianIndex === -1）自动查找当前年份
-                const currentYear = new Date().getFullYear();
-                if (currentLiunianIndex === -1) {
-                    currentLiunianIndex = 0;
-                    for (let i = 0; i < currentLiuNianList.length; i++) {
-                        if (currentLiuNianList[i].getYear() === currentYear) {
-                            currentLiunianIndex = i;
-                            break;
-                        }
-                    }
-
-                }
-
-
-                let html = '';
-                currentLiuNianList.forEach((ln, idx) => {
-                    const ganzhi = ln.getGanZhi();
-                    const sui = currentDaYun.getStartAge() + idx;
-                    // html += `<div class="liunian-item ${idx === currentLiunianIndex ? 'active' : ''}" onclick="selectLiunian(${idx})"><div class="liunian-ganzhi">${ganzhi}</div><div class="liunian-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liunian-year">${ln.getYear()}年</div><div class="liunian-sui">${sui}岁</div></div>`;
-                    html += `<div class="liunian-item ${idx === currentLiunianIndex ? 'active' : ''}" onclick="selectLiunian(${idx})"><div class="liunian-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liunian-ganzhi">${ganzhi}</div><div class="liunian-year">${ln.getYear()}年</div><div class="liunian-sui">${sui}岁</div></div>`;
-                });
-                document.getElementById('liunianContainer').innerHTML = html;
-                renderLiuYue();
-            }
-
-            function selectLiunian(index) {
-                currentLiunianIndex = index;
-                currentLiuyueIndex = -1;   // 重置为-1，让renderLiuYue自动查找当前月份
-                renderLiuNian();
-            }
-
-
-            function selectLiunianFromPillar() {
-                const container = document.querySelector('.liunian-scroll');
-                const activeItem = document.querySelector('.liunian-item.active');
-                if (activeItem && container) {
-                    activeItem.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
-                }
-            }
-
-            function renderLiuYue() {
-                if (!currentLiuNianList || currentLiunianIndex >= currentLiuNianList.length) {
-                    document.getElementById('liuyueContainer').innerHTML = '<div style="color: #999; padding: 10px;">无流月数据</div>';
-                    currentLiuYueList = [];
-                    renderPillars(); // 更新动态三柱显示
-                    return;
-                }
-
-                const currentLiuNian = currentLiuNianList[currentLiunianIndex];
-                currentLiuYueList = currentLiuNian.getLiuYue();
-                document.getElementById('currentLiunianLabel').innerText = '当前流年：' + currentLiuNian.getGanZhi() + ' (' + currentLiuNian.getYear() + '年)';
-
-                if (!currentLiuYueList?.length) {
-                    document.getElementById('liuyueContainer').innerHTML = '<div style="color: #999; padding: 10px;">无流月数据</div>';
-                    renderPillars(); // 更新动态三柱显示
-                    return;
-                }
-
-                // 找到当前月份所在的流月索引
-                // 只在初始化时（currentLiuyueIndex === -1）自动查找当前月份
-                const currentMonth = new Date().getMonth() - 1;
-                // console.log(currentMonth);
-                if (currentLiuyueIndex === -1) {
-                    currentLiuyueIndex = currentMonth;
-                }
-
-
-                const months = ['正月', '二月', '三月', '四月', '五月', '六月', '七月', '八月', '九月', '十月', '冬月', '腊月'];
-                let html = '';
-                currentLiuYueList.forEach((ly, idx) => {
-                    const ganzhi = ly.getGanZhi();
-                    // html += `<div class="liuyue-item ${idx === currentLiuyueIndex ? 'active' : ''}" onclick="selectLiuyue(${idx})"><div class="liuyue-month">${months[idx]}</div><div class="liuyue-ganzhi">${ganzhi}</div><div class="liuyue-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div></div>`;
-                    html += `<div class="liuyue-item ${idx === currentLiuyueIndex ? 'active' : ''}" onclick="selectLiuyue(${idx})"><div class="liuyue-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liuyue-ganzhi">${ganzhi}</div><div class="liuyue-month">${months[idx]}</div></div>`;
-                });
-                document.getElementById('liuyueContainer').innerHTML = html;
-
-                // 最后更新动态三柱显示
-                renderPillars();
-            }
-
-            function selectLiuyue(index) {
-                currentLiuyueIndex = index;
-                // console.log(currentLiuyueIndex);
-                renderLiuYue();
-            }
-
-
-            // 暴露全局函数
-            window.changeMonth = changeMonth;
-            window.renderAll = renderAll;
-            window.onHourChange = onHourChange;
-            window.onYearMonthChange = onYearMonthChange;
-            window.selectDayun = selectDayun;
-            window.selectDayunFromPillar = selectDayunFromPillar;
-            window.selectLiunian = selectLiunian;
-            window.selectLiunianFromPillar = selectLiunianFromPillar;
-            window.selectLiuyue = selectLiuyue;
-            window.goToToday = goToToday;
-
-            function getCurrentShiChenIndex() {
-                const hour = new Date().getHours();
-                if (hour === 23) return 0;
-                return Math.floor((hour + 1) / 2) % 12;
-            }
-
-            // 初始化
-            initYearSelect();
-            renderCalendar();
-
-            const currentShiChen = getCurrentShiChenIndex();
-            hourSelect.value = currentShiChen;
-
-            if (currentShiChen === 0) {
-                lateZiBox.style.display = 'block';
-            }
-
-            renderAll();
+        <div class="time-section">
+          <div class="section-title">⏰ 出生时间</div>
+          <div class="form-row">
+            <label class="form-label">时辰选择</label>
+            <select
+              class="form-select"
+              id="hourSelect"
+              onchange="onHourChange()">
+              <option value="0">子时 23:00-00:59</option>
+              <option value="1">丑时 01:00-02:59</option>
+              <option value="2">寅时 03:00-04:59</option>
+              <option value="3">卯时 05:00-06:59</option>
+              <option value="4">辰时 07:00-08:59</option>
+              <option value="5">巳时 09:00-10:59</option>
+              <option value="6">午时 11:00-12:59</option>
+              <option value="7">未时 13:00-14:59</option>
+              <option value="8">申时 15:00-16:59</option>
+              <option value="9">酉时 17:00-18:59</option>
+              <option value="10">戌时 19:00-20:59</option>
+              <option value="11">亥时 21:00-22:59</option>
+            </select>
+          </div>
+          <div class="form-row">
+            <label class="form-label">性别</label>
+            <select
+              class="form-select"
+              id="genderSelect"
+              onchange="renderAll()">
+              <option value="1">乾造 (男)</option>
+              <option value="0">坤造 (女)</option>
+            </select>
+          </div>
+          <div class="late-zi-options" id="lateZiBox"
+            style="display: none">
+            <div class="late-zi-title">晚子时设置 (23:00-00:00)</div>
+            <div class="radio-group">
+              <label class="radio-item">
+                <input
+                  type="radio"
+                  name="lateZiType"
+                  value="next"
+                  checked
+                  onChange="renderAll()" />
+                <span>日柱算明天</span>
+              </label>
+              <label class="radio-item">
+                <input
+                  type="radio"
+                  name="lateZiType"
+                  value="same"
+                  onChange="renderAll()" />
+                <span>日柱算当天</span>
+              </label>
+            </div>
+          </div>
+          <div class="tips-box">
+            💡 点击日历选择日期自动排盘<br />
+            💡 23:00-00:00为晚子时，可设置日柱归属<br />
+            💡 点击大运/流年/流月卡片可切换上方显示
+          </div>
+        </div>
+      </div>
+      <div class="content-area">
+        <div class="info-bar">
+          <div class="info-item">
+            <span class="info-label">命造： </span><span
+              class="info-value highlight"
+              id="genderText">乾造</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">公历：</span><span
+              class="info-value" id="solarDate">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">农历：</span><span
+              class="info-value" id="lunarDate">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">生肖：</span><span
+              class="info-value highlight" id="shengxiao">—</span>
+          </div>
+          <div class="info-item">
+            <span class="info-label">当月节气：</span><span
+              class="info-value" id="jqInfo">—</span>
+          </div>
+        </div>
+        <div class="sizhu-section">
+          <div class="section-header">
+            <h2>🌲 四柱八字 & 当前运势</h2>
+            <span class="tag" id="rizhuTag">日主：—</span>
+          </div>
+          <div class="pillars-container" id="pillarsContainer">
+            <div
+              style="
+                grid-column: 1/-1;
+                text-align: center;
+                color: #999;
+                padding: 40px;
+              ">
+              请选择出生日期
+            </div>
+          </div>
+        </div>
+        <div class="yun-section">
+          <div class="yun-header">
+            <div class="yun-header-main">
+              <h2>⚡ 大运</h2>
+              <div class="yun-meta" id="dayunMeta">
+                起运：<span id="qiyunText">—</span> · 交运：<span
+                  id="jiaoyunText">—</span>
+              </div>
+            </div>
+            <span class="yun-subtitle">点击选择大运查看流年</span>
+          </div>
+          <div class="dayun-scroll">
+            <div class="dayun-row" id="dayunContainer">
+              <div
+                style="color: #999; padding: 10px">等待排盘...</div>
+            </div>
+          </div>
+          <div class="yun-header">
+            <div class="yun-header-main">
+              <h2>📆 流年</h2>
+              <div class="yun-meta"
+                id="currentDayunLabel">请先选择大运</div>
+            </div>
+            <span class="yun-subtitle">点击选择流年查看流月</span>
+          </div>
+          <div class="liunian-scroll">
+            <div class="liunian-row" id="liunianContainer">
+              <div style="color: #999; padding: 10px">—</div>
+            </div>
+          </div>
+          <div class="yun-header">
+            <div class="yun-header-main">
+              <h2>🌙 流月</h2>
+              <div class="yun-meta"
+                id="currentLiunianLabel">请先选择流年</div>
+            </div>
+          </div>
+          <div class="liuyue-scroll">
+            <div class="liuyue-row" id="liuyueContainer">
+              <div style="color: #999; padding: 10px">—</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <script>
+      // let currentBazi = null; // 存储当前八字
+      let currentMingli = null; // 存储当前四柱和大运流年流月七组干支
+      let tiangan = [
+        "甲",
+        "乙",
+        "丙",
+        "丁",
+        "戊",
+        "己",
+        "庚",
+        "辛",
+        "壬",
+        "癸",
+      ];
+      let wuxingMap = {
+        甲: "木",
+        乙: "木",
+        丙: "火",
+        丁: "火",
+        戊: "土",
+        己: "土",
+        庚: "金",
+        辛: "金",
+        壬: "水",
+        癸: "水",
+        寅: "木",
+        卯: "木",
+        巳: "火",
+        午: "火",
+        辰: "土",
+        戌: "土",
+        丑: "土",
+        未: "土",
+        申: "金",
+        酉: "金",
+        亥: "水",
+        子: "水",
+      };
+      let cangGan = {
+        子: ["癸"],
+        丑: ["己", "癸", "辛"],
+        寅: ["甲", "丙", "戊"],
+        卯: ["乙"],
+        辰: ["戊", "乙", "癸"],
+        巳: ["丙", "庚", "戊"],
+        午: ["丁", "己"],
+        未: ["己", "丁", "乙"],
+        申: ["庚", "壬", "戊"],
+        酉: ["辛"],
+        戌: ["戊", "辛", "丁"],
+        亥: ["壬", "甲"],
+      };
+      let dizhi = [
+        "子",
+        "丑",
+        "寅",
+        "卯",
+        "辰",
+        "巳",
+        "午",
+        "未",
+        "申",
+        "酉",
+        "戌",
+        "亥",
+      ];
+
+      if (typeof Lunar === "undefined") {
+        document.body.innerHTML =
+          '<div style="text-align:center;padding:50px;color:red;">错误：无法加载 lunar-javascript 库<br>请检查网络连接或CDN链接</div>';
+      } else {
+        // 十神计算
+        // const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+        // const wuxingMap = { '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土', '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水', '寅': '木', '卯': '木', '巳': '火', '午': '火', '辰': '土', '戌': '土', '丑': '土', '未': '土', '申': '金', '酉': '金', '亥': '水', '子': '水' };
+        // let cangGan = { '子': ['癸'], '丑': ['己', '癸', '辛'], '寅': ['甲', '丙', '戊'], '卯': ['乙'], '辰': ['戊', '乙', '癸'], '巳': ['丙', '庚', '戊'], '午': ['丁', '己'], '未': ['己', '丁', '乙'], '申': ['庚', '壬', '戊'], '酉': ['辛'], '戌': ['戊', '辛', '丁'], '亥': ['壬', '甲'] };
+
+        function getShiShen(riGan, targetGan) {
+          if (!riGan || !targetGan || riGan === targetGan) return "比肩";
+          const wRi = wuxingMap[riGan],
+            wTarget = wuxingMap[targetGan];
+          const isYang = (gan) => tiangan.indexOf(gan) % 2 === 0;
+          const riYang = isYang(riGan),
+            targetYang = isYang(targetGan);
+          if (wRi === wTarget) return riYang === targetYang ? "比肩" : "劫财";
+          if (
+            (wRi === "木" && wTarget === "火") ||
+            (wRi === "火" && wTarget === "土") ||
+            (wRi === "土" && wTarget === "金") ||
+            (wRi === "金" && wTarget === "水") ||
+            (wRi === "水" && wTarget === "木")
+          )
+            return riYang === targetYang ? "食神" : "伤官";
+          if (
+            (wRi === "木" && wTarget === "土") ||
+            (wRi === "火" && wTarget === "金") ||
+            (wRi === "土" && wTarget === "水") ||
+            (wRi === "金" && wTarget === "木") ||
+            (wRi === "水" && wTarget === "火")
+          )
+            return riYang === targetYang ? "偏财" : "正财";
+          if (
+            (wRi === "木" && wTarget === "金") ||
+            (wRi === "火" && wTarget === "水") ||
+            (wRi === "土" && wTarget === "木") ||
+            (wRi === "金" && wTarget === "火") ||
+            (wRi === "水" && wTarget === "土")
+          )
+            return riYang === targetYang ? "七杀" : "正官";
+          return riYang === targetYang ? "偏印" : "正印";
         }
 
+        // 状态管理
+        let displayYear = new Date().getFullYear();
+        let displayMonth = new Date().getMonth();
+        let selectedYear = displayYear;
+        let selectedMonth = displayMonth;
+        let selectedDay = new Date().getDate();
+        const today = new Date();
 
+        let currentDayunIndex = 0,
+          currentLiunianIndex = -1,
+          currentLiuyueIndex = -1;
+        let riGan = "",
+          yunObj = null,
+          daYunList = [];
+        let currentLiuNianList = [],
+          currentLiuYueList = [];
+        let currentBazi = null; // 存储当前八字
+        let currentEightChar = null; // 存储当前EightChar对象
+
+        const yearSelect = document.getElementById("yearSelect");
+        const monthSelect = document.getElementById("monthSelect");
+        const hourSelect = document.getElementById("hourSelect");
+        const genderSelect = document.getElementById("genderSelect");
+        const lateZiBox = document.getElementById("lateZiBox");
+
+        function initYearSelect() {
+          let html = "";
+          for (let y = 2100; y >= 1900; y--) {
+            html += `<option value="${y}" ${y === displayYear ? "selected" : ""}>${y}年</option>`;
+          }
+          yearSelect.innerHTML = html;
+          monthSelect.value = displayMonth;
+        }
+
+        function onYearMonthChange() {
+          displayYear = parseInt(yearSelect.value);
+          displayMonth = parseInt(monthSelect.value);
+          selectedYear = displayYear;
+          selectedMonth = displayMonth;
+          const maxDay = new Date(displayYear, displayMonth + 1, 0).getDate();
+          selectedDay = Math.min(selectedDay, maxDay);
+          renderCalendar();
+          renderAll();
+        }
+
+        function goToToday() {
+          const now = new Date();
+          displayYear = now.getFullYear();
+          displayMonth = now.getMonth();
+          selectedYear = displayYear;
+          selectedMonth = displayMonth;
+          selectedDay = now.getDate();
+
+          yearSelect.value = displayYear;
+          monthSelect.value = displayMonth;
+
+          const currentShiChen = getCurrentShiChenIndex();
+          hourSelect.value = currentShiChen;
+
+          if (currentShiChen === 0) {
+            lateZiBox.style.display = "block";
+          } else {
+            lateZiBox.style.display = "none";
+          }
+
+          renderCalendar();
+          renderAll();
+        }
+
+        function createBeijingDate(year, month, day, hour = 12, minute = 0) {
+          const utcTime = Date.UTC(year, month - 1, day, hour - 8, minute);
+          return new Date(utcTime);
+        }
+
+        function renderCalendar() {
+          yearSelect.value = displayYear;
+          monthSelect.value = displayMonth;
+
+          const firstDay = new Date(displayYear, displayMonth, 1);
+          const lastDay = new Date(displayYear, displayMonth + 1, 0);
+          const startPadding = firstDay.getDay();
+          const grid = document.getElementById("calendarGrid");
+          grid.innerHTML = "";
+
+          const weekdays = ["日", "一", "二", "三", "四", "五", "六"];
+          weekdays.forEach((day) => {
+            const header = document.createElement("div");
+            header.className = "weekday-header";
+            header.textContent = day;
+            grid.appendChild(header);
+          });
+
+          const prevMonthLastDay = new Date(
+            displayYear,
+            displayMonth,
+            0,
+          ).getDate();
+          for (let i = startPadding - 1; i >= 0; i--) {
+            const dayDiv = document.createElement("div");
+            dayDiv.className = "calendar-day other-month";
+            dayDiv.innerHTML = `<div>${prevMonthLastDay - i}</div>`;
+            grid.appendChild(dayDiv);
+          }
+
+          for (let i = 1; i <= lastDay.getDate(); i++) {
+            const dayDiv = document.createElement("div");
+            dayDiv.className = "calendar-day";
+            if (
+              displayYear === today.getFullYear() &&
+              displayMonth === today.getMonth() &&
+              i === today.getDate()
+            )
+              dayDiv.classList.add("today");
+            if (
+              displayYear === selectedYear &&
+              displayMonth === selectedMonth &&
+              i === selectedDay
+            )
+              dayDiv.classList.add("selected");
+
+            try {
+              const beijingDate = createBeijingDate(
+                displayYear,
+                displayMonth + 1,
+                i,
+              );
+              const lunar = Lunar.fromDate(beijingDate);
+              const lunarDay = lunar.getDayInChinese();
+              dayDiv.innerHTML = `<div>${i}</div><div class="lunar-date">${lunarDay}</div>`;
+            } catch (e) {
+              dayDiv.innerHTML = `<div>${i}</div>`;
+            }
+
+            dayDiv.onclick = () => {
+              selectedYear = displayYear;
+              selectedMonth = displayMonth;
+              selectedDay = i;
+              renderCalendar();
+              renderAll();
+            };
+            grid.appendChild(dayDiv);
+          }
+
+          const remaining = (7 - ((startPadding + lastDay.getDate()) % 7)) % 7;
+          for (let i = 1; i <= remaining; i++) {
+            const dayDiv = document.createElement("div");
+            dayDiv.className = "calendar-day other-month";
+            dayDiv.innerHTML = `<div>${i}</div>`;
+            grid.appendChild(dayDiv);
+          }
+        }
+
+        function changeMonth(delta) {
+          const newDate = new Date(displayYear, displayMonth + delta, 1);
+          displayYear = newDate.getFullYear();
+          displayMonth = newDate.getMonth();
+          selectedYear = displayYear;
+          selectedMonth = displayMonth;
+          selectedDay = Math.min(
+            selectedDay,
+            new Date(displayYear, displayMonth + 1, 0).getDate(),
+          );
+          renderCalendar();
+          renderAll();
+        }
+
+        function onHourChange() {
+          lateZiBox.style.display =
+            parseInt(hourSelect.value) === 0 ? "block" : "none";
+          renderAll();
+        }
+
+        function renderAll() {
+          try {
+            let year = selectedYear;
+            let month = selectedMonth + 1;
+            let day = selectedDay;
+
+            const hourIndex = parseInt(hourSelect.value);
+            const isLateZi = hourIndex === 0;
+            let lateZiType = "next";
+            if (isLateZi) {
+              const radios = document.getElementsByName("lateZiType");
+              for (let radio of radios)
+                if (radio.checked) {
+                  lateZiType = radio.value;
+                  break;
+                }
+            }
+
+            let hour = isLateZi ? 23 : hourIndex * 2 - 1;
+            let minute = 30;
+
+            let calcYear = year;
+            let calcMonth = month;
+            let calcDay = day;
+
+            if (isLateZi && lateZiType === "next" && hourSelect.value == 0) {
+              const nextDate = new Date(year, month - 1, day + 1);
+              calcYear = nextDate.getFullYear();
+              calcMonth = nextDate.getMonth() + 1;
+              calcDay = nextDate.getDate();
+            }
+
+            const beijingDate = createBeijingDate(
+              calcYear,
+              calcMonth,
+              calcDay,
+              hour,
+              minute,
+            );
+            const lunar = Lunar.fromDate(beijingDate);
+            const eightChar = lunar.getEightChar();
+
+            // 保存当前八字数据
+            currentEightChar = eightChar;
+            currentBazi = [
+              eightChar.getYear(),
+              eightChar.getMonth(),
+              eightChar.getDay(),
+              eightChar.getTime(),
+            ];
+            riGan = currentBazi[2].charAt(0);
+
+            nianKong = lunar.getYearXunKongExact();
+            riKong = lunar.getDayXunKong();
+
+            document.getElementById("genderText").innerText =
+              parseInt(genderSelect.value) === 1 ? "乾造 (男)" : "坤造 (女)";
+            document.getElementById("solarDate").innerText =
+              `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
+            document.getElementById("lunarDate").innerText = lunar.toString();
+            document.getElementById("shengxiao").innerText =
+              lunar.getYearShengXiao();
+            document.getElementById("jqInfo").innerText =
+              (lunar.getJie() || "—") + " / " + (lunar.getQi() || "—");
+            document.getElementById("rizhuTag").innerText =
+              "年空：" + nianKong + " 日空：" + riKong;
+
+            // 初始渲染四柱（动态三柱会在大运计算后更新）
+            renderPillars();
+
+            const birthBeijingDate = createBeijingDate(
+              year,
+              month,
+              day,
+              hour,
+              minute,
+            );
+            const birthLunar = Lunar.fromDate(birthBeijingDate);
+            const birthEightChar = birthLunar.getEightChar();
+            yunObj = birthEightChar.getYun(parseInt(genderSelect.value));
+
+            const startSolar = yunObj.getStartSolar();
+            document.getElementById("qiyunText").innerText =
+              yunObj.getStartYear() +
+              "岁" +
+              (yunObj.getStartMonth() > 0
+                ? yunObj.getStartMonth() + "个月"
+                : "");
+            document.getElementById("jiaoyunText").innerText =
+              `${startSolar.getYear()}-${String(startSolar.getMonth()).padStart(2, "0")}-${String(startSolar.getDay()).padStart(2, "0")}`;
+
+            daYunList = yunObj.getDaYun();
+
+            // 找到当前所在的大运（根据当前日期）
+            const now = new Date();
+            currentDayunIndex = 0;
+            for (let i = 0; i < daYunList.length; i++) {
+              const dy = daYunList[i];
+              const startYear = dy.getStartYear();
+              const endYear = dy.getEndYear();
+              if (
+                now.getFullYear() >= startYear &&
+                now.getFullYear() <= endYear
+              ) {
+                currentDayunIndex = i;
+                break;
+              }
+            }
+            // 下面的两行原来都是0
+            currentLiunianIndex = -1;
+            currentLiuyueIndex = -1;
+            renderDaYun();
+          } catch (e) {
+            console.error("排盘错误:", e);
+            document.getElementById("pillarsContainer").innerHTML =
+              `<div style="grid-column: 1/-1; text-align: center; color: #999; padding: 40px;">日期有误，请重选<br>${e.message}</div>`;
+          }
+        }
+
+        function renderPillars() {
+          let dygz = null;
+          let liuniangz = null;
+          let liuyuegz = null;
+
+          if (!currentBazi || !currentEightChar) {
+            document.getElementById("pillarsContainer").innerHTML =
+              '<div style="text-align: center; color: #999; padding: 40px;">请选择出生日期</div>';
+            return;
+          }
+
+          const pillars = ["年柱", "月柱", "日柱", "时柱"];
+          const naYins = [
+            currentEightChar.getYearNaYin(),
+            currentEightChar.getMonthNaYin(),
+            currentEightChar.getDayNaYin(),
+            currentEightChar.getTimeNaYin(),
+          ];
+
+          // 获取当前选中的大运、流年、流月
+          let dayunGanZhi = "",
+            liunianGanZhi = "",
+            liuyueGanZhi = "";
+          let dayunNaYin = "",
+            liunianNaYin = "",
+            liuyueNaYin = "";
+
+          if (daYunList && daYunList[currentDayunIndex]) {
+            dayunGanZhi = daYunList[currentDayunIndex].getGanZhi();
+            dayunNaYin = getNaYin(dayunGanZhi);
+          }
+
+          if (currentLiuNianList && currentLiuNianList[currentLiunianIndex]) {
+            liunianGanZhi = currentLiuNianList[currentLiunianIndex].getGanZhi();
+            liunianNaYin = getNaYin(liunianGanZhi);
+          }
+
+          if (currentLiuYueList && currentLiuYueList[currentLiuyueIndex]) {
+            liuyueGanZhi = currentLiuYueList[currentLiuyueIndex].getGanZhi();
+            liuyueNaYin = getNaYin(liuyueGanZhi);
+          }
+
+          dygz = dayunGanZhi;
+          liuniangz = liunianGanZhi;
+          liuyuegz = liuyueGanZhi;
+
+          let html = '<div class="sizhu-group">';
+
+          // 四柱
+          currentBazi.forEach((gz, idx) => {
+            // console.log(gz + '|' + idx)
+            const gan = gz.charAt(0),
+              zhi = gz.charAt(1);
+            const cangList = cangGan[zhi] || [];
+            const ganShiShen = getShiShen(riGan, gan);
+            const cangHtml =
+              cangList.length > 0
+                ? `<div class="canggan-box">${cangList.map((c) => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                : "";
+            html += `<div class="pillar-card"><div class="pillar-label">${pillars[idx]}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${gz}', ${idx})">${gz}</div>${cangHtml}<div class="nayin-text">${naYins[idx]}</div></div>`;
+          });
+
+          html += "</div>";
+
+          // 分隔线
+          html += '<div class="pillars-divider"></div>';
+
+          // 动态三柱（大运、流年、流月）
+          html += '<div class="dynamic-group">';
+
+          // 大运柱
+          if (dayunGanZhi) {
+            const gan = dayunGanZhi.charAt(0),
+              zhi = dayunGanZhi.charAt(1);
+            const cangList = cangGan[zhi] || [];
+            const ganShiShen = getShiShen(riGan, gan);
+            const cangHtml =
+              cangList.length > 0
+                ? `<div class="canggan-box">${cangList.map((c) => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                : "";
+            const dy = daYunList[currentDayunIndex];
+            const ageInfo = dy ? `${dy.getStartAge()}-${dy.getEndAge()}岁` : "";
+            let idx = 4;
+            html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span style="font-size:0.7rem;opacity:0.8;">${ageInfo}</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${dayunGanZhi}', ${idx})">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text">${dayunNaYin}</div></div>`;
+          } else {
+            html += `<div class="pillar-card dynamic"><div class="pillar-label">大运</div><div class="pillar-ganzhi">—</div></div>`;
+          }
+
+          // 流年柱
+          if (liunianGanZhi) {
+            const gan = liunianGanZhi.charAt(0),
+              zhi = liunianGanZhi.charAt(1);
+            const cangList = cangGan[zhi] || [];
+            const ganShiShen = getShiShen(riGan, gan);
+            const cangHtml =
+              cangList.length > 0
+                ? `<div class="canggan-box">${cangList.map((c) => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                : "";
+            const year = currentLiuNianList[currentLiunianIndex]
+              ? currentLiuNianList[currentLiunianIndex].getYear()
+              : "";
+            const idx = 5;
+            html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span style="font-size:0.7rem;opacity:0.8;">${year}年</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liunianGanZhi}', ${idx})">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text">${liunianNaYin}</div></div>`;
+          } else {
+            html += `<div class="pillar-card dynamic"><div class="pillar-label">流年</div><div class="pillar-ganzhi">—</div></div>`;
+          }
+
+          // 流月柱
+          if (liuyueGanZhi) {
+            const gan = liuyueGanZhi.charAt(0),
+              zhi = liuyueGanZhi.charAt(1);
+            const cangList = cangGan[zhi] || [];
+            const ganShiShen = getShiShen(riGan, gan);
+            const cangHtml =
+              cangList.length > 0
+                ? `<div class="canggan-box">${cangList.map((c) => c + '<span style="font-size:0.75rem;color:#999;margin-left:2px;">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                : "";
+            const months = [
+              "正月",
+              "二月",
+              "三月",
+              "四月",
+              "五月",
+              "六月",
+              "七月",
+              "八月",
+              "九月",
+              "十月",
+              "冬月",
+              "腊月",
+            ];
+            const monthName = months[currentLiuyueIndex] || "";
+            const idx = 6;
+            html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liuyueGanZhi}', ${idx})">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text">${liuyueNaYin}</div></div>`;
+          } else {
+            html += `<div class="pillar-card dynamic"><div class="pillar-label">流月</div><div class="pillar-ganzhi">—</div></div>`;
+          }
+
+          html += "</div>";
+          currentMingli = [
+            currentBazi[0],
+            currentBazi[1],
+            currentBazi[2],
+            currentBazi[3],
+            dygz,
+            liuniangz,
+            liuyuegz,
+          ];
+
+          document.getElementById("pillarsContainer").innerHTML = html;
+        }
+
+        // 简化的纳音计算
+        function getNaYin(ganzhi) {
+          const naYinMap = {
+            甲子: "海中金",
+            乙丑: "海中金",
+            丙寅: "炉中火",
+            丁卯: "炉中火",
+            戊辰: "大林木",
+            己巳: "大林木",
+            庚午: "路旁土",
+            辛未: "路旁土",
+            壬申: "剑锋金",
+            癸酉: "剑锋金",
+            甲戌: "山头火",
+            乙亥: "山头火",
+            丙子: "涧下水",
+            丁丑: "涧下水",
+            戊寅: "城头土",
+            己卯: "城头土",
+            庚辰: "白蜡金",
+            辛巳: "白蜡金",
+            壬午: "杨柳木",
+            癸未: "杨柳木",
+            甲申: "泉中水",
+            乙酉: "泉中水",
+            丙戌: "屋上土",
+            丁亥: "屋上土",
+            戊子: "霹雳火",
+            己丑: "霹雳火",
+            庚寅: "松柏木",
+            辛卯: "松柏木",
+            壬辰: "长流水",
+            癸巳: "长流水",
+            甲午: "砂中金",
+            乙未: "砂中金",
+            丙申: "山下火",
+            丁酉: "山下火",
+            戊戌: "平地木",
+            己亥: "平地木",
+            庚子: "壁上土",
+            辛丑: "壁上土",
+            壬寅: "金箔金",
+            癸卯: "金箔金",
+            甲辰: "覆灯火",
+            乙巳: "覆灯火",
+            丙午: "天河水",
+            丁未: "天河水",
+            戊申: "大驿土",
+            己酉: "大驿土",
+            庚戌: "钗钏金",
+            辛亥: "钗钏金",
+            壬子: "桑柘木",
+            癸丑: "桑柘木",
+            甲寅: "大溪水",
+            乙卯: "大溪水",
+            丙辰: "沙中土",
+            丁巳: "沙中土",
+            戊午: "天上火",
+            己未: "天上火",
+            庚申: "石榴木",
+            辛酉: "石榴木",
+            壬戌: "大海水",
+            癸亥: "大海水",
+          };
+          return naYinMap[ganzhi] || "—";
+        }
+
+        function renderDaYun() {
+          if (!daYunList?.length) {
+            document.getElementById("dayunContainer").innerHTML =
+              '<div style="color: #999; padding: 10px;">无大运数据</div>';
+            renderPillars(); // 更新动态三柱显示
+            return;
+          }
+          let html = "";
+          daYunList.forEach((dy, index) => {
+            let ganzhi = dy.getGanZhi();
+            if (ganzhi === "") {
+              ganzhi = ".";
+            }
+            // html += `<div class="dayun-item ${index === currentDayunIndex ? 'active' : ''}" onclick="selectDayun(${index})"><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
+            html += `<div class="dayun-item ${index === currentDayunIndex ? "active" : ""}" onclick="selectDayun(${index})"><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
+          });
+          document.getElementById("dayunContainer").innerHTML = html;
+          renderLiuNian();
+        }
+
+        function selectDayun(index) {
+          currentDayunIndex = index;
+          currentLiunianIndex = -1; // 重置为-1，让renderLiuNian自动查找当前年份
+          currentLiuyueIndex = -1; // 重置为-1，让renderLiuYue自动查找当前月份
+          renderDaYun();
+        }
+
+        function selectDayunFromPillar() {
+          // 点击大运柱时，滚动到当前大运并高亮
+          const container = document.querySelector(".dayun-scroll");
+          const activeItem = document.querySelector(".dayun-item.active");
+          if (activeItem && container) {
+            activeItem.scrollIntoView({
+              behavior: "smooth",
+              inline: "center",
+              block: "nearest",
+            });
+          }
+        }
+
+        function renderLiuNian() {
+          if (!daYunList?.length || currentDayunIndex >= daYunList.length) {
+            document.getElementById("liunianContainer").innerHTML =
+              '<div style="color: #999; padding: 10px;">无流年数据</div>';
+            currentLiuNianList = [];
+            renderPillars(); // 更新动态三柱显示
+            return;
+          }
+          const currentDaYun = daYunList[currentDayunIndex];
+          currentLiuNianList = currentDaYun.getLiuNian();
+
+          document.getElementById("currentDayunLabel").innerText =
+            "当前大运：" + currentDaYun.getGanZhi();
+
+          if (!currentLiuNianList?.length) {
+            document.getElementById("liunianContainer").innerHTML =
+              '<div style="color: #999; padding: 10px;">无流年数据</div>';
+            renderPillars(); // 更新动态三柱显示
+            return;
+          }
+
+          // 找到当前年份所在的流年索引
+          // 只在初始化时（currentLiunianIndex === -1）自动查找当前年份
+          const currentYear = new Date().getFullYear();
+          if (currentLiunianIndex === -1) {
+            currentLiunianIndex = 0;
+            for (let i = 0; i < currentLiuNianList.length; i++) {
+              if (currentLiuNianList[i].getYear() === currentYear) {
+                currentLiunianIndex = i;
+                break;
+              }
+            }
+          }
+
+          let html = "";
+          currentLiuNianList.forEach((ln, idx) => {
+            const ganzhi = ln.getGanZhi();
+            const sui = currentDaYun.getStartAge() + idx;
+            // html += `<div class="liunian-item ${idx === currentLiunianIndex ? 'active' : ''}" onclick="selectLiunian(${idx})"><div class="liunian-ganzhi">${ganzhi}</div><div class="liunian-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liunian-year">${ln.getYear()}年</div><div class="liunian-sui">${sui}岁</div></div>`;
+            html += `<div class="liunian-item ${idx === currentLiunianIndex ? "active" : ""}" onclick="selectLiunian(${idx})"><div class="liunian-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liunian-ganzhi">${ganzhi}</div><div class="liunian-year">${ln.getYear()}年</div><div class="liunian-sui">${sui}岁</div></div>`;
+          });
+          document.getElementById("liunianContainer").innerHTML = html;
+          renderLiuYue();
+        }
+
+        function selectLiunian(index) {
+          currentLiunianIndex = index;
+          currentLiuyueIndex = -1; // 重置为-1，让renderLiuYue自动查找当前月份
+          renderLiuNian();
+        }
+
+        function selectLiunianFromPillar() {
+          const container = document.querySelector(".liunian-scroll");
+          const activeItem = document.querySelector(".liunian-item.active");
+          if (activeItem && container) {
+            activeItem.scrollIntoView({
+              behavior: "smooth",
+              inline: "center",
+              block: "nearest",
+            });
+          }
+        }
+
+        function renderLiuYue() {
+          if (
+            !currentLiuNianList ||
+            currentLiunianIndex >= currentLiuNianList.length
+          ) {
+            document.getElementById("liuyueContainer").innerHTML =
+              '<div style="color: #999; padding: 10px;">无流月数据</div>';
+            currentLiuYueList = [];
+            renderPillars(); // 更新动态三柱显示
+            return;
+          }
+
+          const currentLiuNian = currentLiuNianList[currentLiunianIndex];
+          currentLiuYueList = currentLiuNian.getLiuYue();
+          document.getElementById("currentLiunianLabel").innerText =
+            "当前流年：" +
+            currentLiuNian.getGanZhi() +
+            " (" +
+            currentLiuNian.getYear() +
+            "年)";
+
+          if (!currentLiuYueList?.length) {
+            document.getElementById("liuyueContainer").innerHTML =
+              '<div style="color: #999; padding: 10px;">无流月数据</div>';
+            renderPillars(); // 更新动态三柱显示
+            return;
+          }
+
+          // 找到当前月份所在的流月索引
+          // 只在初始化时（currentLiuyueIndex === -1）自动查找当前月份
+          const currentMonth = new Date().getMonth() - 1;
+          // console.log(currentMonth);
+          if (currentLiuyueIndex === -1) {
+            currentLiuyueIndex = currentMonth;
+          }
+
+          const months = [
+            "正月",
+            "二月",
+            "三月",
+            "四月",
+            "五月",
+            "六月",
+            "七月",
+            "八月",
+            "九月",
+            "十月",
+            "冬月",
+            "腊月",
+          ];
+          let html = "";
+          currentLiuYueList.forEach((ly, idx) => {
+            const ganzhi = ly.getGanZhi();
+            // html += `<div class="liuyue-item ${idx === currentLiuyueIndex ? 'active' : ''}" onclick="selectLiuyue(${idx})"><div class="liuyue-month">${months[idx]}</div><div class="liuyue-ganzhi">${ganzhi}</div><div class="liuyue-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div></div>`;
+            html += `<div class="liuyue-item ${idx === currentLiuyueIndex ? "active" : ""}" onclick="selectLiuyue(${idx})"><div class="liuyue-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="liuyue-ganzhi">${ganzhi}</div><div class="liuyue-month">${months[idx]}</div></div>`;
+          });
+          document.getElementById("liuyueContainer").innerHTML = html;
+
+          // 最后更新动态三柱显示
+          renderPillars();
+        }
+
+        function selectLiuyue(index) {
+          currentLiuyueIndex = index;
+          // console.log(currentLiuyueIndex);
+          renderLiuYue();
+        }
+
+        // 暴露全局函数
+        window.changeMonth = changeMonth;
+        window.renderAll = renderAll;
+        window.onHourChange = onHourChange;
+        window.onYearMonthChange = onYearMonthChange;
+        window.selectDayun = selectDayun;
+        window.selectDayunFromPillar = selectDayunFromPillar;
+        window.selectLiunian = selectLiunian;
+        window.selectLiunianFromPillar = selectLiunianFromPillar;
+        window.selectLiuyue = selectLiuyue;
+        window.goToToday = goToToday;
+
+        function getCurrentShiChenIndex() {
+          const hour = new Date().getHours();
+          if (hour === 23) return 0;
+          return Math.floor((hour + 1) / 2) % 12;
+        }
+
+        // 初始化
+        initYearSelect();
+        renderCalendar();
+
+        const currentShiChen = getCurrentShiChenIndex();
+        hourSelect.value = currentShiChen;
+
+        if (currentShiChen === 0) {
+          lateZiBox.style.display = "block";
+        }
+
+        renderAll();
+      }
     </script>
-        <script>
-        // 索引从0开始
-        const pillars = ['年柱', '月柱', '日柱', '时柱', '大运', '流年', '流月'];
-        // const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-        // const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
-        // 日主喜忌
-        const rizhuxiji = {
-            "甲": "阳木，为大林之木。甲不离庚，最忌乙合庚。",
-            "乙": "小花小草，喜癸喜丙，阳光雨露。",
-            "丙": "太阳火，喜壬，水火既济，喜壬甲全，忌己土克壬合甲。",
-            "丁": "灯烛火，譬如壁炉，丁不离甲。忌庚克甲，忌己合甲。",
-            "戊": "城垣土，象高山，不能没有树木，戊不离甲，忌己合甲，庚克甲。",
-            "己": "田园土，喜丙癸，忌壬克丙。",
-            "庚": "为剑戟之金，庚不离丁，强金喜火炼，忌壬合丁，癸克丁。",
-            "辛": "手饰金，喜壬水淘洗。忌丁合壬，己克壬。",
-            "壬": "江河水，不能没有源头。喜庚金。",
-            "癸": "柔水，为雨露之水，庚辛为水源；无庚也要有辛。怕己土来克。"
-        };
-        // 十干所喜歌
-        const ganxige = {
-            "甲": "甲-用庚、丁。<br>甲木梃生无根叶，庚金造作栋梁材。<br>更爱丁火来吐秀，木火通明贵自来。<br>",
-            "乙": "乙-用丙、癸。<br>乙乃花木爱丙荣，向阳花木早逢春。<br>癸水珠露滋根本，枝叶禾稼尽相生。<br>",
-            "丙": "丙-用壬、甲、午。<br>丙乃天边一太阳，甲乙之木喜能生。<br> 日逢湖海乾坤亮，专欣壬水辅阳光。<br>",
-            "丁": "丁-用甲、庚。<br>丁火灯烛无它爱，专取甲木接引光。<br>次取庚金来劈甲，得令逢焰亦长生。<br>",
-            "戊": "戊-专用甲。<br>戊乃泰山至不灵，用甲疏劈有精神。<br>",
-            "己": "己-用丙、癸。<br>己土田园爱丙暖，逢癸可作美田称。<br>",
-            "庚": "庚-用丁、甲。<br>庚金顽钝可制溶，或用丙丁暖其身。<br>更爱壬水来伤泄，土厚埋金甲有情。<br>",
-            "辛": "辛-用壬，冬用丙丁，土多用甲。<br>辛金珠玉喜壬淘，土厚还需用甲高。<br>冬乐丙丁来解冻，己土遇泥酌用参。<br>",
-            "壬": "壬-用戊土，又用庚辛发源。<br>壬乐戊土为堤岸，又喜庚金发水源。<br>甲丙两般皆酌用，当分旺衰理亦明。<br>",
-            "癸": "癸-用庚辛，冬用丙。<br>癸用庚辛别无取，辛金清秀又为隆。<br>若逢水冷金寒候，丙火解冻有奇功。<br>"
-        };
-        // 天干禄绝"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬","癸"
-        const GanLu = ["寅", "卯", "巳", "午", "巳", "午", "申", "酉", "亥", "子"];
+    <script>
+      // 索引从0开始
+      const pillars = ["年柱", "月柱", "日柱", "时柱", "大运", "流年", "流月"];
+      // const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+      // const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+      // 日主喜忌
+      const rizhuxiji = {
+        甲: "阳木，为大林之木。甲不离庚，最忌乙合庚。",
+        乙: "小花小草，喜癸喜丙，阳光雨露。",
+        丙: "太阳火，喜壬，水火既济，喜壬甲全，忌己土克壬合甲。",
+        丁: "灯烛火，譬如壁炉，丁不离甲。忌庚克甲，忌己合甲。",
+        戊: "城垣土，象高山，不能没有树木，戊不离甲，忌己合甲，庚克甲。",
+        己: "田园土，喜丙癸，忌壬克丙。",
+        庚: "为剑戟之金，庚不离丁，强金喜火炼，忌壬合丁，癸克丁。",
+        辛: "手饰金，喜壬水淘洗。忌丁合壬，己克壬。",
+        壬: "江河水，不能没有源头。喜庚金。",
+        癸: "柔水，为雨露之水，庚辛为水源；无庚也要有辛。怕己土来克。",
+      };
+      // 十干所喜歌
+      const ganxige = {
+        甲: "甲-用庚、丁。<br>甲木梃生无根叶，庚金造作栋梁材。<br>更爱丁火来吐秀，木火通明贵自来。<br>",
+        乙: "乙-用丙、癸。<br>乙乃花木爱丙荣，向阳花木早逢春。<br>癸水珠露滋根本，枝叶禾稼尽相生。<br>",
+        丙: "丙-用壬、甲、午。<br>丙乃天边一太阳，甲乙之木喜能生。<br> 日逢湖海乾坤亮，专欣壬水辅阳光。<br>",
+        丁: "丁-用甲、庚。<br>丁火灯烛无它爱，专取甲木接引光。<br>次取庚金来劈甲，得令逢焰亦长生。<br>",
+        戊: "戊-专用甲。<br>戊乃泰山至不灵，用甲疏劈有精神。<br>",
+        己: "己-用丙、癸。<br>己土田园爱丙暖，逢癸可作美田称。<br>",
+        庚: "庚-用丁、甲。<br>庚金顽钝可制溶，或用丙丁暖其身。<br>更爱壬水来伤泄，土厚埋金甲有情。<br>",
+        辛: "辛-用壬，冬用丙丁，土多用甲。<br>辛金珠玉喜壬淘，土厚还需用甲高。<br>冬乐丙丁来解冻，己土遇泥酌用参。<br>",
+        壬: "壬-用戊土，又用庚辛发源。<br>壬乐戊土为堤岸，又喜庚金发水源。<br>甲丙两般皆酌用，当分旺衰理亦明。<br>",
+        癸: "癸-用庚辛，冬用丙。<br>癸用庚辛别无取，辛金清秀又为隆。<br>若逢水冷金寒候，丙火解冻有奇功。<br>",
+      };
+      // 天干禄绝"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬","癸"
+      const GanLu = [
+        "寅",
+        "卯",
+        "巳",
+        "午",
+        "巳",
+        "午",
+        "申",
+        "酉",
+        "亥",
+        "子",
+      ];
 
-        const GanJue = ["申", "酉", "亥", "子", "亥", "子", "寅", "卯", "巳", "午"];
+      const GanJue = [
+        "申",
+        "酉",
+        "亥",
+        "子",
+        "亥",
+        "子",
+        "寅",
+        "卯",
+        "巳",
+        "午",
+      ];
 
-        // 天德贵人以月令查---子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥
-        const tiande = ["巳", "庚", "丁", "申", "壬", "辛", "亥", "甲", "癸", "寅", "丙", "乙"];
-        // 月德贵人以月令查
-        const yuede = ["壬", "庚", "丙", "甲", "壬", "庚", "丙", "甲", "壬", "庚", "丙", "甲"];
+      // 天德贵人以月令查---子 丑 寅 卯 辰 巳 午 未 申 酉 戌 亥
+      const tiande = [
+        "巳",
+        "庚",
+        "丁",
+        "申",
+        "壬",
+        "辛",
+        "亥",
+        "甲",
+        "癸",
+        "寅",
+        "丙",
+        "乙",
+      ];
+      // 月德贵人以月令查
+      const yuede = [
+        "壬",
+        "庚",
+        "丙",
+        "甲",
+        "壬",
+        "庚",
+        "丙",
+        "甲",
+        "壬",
+        "庚",
+        "丙",
+        "甲",
+      ];
 
-        // 天乙贵人 以年干、日元查询，甲=0
-        const tianyi = ["丑未", "子申", "亥酉", "亥酉", "丑未", "子申", "午寅","午寅", "卯巳", "卯巳"];
+      // 天乙贵人 以年干、日元查询，甲=0
+      const tianyi = [
+        "丑未",
+        "子申",
+        "亥酉",
+        "亥酉",
+        "丑未",
+        "子申",
+        "午寅",
+        "午寅",
+        "卯巳",
+        "卯巳",
+      ];
 
-        // 文昌贵人以年干、日元查询
-        const wenchang = ["巳", "午", "申", "酉", "申", "酉", "亥", "子","寅", "卯"];
+      // 文昌贵人以年干、日元查询
+      const wenchang = [
+        "巳",
+        "午",
+        "申",
+        "酉",
+        "申",
+        "酉",
+        "亥",
+        "子",
+        "寅",
+        "卯",
+      ];
 
-        // 羊刃 以日干查询
-        const yangren = ["卯", "寅", "午", "巳", "午", "巳", "酉", "申","子", "亥"];
-        
-        // 驿马 以年支、日支查询
-        const yima = ["寅", "亥", "申", "巳", "寅", "亥", "申", "巳","寅", "亥", "申", "巳"];
+      // 羊刃 以日干查询
+      const yangren = [
+        "卯",
+        "寅",
+        "午",
+        "巳",
+        "午",
+        "巳",
+        "酉",
+        "申",
+        "子",
+        "亥",
+      ];
 
-        // 华盖 以年支、日支查询
-        const huagai = ["辰", "丑", "戌", "未", "辰", "丑", "戌", "未","辰", "丑", "戌", "未"];
+      // 驿马 以年支、日支查询
+      const yima = [
+        "寅",
+        "亥",
+        "申",
+        "巳",
+        "寅",
+        "亥",
+        "申",
+        "巳",
+        "寅",
+        "亥",
+        "申",
+        "巳",
+      ];
 
-        // 桃花 以年支、日支查询
-        const taohua = ["酉", "午", "卯", "子", "酉", "午", "卯", "子","酉", "午", "卯", "子"];
+      // 华盖 以年支、日支查询
+      const huagai = [
+        "辰",
+        "丑",
+        "戌",
+        "未",
+        "辰",
+        "丑",
+        "戌",
+        "未",
+        "辰",
+        "丑",
+        "戌",
+        "未",
+      ];
 
-        // 劫煞 以年支、日支查询
-        const jiesha = ["巳", "寅", "亥", "申", "巳", "寅", "亥", "申","巳", "寅", "亥", "申"];
+      // 桃花 以年支、日支查询
+      const taohua = [
+        "酉",
+        "午",
+        "卯",
+        "子",
+        "酉",
+        "午",
+        "卯",
+        "子",
+        "酉",
+        "午",
+        "卯",
+        "子",
+      ];
 
-        // 将星 以年支、日支查询
-        const jiangxing = ["子", "酉", "午", "卯", "子", "酉", "午","卯", "子", "酉", "午", "卯"];
+      // 劫煞 以年支、日支查询
+      const jiesha = [
+        "巳",
+        "寅",
+        "亥",
+        "申",
+        "巳",
+        "寅",
+        "亥",
+        "申",
+        "巳",
+        "寅",
+        "亥",
+        "申",
+      ];
 
-        // 孤辰寡宿以年支查询，
-        const guchen =[ "寅", "寅", "巳", "巳", "巳", "申", "申","申",  "亥", "亥","亥", "寅" ];
-        const guasu =[ "戌", "戌", "丑", "丑", "丑", "辰", "辰","辰",  "未", "未","未", "戌" ];
+      // 将星 以年支、日支查询
+      const jiangxing = [
+        "子",
+        "酉",
+        "午",
+        "卯",
+        "子",
+        "酉",
+        "午",
+        "卯",
+        "子",
+        "酉",
+        "午",
+        "卯",
+      ];
 
-        // 日干十二运
-	    const changsheng = [
-			[ "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝", "胎", "养", "长生" ],
-			[ "病", "衰", "帝旺", "临官", "冠带", "沐浴", "长生", "养", "胎", "绝", "墓", "死" ],
-			[ "胎", "养", "长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝" ],
-			[ "绝", "墓", "死", "病", "衰", "帝旺", "临官", "冠带", "沐浴", "长生", "养", "胎" ],
-			[ "胎", "养", "长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病", "死", "墓", "绝" ],
-			[ "绝", "墓", "死", "病", "衰", "帝旺", "临官", "冠带", "沐浴", "长生", "养", "胎" ],
-			[ "死", "墓", "绝", "胎", "养", "长生", "沐浴", "冠带", "临官", "帝旺", "衰", "病" ],
-			[ "长生", "养", "胎", "绝", "墓", "死", "病", "衰", "帝旺", "临官", "冠带", "沐浴" ],
-			[ "帝旺", "衰", "病", "死", "墓", "绝", "胎", "养", "长生", "沐浴", "冠带", "临官" ],
-			[ "临官", "冠带", "沐浴", "长生", "养", "胎", "绝", "墓", "死", "病", "衰", "帝旺" ] ];
-        // ======================
+      // 孤辰寡宿以年支查询，
+      const guchen = [
+        "寅",
+        "寅",
+        "巳",
+        "巳",
+        "巳",
+        "申",
+        "申",
+        "申",
+        "亥",
+        "亥",
+        "亥",
+        "寅",
+      ];
+      const guasu = [
+        "戌",
+        "戌",
+        "丑",
+        "丑",
+        "丑",
+        "辰",
+        "辰",
+        "辰",
+        "未",
+        "未",
+        "未",
+        "戌",
+      ];
+
+      // 日干十二运
+      const changsheng = [
+        [
+          "沐浴",
+          "冠带",
+          "临官",
+          "帝旺",
+          "衰",
+          "病",
+          "死",
+          "墓",
+          "绝",
+          "胎",
+          "养",
+          "长生",
+        ],
+        [
+          "病",
+          "衰",
+          "帝旺",
+          "临官",
+          "冠带",
+          "沐浴",
+          "长生",
+          "养",
+          "胎",
+          "绝",
+          "墓",
+          "死",
+        ],
+        [
+          "胎",
+          "养",
+          "长生",
+          "沐浴",
+          "冠带",
+          "临官",
+          "帝旺",
+          "衰",
+          "病",
+          "死",
+          "墓",
+          "绝",
+        ],
+        [
+          "绝",
+          "墓",
+          "死",
+          "病",
+          "衰",
+          "帝旺",
+          "临官",
+          "冠带",
+          "沐浴",
+          "长生",
+          "养",
+          "胎",
+        ],
+        [
+          "胎",
+          "养",
+          "长生",
+          "沐浴",
+          "冠带",
+          "临官",
+          "帝旺",
+          "衰",
+          "病",
+          "死",
+          "墓",
+          "绝",
+        ],
+        [
+          "绝",
+          "墓",
+          "死",
+          "病",
+          "衰",
+          "帝旺",
+          "临官",
+          "冠带",
+          "沐浴",
+          "长生",
+          "养",
+          "胎",
+        ],
+        [
+          "死",
+          "墓",
+          "绝",
+          "胎",
+          "养",
+          "长生",
+          "沐浴",
+          "冠带",
+          "临官",
+          "帝旺",
+          "衰",
+          "病",
+        ],
+        [
+          "长生",
+          "养",
+          "胎",
+          "绝",
+          "墓",
+          "死",
+          "病",
+          "衰",
+          "帝旺",
+          "临官",
+          "冠带",
+          "沐浴",
+        ],
+        [
+          "帝旺",
+          "衰",
+          "病",
+          "死",
+          "墓",
+          "绝",
+          "胎",
+          "养",
+          "长生",
+          "沐浴",
+          "冠带",
+          "临官",
+        ],
+        [
+          "临官",
+          "冠带",
+          "沐浴",
+          "长生",
+          "养",
+          "胎",
+          "绝",
+          "墓",
+          "死",
+          "病",
+          "衰",
+          "帝旺",
+        ],
+      ];
+      // ======================
+      // 天干五合、四冲
+      // ======================
+      const tianGanWuHe = [
+        { name: "甲己合", pair: ["甲", "己"] },
+        { name: "乙庚合", pair: ["乙", "庚"] },
+        { name: "丙辛合", pair: ["丙", "辛"] },
+        { name: "丁壬合", pair: ["丁", "壬"] },
+        { name: "戊癸合", pair: ["戊", "癸"] },
+      ];
+      const tianGanSiChong = [
+        { name: "甲庚冲", pair: ["甲", "庚"] },
+        { name: "乙辛冲", pair: ["乙", "辛"] },
+        { name: "丙壬冲", pair: ["丙", "壬"] },
+        { name: "丁癸冲", pair: ["丁", "癸"] },
+      ];
+
+      // ======================
+      // 地支关系
+      // ======================
+      const canggan = {
+        子: ["癸"],
+        丑: ["己", "辛", "癸"],
+        寅: ["甲", "丙", "戊"],
+        卯: ["乙"],
+        辰: ["戊", "乙", "癸"],
+        巳: ["丙", "庚", "戊"],
+        午: ["丁", "己"],
+        未: ["己", "丁", "乙"],
+        申: ["庚", "壬", "戊"],
+        酉: ["辛"],
+        戌: ["戊", "辛", "丁"],
+        亥: ["壬", "甲"],
+      };
+      const liuhe = [
+        { n: "子丑合", p: ["子", "丑"] },
+        { n: "寅亥合", p: ["寅", "亥"] },
+        { n: "卯戌合", p: ["卯", "戌"] },
+        { n: "辰酉合", p: ["辰", "酉"] },
+        { n: "巳申合", p: ["巳", "申"] },
+        { n: "午未合", p: ["午", "未"] },
+      ];
+      const sanhe = [
+        { n: "申子辰三合水", t: ["申", "子", "辰"] },
+        { n: "亥卯未三合木", t: ["亥", "卯", "未"] },
+        { n: "寅午戌三合火", t: ["寅", "午", "戌"] },
+        { n: "巳酉丑三合金", t: ["巳", "酉", "丑"] },
+      ];
+      const sanhui = [
+        { n: "亥子丑三会水", g: ["亥", "子", "丑"] },
+        { n: "寅卯辰三会木", g: ["寅", "卯", "辰"] },
+        { n: "巳午未三会火", g: ["巳", "午", "未"] },
+        { n: "申酉戌三会金", g: ["申", "酉", "戌"] },
+      ];
+      const chong = [
+        { n: "子午冲", p: ["子", "午"] },
+        { n: "丑未冲", p: ["丑", "未"] },
+        { n: "寅申冲", p: ["寅", "申"] },
+        { n: "卯酉冲", p: ["卯", "酉"] },
+        { n: "辰戌冲", p: ["辰", "戌"] },
+        { n: "巳亥冲", p: ["巳", "亥"] },
+      ];
+      const hai = [
+        { n: "子未相害", p: ["子", "未"] },
+        { n: "丑午相害", p: ["丑", "午"] },
+        { n: "寅巳相害", p: ["寅", "巳"] },
+        { n: "卯辰相害", p: ["卯", "辰"] },
+        { n: "申亥相害", p: ["申", "亥"] },
+        { n: "酉戌相害", p: ["酉", "戌"] },
+      ];
+      const xing = [
+        { n: "子卯相刑", p: ["子", "卯"] },
+        { n: "寅巳申三刑", t: ["寅", "巳", "申"] },
+        { n: "丑未戌三刑", t: ["丑", "未", "戌"] },
+        { n: "辰午酉亥自刑", s: ["辰", "午", "酉", "亥"] },
+      ];
+
+      // 显示弹窗
+      function showModal(gz, idx) {
+        let title = pillars[idx] + "：" + gz;
+        let shensha = "✅ 神煞：";
+        let content = `<div>`;
+        // 方法1: slice() —— 最常用，返回新数组
+        const sizhu = currentMingli.slice(0, 4);
+        const gan = sizhu.map((s) => s[0]);
+        let zhi = sizhu.map((s) => s[1]);
+
+        // 以下是计算四柱五行个数
+        // 拆分一柱（如"甲子" → ["甲","子"]）
+        function splitZhu(zhu) {
+          return [zhu[0], zhu[1]];
+        }
+
+        // 统计五行（含藏干）
+        function countWuxing(bazi) {
+          const count = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 };
+
+          bazi.forEach((zhu) => {
+            const [gan, zhi] = splitZhu(zhu);
+
+            // 天干
+            const wGan = wuxingMap[gan];
+            count[wGan]++;
+
+            // 地支藏干
+            const cang = cangGan[zhi] || [];
+            cang.forEach((g) => {
+              const w = wuxingMap[g];
+              count[w]++;
+            });
+          });
+
+          return count;
+        }
+
+        // 判断缺少的五行
+        function getMissingWu(count) {
+          const missing = [];
+          if (count.金 === 0) missing.push("金");
+          if (count.木 === 0) missing.push("木");
+          if (count.水 === 0) missing.push("水");
+          if (count.火 === 0) missing.push("火");
+          if (count.土 === 0) missing.push("土");
+          return missing;
+        }
+
+        // ———————— 主逻辑 ————————
+        // const bazi = ["甲子", "丙寅", "戊午", "庚申"];
+        const cnt = countWuxing(sizhu);
+        const missing = getMissingWu(cnt);
+
+        // 一行输出个数
+        const resultStr = `金:${cnt.金} 木:${cnt.木} 水:${cnt.水} 火:${cnt.火} 土:${cnt.土}`;
+
+        content += `✅ 五行统计：${resultStr}，<br>此命造：`;
+        // 输出完整结果
+        console.log(resultStr);
+
+        if (missing.length === 0) {
+          console.log("五行全");
+          content += `五行全。`;
+        } else {
+          console.log("五行不全，缺少：" + missing.join("、"));
+          content += `五行不全，缺少：${missing.join("、")}。`;
+        }
+        content += `<br>`;
+        // 计算五行个数结束
+
+        if (idx === 2) {
+          // console.log(gz[0] + '----' + currentMingli[2]);
+          content += `✅ 日主喜忌：${currentMingli[2][0]}，${rizhuxiji[gz[0]]}<br>✅ 十干所喜歌：${ganxige[gz[0]]}<br>`;
+        }
+
+        console.log(gz + idx + "----" + currentMingli[2]);
+        if (
+          yuede[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]
+        ) {
+          shensha += `月德 `;
+        }
+        if (
+          tiande[dizhi.indexOf(currentMingli[1][1])] ===
+            currentMingli[idx][0] ||
+          tiande[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `天德 `;
+        }
+        if (
+          yima[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `驿马 `;
+        }
+        if (
+          huagai[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `华盖 `;
+        }
+        if (
+          taohua[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `桃花 `;
+        }
+        if (
+          jiesha[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `劫煞 `;
+        }
+        if (
+          jiangxing[dizhi.indexOf(currentMingli[2][1])] ===
+          currentMingli[idx][1]
+        ) {
+          shensha += `将星 `;
+        }
+        if (
+          yangren[dizhi.indexOf(currentMingli[2][0])] === currentMingli[idx][1]
+        ) {
+          shensha += `羊刃 `;
+        }
+        if (
+          tianyi[tiangan.indexOf(currentMingli[2][0])].indexOf(
+            currentMingli[idx][1],
+          ) !== -1
+        ) {
+          shensha += `天乙 `;
+        }
+        if (
+          wenchang[tiangan.indexOf(currentMingli[2][0])].indexOf(
+            currentMingli[idx][1],
+          ) !== -1
+        ) {
+          shensha += `文昌 `;
+        }
+        if (
+          guchen[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `孤辰 `;
+        }
+        if (
+          guasu[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `寡宿 `;
+        }
+
+        if (shensha !== "✅ 神煞：") {
+          content += `${shensha}<br>`;
+        }
+        // console.log(changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]);
+
+        content += `✅ ${gz[0]}禄在${GanLu[tiangan.indexOf(gz[0])]}，绝在${GanJue[tiangan.indexOf(gz[0])]}。<br></div>`;
+        content += `✅ 日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
+
+        // // 方法1: slice() —— 最常用，返回新数组
+        // const sizhu = currentMingli.slice(0, 4);
+        // const gan = sizhu.map(s => s[0]);
+        // let zhi = sizhu.map(s => s[1]);
         // 天干五合、四冲
         // ======================
-        const tianGanWuHe = [
-            {name:"甲己合", pair:["甲","己"]}, {name:"乙庚合", pair:["乙","庚"]},
-            {name:"丙辛合", pair:["丙","辛"]}, {name:"丁壬合", pair:["丁","壬"]},
-            {name:"戊癸合", pair:["戊","癸"]}
-        ];
-        const tianGanSiChong = [
-            {name:"甲庚冲", pair:["甲","庚"]}, {name:"乙辛冲", pair:["乙","辛"]},
-            {name:"丙壬冲", pair:["丙","壬"]}, {name:"丁癸冲", pair:["丁","癸"]}
-        ];
+        out = "✅ 天干冲合：";
+        tianGanWuHe.forEach((he) => {
+          const [a, b] = he.pair;
+          if (gan.includes(a) && gan.includes(b)) {
+            const gap = Math.abs(gan.indexOf(a) - gan.indexOf(b));
+            const type = gap === 1 ? "紧贴合" : gap === 2 ? "隔干合" : "遥合";
+            out += ` ${he.name}（${type}）\n`;
+          }
+        });
+        tianGanSiChong.forEach((c) => {
+          if (gan.includes(c.pair[0]) && gan.includes(c.pair[1])) {
+            out += ` ${c.name}\n`;
+            hasChong = true;
+          }
+        });
+
+        if (out !== "✅ 天干冲合：") {
+          content += `${out}<br>`;
+        }
 
         // ======================
         // 地支关系
         // ======================
-        const canggan = {
-            子:['癸'],丑:['己','辛','癸'],寅:['甲','丙','戊'],卯:['乙'],辰:['戊','乙','癸'],巳:['丙','庚','戊'],
-            午:['丁','己'],未:['己','丁','乙'],申:['庚','壬','戊'],酉:['辛'],戌:['戊','辛','丁'],亥:['壬','甲']
-        };
-        const liuhe = [
-            {n:'子丑合',p:['子','丑']},{n:'寅亥合',p:['寅','亥']},{n:'卯戌合',p:['卯','戌']},
-            {n:'辰酉合',p:['辰','酉']},{n:'巳申合',p:['巳','申']},{n:'午未合',p:['午','未']}
-        ];
-        const sanhe = [
-            {n:'申子辰三合水',t:['申','子','辰']},{n:'亥卯未三合木',t:['亥','卯','未']},
-            {n:'寅午戌三合火',t:['寅','午','戌']},{n:'巳酉丑三合金',t:['巳','酉','丑']}
-        ];
-        const sanhui = [
-            {n:'亥子丑三会水',g:['亥','子','丑']},{n:'寅卯辰三会木',g:['寅','卯','辰']},
-            {n:'巳午未三会火',g:['巳','午','未']},{n:'申酉戌三会金',g:['申','酉','戌']}
-        ];
-        const chong = [
-            {n:'子午冲',p:['子','午']},{n:'丑未冲',p:['丑','未']},{n:'寅申冲',p:['寅','申']},
-            {n:'卯酉冲',p:['卯','酉']},{n:'辰戌冲',p:['辰','戌']},{n:'巳亥冲',p:['巳','亥']}
-        ];
-        const hai = [
-            {n:'子未相害',p:['子','未']},{n:'丑午相害',p:['丑','午']},{n:'寅巳相害',p:['寅','巳']},
-            {n:'卯辰相害',p:['卯','辰']},{n:'申亥相害',p:['申','亥']},{n:'酉戌相害',p:['酉','戌']}
-        ];
-        const xing = [
-            {n:'子卯相刑',p:['子','卯']},{n:'寅巳申三刑',t:['寅','巳','申']},
-            {n:'丑未戌三刑',t:['丑','未','戌']},{n:'辰午酉亥自刑',s:['辰','午','酉','亥']}
-        ];
-
-        // 显示弹窗
-        function showModal(gz, idx) {
-
-            let title = pillars[idx] + '：' + gz;
-            let shensha = '✅ 神煞：';
-            let content = `<div>`;
-            // 方法1: slice() —— 最常用，返回新数组
-            const sizhu = currentMingli.slice(0, 4);
-            const gan = sizhu.map(s => s[0]);
-            let zhi = sizhu.map(s => s[1]);
-
-
-
-            // 以下是计算四柱五行个数
-            // 拆分一柱（如"甲子" → ["甲","子"]）
-            function splitZhu(zhu) {
-            return [zhu[0], zhu[1]];
-            }
-
-            // 统计五行（含藏干）
-            function countWuxing(bazi) {
-            const count = { 金: 0, 木: 0, 水: 0, 火: 0, 土: 0 };
-
-            bazi.forEach(zhu => {
-                const [gan, zhi] = splitZhu(zhu);
-
-                // 天干
-                const wGan = wuxingMap[gan];
-                count[wGan]++;
-
-                // 地支藏干
-                const cang = cangGan[zhi] || [];
-                cang.forEach(g => {
-                const w = wuxingMap[g];
-                count[w]++;
-                });
-            });
-
-            return count;
-            }
-
-            // 判断缺少的五行
-            function getMissingWu(count) {
-            const missing = [];
-            if (count.金 === 0) missing.push("金");
-            if (count.木 === 0) missing.push("木");
-            if (count.水 === 0) missing.push("水");
-            if (count.火 === 0) missing.push("火");
-            if (count.土 === 0) missing.push("土");
-            return missing;
-            }
-
-            // ———————— 主逻辑 ————————
-            // const bazi = ["甲子", "丙寅", "戊午", "庚申"];
-            const cnt = countWuxing(sizhu);
-            const missing = getMissingWu(cnt);
-
-            // 一行输出个数
-            const resultStr =
-            `金:${cnt.金} 木:${cnt.木} 水:${cnt.水} 火:${cnt.火} 土:${cnt.土}`;
-
-            content += `✅ 五行统计：${resultStr}，<br>此命造：`;
-            // 输出完整结果
-            console.log(resultStr);
-
-            if (missing.length === 0) {
-                console.log("五行全");
-                content += `五行全。`;
-            } else {
-                console.log("五行不全，缺少：" + missing.join("、"));
-                content += `五行不全，缺少：${ missing.join("、")}。`;
-            }
-            content += `<br>`;
-            // 计算五行个数结束
-
-
-
-            if (idx === 2) {
-                // console.log(gz[0] + '----' + currentMingli[2]);
-                content += `✅ 日主喜忌：${currentMingli[2][0]}，${rizhuxiji[gz[0]]}<br>✅ 十干所喜歌：${ganxige[gz[0]]}<br>`;
-
-            };
-
-            console.log(gz + idx +'----' +currentMingli[2]);
-            if (yuede[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]) {
-                shensha += `月德 `;
-            }
-            if (tiande[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0] || tiande[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][1]) {
-                shensha += `天德 `;
-            }
-            if (yima[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
-                shensha += `驿马 `;
-            }
-            if (huagai[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
-                shensha += `华盖 `;
-            }
-            if (taohua[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
-                shensha += `桃花 `;
-            }
-            if (jiesha[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
-                shensha += `劫煞 `;
-            }
-            if (jiangxing[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]) {
-                shensha += `将星 `;
-            }
-            if (yangren[dizhi.indexOf(currentMingli[2][0])] === currentMingli[idx][1]) {
-                shensha += `羊刃 `;
-            }
-            if (tianyi[tiangan.indexOf(currentMingli[2][0])].indexOf(currentMingli[idx][1])!==-1) {
-                shensha += `天乙 `;
-            }
-            if (wenchang[tiangan.indexOf(currentMingli[2][0])].indexOf(currentMingli[idx][1])!==-1) {
-                shensha += `文昌 `;
-            }
-            if (guchen[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]) {
-                shensha += `孤辰 `;
-            }
-            if (guasu[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]) {
-                shensha += `寡宿 `;
-            }
-
-            if (shensha !== '✅ 神煞：') {
-                content += `${shensha}<br>`;
-            }
-            // console.log(changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]);
-
-            content += `✅ ${gz[0]}禄在${GanLu[tiangan.indexOf(gz[0])]}，绝在${GanJue[tiangan.indexOf(gz[0])]}。<br></div>`;
-            content += `✅ 日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
-
-            // // 方法1: slice() —— 最常用，返回新数组
-            // const sizhu = currentMingli.slice(0, 4);
-            // const gan = sizhu.map(s => s[0]);
-            // let zhi = sizhu.map(s => s[1]);
-            // 天干五合、四冲
-                // ======================
-                out = '✅ 天干冲合：';
-            tianGanWuHe.forEach(he => {
-                const [a,b] = he.pair;
-                if(gan.includes(a) && gan.includes(b)){
-                    const gap = Math.abs(gan.indexOf(a)-gan.indexOf(b));
-                    const type = gap===1 ? '紧贴合' : gap===2 ? '隔干合' : '遥合';
-                    out += ` ${he.name}（${type}）\n`;
-                }
-            });
-            tianGanSiChong.forEach(c => {
-                if(gan.includes(c.pair[0]) && gan.includes(c.pair[1])){
-                    out += ` ${c.name}\n`;
-                    hasChong = true;
-                }
-            });
-
-             if (out !== '✅ 天干冲合：') {
-                content += `${out}<br>`;
-            }
-
-            // ======================
-            // 地支关系
-            // ======================
-            out = '✅ 四柱地支：<br>';
-            function checkPair(list){ list.forEach(x=>x.p && x.p.every(z=>zhi.includes(z)) && (out+='* '+x.n+'\n')); }
-            function checkTrio(list){ list.forEach(x=>x.t && x.t.every(z=>zhi.includes(z)) && (out+='* '+x.n+'\n')); }
-            function checkGroup(list){ list.forEach(x=>x.g && x.g.every(z=>zhi.includes(z)) && (out+='* '+x.n+'\n')); }
-            function checkZiXing(){
-                const s = xing.find(x=>x.s);
-                const cnt = zhi.filter(z=>s.s.includes(z)).length;
-                if(cnt>=2) out += '* '+s.n+'\n';
-            }
-            // out += '六合：\n'; checkPair(liuhe);
-            // out += '三合：\n'; checkTrio(sanhe);
-            // out += '三会：\n'; checkGroup(sanhui);
-            // out += '相冲：\n'; checkPair(chong);
-            // out += '相害：\n'; checkPair(hai);
-            // out += '相刑：\n'; checkPair(xing); checkTrio(xing); checkZiXing();
-            // out += '\n';
-             checkPair(liuhe);
-             checkTrio(sanhe);
-             checkGroup(sanhui);
-             checkPair(chong);
-             checkPair(hai);
-             checkPair(xing); checkTrio(xing); checkZiXing();
-            let out1 = out;
-
-            if (out !=='✅ 四柱地支：<br>') {
-            content += `${out}<br>`;
-            }
-
-            out = '✅ 四柱大运流年：<br>';
-             // 方法1: slice() —— 最常用，返回新数组
-            const sizhu0 = currentMingli.slice(0, 6);
-            // const gan0 = sizhu0.map(s => s[0]);
-            zhi = sizhu0.map(s => s[1]);
-            checkPair(liuhe);
-             checkTrio(sanhe);
-             checkGroup(sanhui);
-             checkPair(chong);
-             checkPair(hai);
-             checkPair(xing); checkTrio(xing); checkZiXing();
-
-            
-            const out2 = out;
-
-            // 分割成数组，去重，再合并
-            const items1 = out1.split('*').map(s => s.trim()).filter(Boolean);
-            const items2 = out2.split('*').map(s => s.trim()).filter(Boolean);
-
-            // 过滤掉out1中存在的
-            const unique = items2.filter(item => !items1.includes(item));
-
-            const result = '* ' + unique.join(' * ');
-
-            const result0 = result.replace('*', '').trim();
-
-
-             if (result0 !=='✅ 四柱大运流年：<br>') {
-                content += `${result0}<br>`;
-                console.log(result0);
-            }
-
-            // content += `${result}<br>`;
-
-            // console.log(cangGan     );
-
-
-            document.getElementById('modalTitle').textContent = title;
-            document.getElementById('modalBody').innerHTML = content;
-            document.getElementById('modalOverlay').classList.add('active');
-           // 初始化拖拽
-    initDrag();
-    
-    document.getElementById('modalTitle').textContent = title;
-    document.getElementById('modalBody').innerHTML = content;
-    document.getElementById('modalOverlay').classList.add('active');
-        
-// 拖拽功能
-function initDrag() {
-    const modal = document.querySelector('.modal-content');
-    // 修改前（只在标题文字上拖拽）
-// const header = document.getElementById('modalTitle');
-
-// 修改后（在整个标题栏上拖拽）
-const header = document.querySelector('.modal-header');
-
-    
-    let isDragging = false;
-    let currentX = 0;
-    let currentY = 0;
-    let initialX = 0;
-    let initialY = 0;
-    let xOffset = 0;
-    let yOffset = 0;
-
-    // 只在标题栏按下时开始拖拽
-    header.addEventListener('mousedown', dragStart);
-    document.addEventListener('mousemove', drag);
-    document.addEventListener('mouseup', dragEnd);
-
-    function dragStart(e) {
-        initialX = e.clientX - xOffset;
-        initialY = e.clientY - yOffset;
-        isDragging = true;
-        modal.classList.add('dragging');
-    }
-
-    function drag(e) {
-        if (isDragging) {
-            e.preventDefault();
-            currentX = e.clientX - initialX;
-            currentY = e.clientY - initialY;
-            xOffset = currentX;
-            yOffset = currentY;
-
-            setTranslate(currentX, currentY, modal);
+        out = "✅ 四柱地支：<br>";
+        function checkPair(list) {
+          list.forEach(
+            (x) =>
+              x.p &&
+              x.p.every((z) => zhi.includes(z)) &&
+              (out += "* " + x.n + "\n"),
+          );
         }
-    }
+        function checkTrio(list) {
+          list.forEach(
+            (x) =>
+              x.t &&
+              x.t.every((z) => zhi.includes(z)) &&
+              (out += "* " + x.n + "\n"),
+          );
+        }
+        function checkGroup(list) {
+          list.forEach(
+            (x) =>
+              x.g &&
+              x.g.every((z) => zhi.includes(z)) &&
+              (out += "* " + x.n + "\n"),
+          );
+        }
+        function checkZiXing() {
+          const s = xing.find((x) => x.s);
+          const cnt = zhi.filter((z) => s.s.includes(z)).length;
+          if (cnt >= 2) out += "* " + s.n + "\n";
+        }
+        // out += '六合：\n'; checkPair(liuhe);
+        // out += '三合：\n'; checkTrio(sanhe);
+        // out += '三会：\n'; checkGroup(sanhui);
+        // out += '相冲：\n'; checkPair(chong);
+        // out += '相害：\n'; checkPair(hai);
+        // out += '相刑：\n'; checkPair(xing); checkTrio(xing); checkZiXing();
+        // out += '\n';
+        checkPair(liuhe);
+        checkTrio(sanhe);
+        checkGroup(sanhui);
+        checkPair(chong);
+        checkPair(hai);
+        checkPair(xing);
+        checkTrio(xing);
+        checkZiXing();
+        let out1 = out;
 
-    function dragEnd() {
-        initialX = currentX;
-        initialY = currentY;
-        isDragging = false;
-        modal.classList.remove('dragging');
-    }
-
-    function setTranslate(xPos, yPos, el) {
-        el.style.transform = `translate(${xPos}px, ${yPos}px)`;
-    }
-}
-
-
+        if (out !== "✅ 四柱地支：<br>") {
+          content += `${out}<br>`;
         }
 
-        // 关闭弹窗
-        function closeModal() {
-            document.getElementById('modalOverlay').classList.remove('active');
-            // 重置弹窗位置
-    const modal = document.querySelector('.modal-content');
-    modal.style.transform = '';
-    modal.style.margin = '';
+        out = "✅ 四柱大运流年：<br>";
+        // 方法1: slice() —— 最常用，返回新数组
+        const sizhu0 = currentMingli.slice(0, 6);
+        // const gan0 = sizhu0.map(s => s[0]);
+        zhi = sizhu0.map((s) => s[1]);
+        checkPair(liuhe);
+        checkTrio(sanhe);
+        checkGroup(sanhui);
+        checkPair(chong);
+        checkPair(hai);
+        checkPair(xing);
+        checkTrio(xing);
+        checkZiXing();
+
+        const out2 = out;
+
+        // 分割成数组，去重，再合并
+        const items1 = out1
+          .split("*")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        const items2 = out2
+          .split("*")
+          .map((s) => s.trim())
+          .filter(Boolean);
+
+        // 过滤掉out1中存在的
+        const unique = items2.filter((item) => !items1.includes(item));
+
+        const result = "* " + unique.join(" * ");
+
+        const result0 = result.replace("*", "").trim();
+
+        if (result0 !== "✅ 四柱大运流年：<br>" && idx >= 4) {
+          content += `${result0}<br>`;
+          console.log(result0);
         }
 
-        // 点击遮罩层关闭弹窗
-        function closeModalOnOverlay(event) {
-            if (event.target.id === 'modalOverlay') {
-                closeModal();
-            }
+        // content += `${result}<br>`;
+
+        // console.log(cangGan     );
+
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalBody").innerHTML = content;
+        document.getElementById("modalOverlay").classList.add("active");
+        // 初始化拖拽
+        initDrag();
+
+        document.getElementById("modalTitle").textContent = title;
+        document.getElementById("modalBody").innerHTML = content;
+        document.getElementById("modalOverlay").classList.add("active");
+
+        // 拖拽功能
+        function initDrag() {
+          const modal = document.querySelector('.modal-content');
+          const header = document.querySelector('.modal-header');
+          
+          let isDragging = false;
+          let currentX = 0;
+          let currentY = 0;
+          let initialX = 0;
+          let initialY = 0;
+          let xOffset = 0;
+          let yOffset = 0;
+
+          // 鼠标事件
+          header.addEventListener('mousedown', dragStart);
+          document.addEventListener('mousemove', drag);
+          document.addEventListener('mouseup', dragEnd);
+
+          // 触摸事件（新增）
+          header.addEventListener('touchstart', dragStartTouch, { passive: false });
+          document.addEventListener('touchmove', dragMoveTouch, { passive: false });
+          document.addEventListener('touchend', dragEndTouch);
+
+          function dragStart(e) {
+              initialX = e.clientX - xOffset;
+              initialY = e.clientY - yOffset;
+              isDragging = true;
+              modal.classList.add('dragging');
+          }
+
+          // 触摸开始（新增）
+          function dragStartTouch(e) {
+              const touch = e.touches[0];
+              initialX = touch.clientX - xOffset;
+              initialY = touch.clientY - yOffset;
+              isDragging = true;
+              modal.classList.add('dragging');
+          }
+
+          function drag(e) {
+              if (isDragging) {
+                  e.preventDefault();
+                  currentX = e.clientX - initialX;
+                  currentY = e.clientY - initialY;
+                  xOffset = currentX;
+                  yOffset = currentY;
+                  setTranslate(currentX, currentY, modal);
+              }
+          }
+
+          // 触摸移动（新增）
+          function dragMoveTouch(e) {
+              if (isDragging) {
+                  e.preventDefault();
+                  const touch = e.touches[0];
+                  currentX = touch.clientX - initialX;
+                  currentY = touch.clientY - initialY;
+                  xOffset = currentX;
+                  yOffset = currentY;
+                  setTranslate(currentX, currentY, modal);
+              }
+          }
+
+          function dragEnd() {
+              initialX = currentX;
+              initialY = currentY;
+              isDragging = false;
+              modal.classList.remove('dragging');
+          }
+
+          // 触摸结束（新增）
+          function dragEndTouch() {
+              initialX = currentX;
+              initialY = currentY;
+              isDragging = false;
+              modal.classList.remove('dragging');
+          }
+
+          function setTranslate(xPos, yPos, el) {
+              el.style.transform = `translate(calc(-50% + ${xPos}px), calc(-50% + ${yPos}px))`;
+          }
+      }
+
+      }
+
+      // 关闭弹窗
+      function closeModal() {
+        document.getElementById("modalOverlay").classList.remove("active");
+        // 重置弹窗位置
+        const modal = document.querySelector(".modal-content");
+        modal.style.transform = "";
+        modal.style.margin = "";
+      }
+
+      // 点击遮罩层关闭弹窗
+      function closeModalOnOverlay(event) {
+        if (event.target.id === "modalOverlay") {
+          closeModal();
         }
+      }
 
-        // ESC键关闭弹窗
-        document.addEventListener('keydown', function (event) {
-            if (event.key === 'Escape') {
-                closeModal();
-            }
-        });
-
-
-
+      // ESC键关闭弹窗
+      document.addEventListener("keydown", function (event) {
+        if (event.key === "Escape") {
+          closeModal();
+        }
+      });
     </script>
-        <!-- 弹窗 HTML -->
-        <div class="modal-overlay" id="modalOverlay"
-            onclick="closeModalOnOverlay(event)">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <div class="modal-title" id="modalTitle">标题</div>
-                    <button class="modal-close"
-                        onclick="closeModal()">×</button>
-                </div>
-                <div class="modal-body" id="modalBody"> 内容 </div>
-            </div>
+    <!-- 弹窗 HTML -->
+    <div
+      class="modal-overlay"
+      id="modalOverlay"
+      onclick="closeModalOnOverlay(event)">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title" id="modalTitle">标题</div>
+          <button class="modal-close"
+            onclick="closeModal()">×</button>
         </div>
-    </body>
+        <div class="modal-body" id="modalBody">内容</div>
+      </div>
+    </div>
+  </body>
 </html>
