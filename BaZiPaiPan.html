@@ -97,6 +97,28 @@
         font-size: 1rem;
         line-height: 1.6;
         color: #555;
+        max-height: 60vh;        /* 添加：最大高度为视口高度的60% */
+        overflow-y: auto;        /* 添加：垂直方向自动显示滚动条 */
+        padding-right: 8px;      /* 添加：给滚动条留点空间，避免内容贴边 */
+      }
+
+      /* 追加在这里 ↓↓↓ */
+      .modal-body::-webkit-scrollbar {
+        width: 6px;
+      }
+
+      .modal-body::-webkit-scrollbar-track {
+        background: #f1f1f1;
+        border-radius: 3px;
+      }
+
+      .modal-body::-webkit-scrollbar-thumb {
+        background: #c1c1c1;
+        border-radius: 3px;
+      }
+
+      .modal-body::-webkit-scrollbar-thumb:hover {
+        background: #a1a1a1;
       }
 
       /* 让干支可以点击 */
@@ -947,6 +969,12 @@
         .pillar-ganzhi {
           font-size: 1.5rem;
         }
+        .modal-body {
+            font-size: 1.1rem;     /* 原有或调整 */
+            max-height: 70vh;      /* 添加：平板稍高一些 */
+            overflow-y: auto;        /* 添加 */
+          }
+
       }
 
       /* 手机端适配 (小于 768px) - 动态三柱显示在四柱下方 */
@@ -1083,8 +1111,11 @@
         }
 
         .modal-body {
-          font-size: 1.6rem;
-        }
+            font-size: 1.6rem;       /* 你原有的放大字号 */
+            max-height: 75vh;        /* 添加：手机端更高，留少点边距 */
+            overflow-y: auto;        /* 添加 */
+            padding-right: 12px;     /* 可选：稍宽点，方便手指滑动 */
+          }
 
         /* 手机端：四柱和动态柱垂直排列 */
         .pillars-container {
@@ -2686,11 +2717,11 @@
       // 天干五合、四冲
       // ======================
       const tianGanWuHe = [
-        { name: "甲己合", pair: ["甲", "己"] },
-        { name: "乙庚合", pair: ["乙", "庚"] },
-        { name: "丙辛合", pair: ["丙", "辛"] },
-        { name: "丁壬合", pair: ["丁", "壬"] },
-        { name: "戊癸合", pair: ["戊", "癸"] },
+        { name: "甲己合土", pair: ["甲", "己"] },
+        { name: "乙庚合金", pair: ["乙", "庚"] },
+        { name: "丙辛合水", pair: ["丙", "辛"] },
+        { name: "丁壬合木", pair: ["丁", "壬"] },
+        { name: "戊癸合火", pair: ["戊", "癸"] },
       ];
       const tianGanSiChong = [
         { name: "甲庚冲", pair: ["甲", "庚"] },
@@ -2716,47 +2747,50 @@
         戌: ["戊", "辛", "丁"],
         亥: ["壬", "甲"],
       };
+      // 地支六合
       const liuhe = [
-        { n: "子丑合", p: ["子", "丑"] },
-        { n: "寅亥合", p: ["寅", "亥"] },
-        { n: "卯戌合", p: ["卯", "戌"] },
-        { n: "辰酉合", p: ["辰", "酉"] },
-        { n: "巳申合", p: ["巳", "申"] },
-        { n: "午未合", p: ["午", "未"] },
+        { name: "子丑合土", pair: ["子", "丑"] },
+        { name: "寅亥合木", pair: ["寅", "亥"] },
+        { name: "卯戌合火", pair: ["卯", "戌"] },
+        { name: "辰酉合金", pair: ["辰", "酉"] },
+        { name: "巳申合水", pair: ["巳", "申"] },
+        { name: "午未合土", pair: ["午", "未"] },
       ];
+
+      // 地支三合
       const sanhe = [
-        { n: "申子辰三合水", t: ["申", "子", "辰"] },
-        { n: "亥卯未三合木", t: ["亥", "卯", "未"] },
-        { n: "寅午戌三合火", t: ["寅", "午", "戌"] },
-        { n: "巳酉丑三合金", t: ["巳", "酉", "丑"] },
+        { name: "申子辰三合水", trio: ["申", "子", "辰"] },
+        { name: "亥卯未三合木", trio: ["亥", "卯", "未"] },
+        { name: "寅午戌三合火", trio: ["寅", "午", "戌"] },
+        { name: "巳酉丑三合金", trio: ["巳", "酉", "丑"] },
       ];
+
+      // 地支三会
       const sanhui = [
-        { n: "亥子丑三会水", g: ["亥", "子", "丑"] },
-        { n: "寅卯辰三会木", g: ["寅", "卯", "辰"] },
-        { n: "巳午未三会火", g: ["巳", "午", "未"] },
-        { n: "申酉戌三会金", g: ["申", "酉", "戌"] },
+        { name: "亥子丑三会水", group: ["亥", "子", "丑"] },
+        { name: "寅卯辰三会木", group: ["寅", "卯", "辰"] },
+        { name: "巳午未三会火", group: ["巳", "午", "未"] },
+        { name: "申酉戌三会金", group: ["申", "酉", "戌"] },
       ];
-      const chong = [
-        { n: "子午冲", p: ["子", "午"] },
-        { n: "丑未冲", p: ["丑", "未"] },
-        { n: "寅申冲", p: ["寅", "申"] },
-        { n: "卯酉冲", p: ["卯", "酉"] },
-        { n: "辰戌冲", p: ["辰", "戌"] },
-        { n: "巳亥冲", p: ["巳", "亥"] },
+
+      // 地支六冲
+      const liuchong = [
+        { name: "子午冲", pair: ["子", "午"] },
+        { name: "丑未冲", pair: ["丑", "未"] },
+        { name: "寅申冲", pair: ["寅", "申"] },
+        { name: "卯酉冲", pair: ["卯", "酉"] },
+        { name: "辰戌冲", pair: ["辰", "戌"] },
+        { name: "巳亥冲", pair: ["巳", "亥"] },
       ];
-      const hai = [
-        { n: "子未相害", p: ["子", "未"] },
-        { n: "丑午相害", p: ["丑", "午"] },
-        { n: "寅巳相害", p: ["寅", "巳"] },
-        { n: "卯辰相害", p: ["卯", "辰"] },
-        { n: "申亥相害", p: ["申", "亥"] },
-        { n: "酉戌相害", p: ["酉", "戌"] },
-      ];
-      const xing = [
-        { n: "子卯相刑", p: ["子", "卯"] },
-        { n: "寅巳申三刑", t: ["寅", "巳", "申"] },
-        { n: "丑未戌三刑", t: ["丑", "未", "戌"] },
-        { n: "辰午酉亥自刑", s: ["辰", "午", "酉", "亥"] },
+
+      // 地支相害
+      const liuhai = [
+        { name: "子未相害", pair: ["子", "未"] },
+        { name: "丑午相害", pair: ["丑", "午"] },
+        { name: "寅巳相害", pair: ["寅", "巳"] },
+        { name: "卯辰相害", pair: ["卯", "辰"] },
+        { name: "申亥相害", pair: ["申", "亥"] },
+        { name: "酉戌相害", pair: ["酉", "戌"] },
       ];
 
       // 显示弹窗
@@ -2768,6 +2802,8 @@
         const sizhu = currentMingli.slice(0, 4);
         const gan = sizhu.map((s) => s[0]);
         let zhi = sizhu.map((s) => s[1]);
+
+          console.log(currentMingli );
 
         // 以下是计算四柱五行个数
         // 拆分一柱（如"甲子" → ["甲","子"]）
@@ -2912,123 +2948,544 @@
         content += `✅ ${gz[0]}禄在${GanLu[tiangan.indexOf(gz[0])]}，绝在${GanJue[tiangan.indexOf(gz[0])]}。<br></div>`;
         content += `✅ 日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
 
+        // // // 方法1: slice() —— 最常用，返回新数组
+        // // const sizhu = currentMingli.slice(0, 4);
+        // // const gan = sizhu.map(s => s[0]);
+        // // let zhi = sizhu.map(s => s[1]);
+        // // 天干五合、四冲
+        // // ======================
+        // out = "✅ 天干冲合：";
+        // tianGanWuHe.forEach((he) => {
+        //   const [a, b] = he.pair;
+        //   if (gan.includes(a) && gan.includes(b)) {
+        //     const gap = Math.abs(gan.indexOf(a) - gan.indexOf(b));
+        //     const type = gap === 1 ? "紧贴合" : gap === 2 ? "隔干合" : "遥合";
+        //     out += ` ${he.name}（${type}）\n`;
+        //   }
+        // });
+        // tianGanSiChong.forEach((c) => {
+        //   if (gan.includes(c.pair[0]) && gan.includes(c.pair[1])) {
+        //     out += ` ${c.name}\n`;
+        //     hasChong = true;
+        //   }
+        // });
+
+        // if (out !== "✅ 天干冲合：") {
+        //   content += `${out}<br>`;
+        // }
+
+        // // ======================
+        // // 地支关系
+        // // ======================
+        // out = "✅ 四柱地支：<br>";
+        // function checkPair(list) {
+        //   list.forEach(
+        //     (x) =>
+        //       x.p &&
+        //       x.p.every((z) => zhi.includes(z)) &&
+        //       (out += "* " + x.n + "\n"),
+        //   );
+        // }
+        // function checkTrio(list) {
+        //   list.forEach(
+        //     (x) =>
+        //       x.t &&
+        //       x.t.every((z) => zhi.includes(z)) &&
+        //       (out += "* " + x.n + "\n"),
+        //   );
+        // }
+        // function checkGroup(list) {
+        //   list.forEach(
+        //     (x) =>
+        //       x.g &&
+        //       x.g.every((z) => zhi.includes(z)) &&
+        //       (out += "* " + x.n + "\n"),
+        //   );
+        // }
+        // function checkZiXing() {
+        //   const s = xing.find((x) => x.s);
+        //   const cnt = zhi.filter((z) => s.s.includes(z)).length;
+        //   if (cnt >= 2) out += "* " + s.n + "\n";
+        // }
+        // // out += '六合：\n'; checkPair(liuhe);
+        // // out += '三合：\n'; checkTrio(sanhe);
+        // // out += '三会：\n'; checkGroup(sanhui);
+        // // out += '相冲：\n'; checkPair(chong);
+        // // out += '相害：\n'; checkPair(hai);
+        // // out += '相刑：\n'; checkPair(xing); checkTrio(xing); checkZiXing();
+        // // out += '\n';
+        // checkPair(liuhe);
+        // checkTrio(sanhe);
+        // checkGroup(sanhui);
+        // checkPair(chong);
+        // checkPair(hai);
+        // checkPair(xing);
+        // checkTrio(xing);
+        // checkZiXing();
+        // let out1 = out;
+
+        // if (out !== "✅ 四柱地支：<br>") {
+        //   content += `${out}<br>`;
+        // }
+
+        // out = "✅ 四柱大运流年：<br>";
         // // 方法1: slice() —— 最常用，返回新数组
-        // const sizhu = currentMingli.slice(0, 4);
-        // const gan = sizhu.map(s => s[0]);
-        // let zhi = sizhu.map(s => s[1]);
-        // 天干五合、四冲
-        // ======================
-        out = "✅ 天干冲合：";
-        tianGanWuHe.forEach((he) => {
-          const [a, b] = he.pair;
-          if (gan.includes(a) && gan.includes(b)) {
-            const gap = Math.abs(gan.indexOf(a) - gan.indexOf(b));
-            const type = gap === 1 ? "紧贴合" : gap === 2 ? "隔干合" : "遥合";
-            out += ` ${he.name}（${type}）\n`;
+        // const sizhu0 = currentMingli.slice(0, 6);
+        // // const gan0 = sizhu0.map(s => s[0]);
+        // zhi = sizhu0.map((s) => s[1]);
+        // checkPair(liuhe);
+        // checkTrio(sanhe);
+        // checkGroup(sanhui);
+        // checkPair(chong);
+        // checkPair(hai);
+        // checkPair(xing);
+        // checkTrio(xing);
+        // checkZiXing();
+
+        // const out2 = out;
+
+        // // 分割成数组，去重，再合并
+        // const items1 = out1
+        //   .split("*")
+        //   .map((s) => s.trim())
+        //   .filter(Boolean);
+        // const items2 = out2
+        //   .split("*")
+        //   .map((s) => s.trim())
+        //   .filter(Boolean);
+
+        // // 过滤掉out1中存在的
+        // const unique = items2.filter((item) => !items1.includes(item));
+
+        // const result = "* " + unique.join(" * ");
+
+        // const result0 = result.replace("*", "").trim();
+
+        // if (result0 !== "✅ 四柱大运流年：<br>" && idx >= 4) {
+        //   content += `${result0}<br>`;
+        //   console.log(result0);
+        // }
+        // content += `${result}<br>`;
+
+
+      // -------------------------------------------------------------------------
+      // ============ 核心工具函数 ============
+
+      /**
+       * 解析柱，分离天干地支
+       * @param {string} zhu - 如 "丙午"
+       * @returns {Object} {gan: "丙", zhi: "午"}
+       */
+      function parseZhu(zhu) {
+        return {
+          gan: zhu[0],
+          zhi: zhu[1]
+        };
+      }
+
+      /**
+       * 检查两个天干是否相合
+       */
+      function checkGanHe(gan1, gan2) {
+        for (let item of tianGanWuHe) {
+          if (item.pair.includes(gan1) && item.pair.includes(gan2)) {
+            return { type: "天干合", name: item.name, pair: [gan1, gan2] };
           }
-        });
-        tianGanSiChong.forEach((c) => {
-          if (gan.includes(c.pair[0]) && gan.includes(c.pair[1])) {
-            out += ` ${c.name}\n`;
-            hasChong = true;
+        }
+        return null;
+      }
+
+      /**
+       * 检查两个天干是否相冲
+       */
+      function checkGanChong(gan1, gan2) {
+        for (let item of tianGanSiChong) {
+          if (item.pair.includes(gan1) && item.pair.includes(gan2)) {
+            return { type: "天干冲", name: item.name, pair: [gan1, gan2] };
           }
+        }
+        return null;
+      }
+
+      /**
+       * 检查两个地支是否相合（六合）
+       */
+      function checkZhiHe(zhi1, zhi2) {
+        for (let item of liuhe) {
+          if (item.pair.includes(zhi1) && item.pair.includes(zhi2)) {
+            return { type: "地支六合", name: item.name, pair: [zhi1, zhi2] };
+          }
+        }
+        return null;
+      }
+
+      /**
+       * 检查两个地支是否相冲
+       */
+      function checkZhiChong(zhi1, zhi2) {
+        for (let item of liuchong) {
+          if (item.pair.includes(zhi1) && item.pair.includes(zhi2)) {
+            return { type: "地支冲", name: item.name, pair: [zhi1, zhi2] };
+          }
+        }
+        return null;
+      }
+
+      /**
+       * 检查两个地支是否相害
+       */
+      function checkZhiHai(zhi1, zhi2) {
+        for (let item of liuhai) {
+          if (item.pair.includes(zhi1) && item.pair.includes(zhi2)) {
+            return { type: "地支害", name: item.name, pair: [zhi1, zhi2] };
+          }
+        }
+        return null;
+      }
+
+      // ============ 核心分析功能 ============
+
+      /**
+       * 分析四柱之间的双冲双合关系
+       * @param {Array} sizhu - 四柱数组 ["年柱", "月柱", "日柱", "时柱"]
+       * @returns {Object} 双冲双合分析结果
+       */
+      function analyzeDoubleRelations(sizhu) {
+        const results = {
+          doubleHe: [], // 双合：天干合 + 地支合
+          doubleChong: [], // 双冲：天干冲 + 地支冲
+          tianHeDiChong: [], // 天合地冲
+          tianChongDiHe: [], // 天冲地合
+          singleRelations: [] // 单一关系
+        };
+
+        const zhuNames = ["年柱", "月柱", "日柱", "时柱"];
+        const parsed = sizhu.map(parseZhu);
+
+        // 遍历所有柱对组合
+        for (let i = 0; i < parsed.length; i++) {
+          for (let j = i + 1; j < parsed.length; j++) {
+            const zhu1 = parsed[i];
+            const zhu2 = parsed[j];
+            const name1 = zhuNames[i];
+            const name2 = zhuNames[j];
+
+            // 检查天干关系
+            const ganHe = checkGanHe(zhu1.gan, zhu2.gan);
+            const ganChong = checkGanChong(zhu1.gan, zhu2.gan);
+
+            // 检查地支关系
+            const zhiHe = checkZhiHe(zhu1.zhi, zhu2.zhi);
+            const zhiChong = checkZhiChong(zhu1.zhi, zhu2.zhi);
+            const zhiHai = checkZhiHai(zhu1.zhi, zhu2.zhi);
+
+            const relation = {
+              pair: [`${name1}(${sizhu[i]})`, `${name2}(${sizhu[j]})`],
+              ganRelation: ganHe || ganChong || null,
+              zhiRelation: zhiHe || zhiChong || zhiHai || null
+            };
+
+            // 判断组合类型
+            const hasGanHe = !!ganHe;
+            const hasGanChong = !!ganChong;
+            const hasZhiHe = !!zhiHe;
+            const hasZhiChong = !!zhiChong;
+
+            if (hasGanHe && hasZhiHe) {
+              // 天合地合 = 双合
+              results.doubleHe.push({
+                ...relation,
+                type: "双合",
+                description: `${name1}与${name2}双合：${ganHe.name}、${zhiHe.name}`
+              });
+            } else if (hasGanChong && hasZhiChong) {
+              // 天冲地冲 = 双冲
+              results.doubleChong.push({
+                ...relation,
+                type: "双冲",
+                description: `${name1}与${name2}双冲：${ganChong.name}、${zhiChong.name}`
+              });
+            } else if (hasGanHe && hasZhiChong) {
+              // 天合地冲
+              results.tianHeDiChong.push({
+                ...relation,
+                type: "天合地冲",
+                description: `${name1}与${name2}天合地冲：${ganHe.name}、${zhiChong.name}`
+              });
+            } else if (hasGanChong && hasZhiHe) {
+              // 天冲地合
+              results.tianChongDiHe.push({
+                ...relation,
+                type: "天冲地合",
+                description: `${name1}与${name2}天冲地合：${ganChong.name}、${zhiHe.name}`
+              });
+            } else if (ganHe || ganChong || zhiHe || zhiChong || zhiHai) {
+              // 单一关系
+              results.singleRelations.push({
+                ...relation,
+                type: "单一关系",
+                description: `${name1}与${name2}：${[
+                  ganHe?.name, ganChong?.name, zhiHe?.name, zhiChong?.name, zhiHai?.name
+                ].filter(Boolean).join("<br>")}`
+              });
+            }
+          }
+        }
+
+        return results;
+      }
+
+      /**
+       * 分析三合三会（需要三个地支）
+       * @param {Array} sizhu - 四柱数组
+       * @returns {Object} 三合三会分析结果
+       */
+      function analyzeSanHeSanHui(sizhu) {
+        const results = {
+          sanhe: [], // 三合
+          sanhui: [], // 三会
+          mixed: [] // 三合+三会混合（罕见）
+        };
+
+        const zhuNames = ["年柱", "月柱", "日柱", "时柱"];
+        const parsed = sizhu.map(parseZhu);
+        const allZhi = parsed.map((p, idx) => ({ zhi: p.zhi, zhuName: zhuNames[idx], fullZhu: sizhu[idx] }));
+
+        // 生成所有三柱组合（从四柱中选三个）
+        const combinations = [];
+        for (let i = 0; i < 4; i++) {
+          for (let j = i + 1; j < 4; j++) {
+            for (let k = j + 1; k < 4; k++) {
+              combinations.push([allZhi[i], allZhi[j], allZhi[k]]);
+            }
+          }
+        }
+
+        // 检查每个三柱组合
+        for (let combo of combinations) {
+          const zhiList = combo.map(c => c.zhi);
+          const zhuInfo = combo.map(c => `${c.zhuName}(${c.fullZhu})`);
+
+          // 检查三合
+          for (let sh of sanhe) {
+            // 检查是否包含三合的全部三个地支（顺序无关）
+            const match = sh.trio.every(t => zhiList.includes(t));
+            if (match) {
+              results.sanhe.push({
+                type: "三合",
+                name: sh.name,
+                involved: zhuInfo,
+                zhi: zhiList,
+                fullMatch: true
+              });
+            }
+          }
+
+          // 检查三会
+          for (let sh of sanhui) {
+            const match = sh.group.every(g => zhiList.includes(g));
+            if (match) {
+              results.sanhui.push({
+                type: "三会",
+                name: sh.name,
+                involved: zhuInfo,
+                zhi: zhiList,
+                fullMatch: true
+              });
+            }
+          }
+        }
+
+        // 去重（因为四柱中选三柱会有重复计算，这里按实际参与的地支去重）
+        const uniqueKey = (item) => item.name + item.involved.sort().join("");
+        results.sanhe = Array.from(new Map(results.sanhe.map(item => [uniqueKey(item), item])).values());
+        results.sanhui = Array.from(new Map(results.sanhui.map(item => [uniqueKey(item), item])).values());
+
+        return results;
+      }
+
+      /**
+       * 完整分析四柱（包含大运流年）
+       * @param {Array} pillars - 所有柱数组 [年,月,日,时,大运,流年,...]
+       * @param {Array} labels - 对应标签 ["年","月","日","时","大运","流年"]
+       * @returns {Object} 完整分析结果
+       */
+      function analyzeAllPillars(pillars, labels) {
+        const results = {
+          doubleRelations: [], // 所有双冲双合
+          sanheSanhui: [], // 所有三合三会
+          summary: {}
+        };
+
+        const parsed = pillars.map(parseZhu);
+
+        // 1. 分析所有柱对之间的双冲双合
+        for (let i = 0; i < parsed.length; i++) {
+          for (let j = i + 1; j < parsed.length; j++) {
+            const zhu1 = parsed[i];
+            const zhu2 = parsed[j];
+            const label1 = labels[i] || `柱${i + 1}`;
+            const label2 = labels[j] || `柱${j + 1}`;
+
+            const ganHe = checkGanHe(zhu1.gan, zhu2.gan);
+            const ganChong = checkGanChong(zhu1.gan, zhu2.gan);
+            const zhiHe = checkZhiHe(zhu1.zhi, zhu2.zhi);
+            const zhiChong = checkZhiChong(zhu1.zhi, zhu2.zhi);
+            const zhiHai = checkZhiHai(zhu1.zhi, zhu2.zhi);
+
+            const hasGanHe = !!ganHe;
+            const hasGanChong = !!ganChong;
+            const hasZhiHe = !!zhiHe;
+            const hasZhiChong = !!zhiChong;
+
+            let relationType = null;
+            let description = [];
+
+            if (hasGanHe) description.push(ganHe.name);
+            if (hasGanChong) description.push(ganChong.name);
+            if (hasZhiHe) description.push(zhiHe.name);
+            if (hasZhiChong) description.push(zhiChong.name);
+            if (zhiHai) description.push(zhiHai.name);
+
+            if (hasGanHe && hasZhiHe) relationType = "双合";
+            else if (hasGanChong && hasZhiChong) relationType = "双冲";
+            else if (hasGanHe && hasZhiChong) relationType = "天合地冲";
+            else if (hasGanChong && hasZhiHe) relationType = "天冲地合";
+            else if (description.length > 0) relationType = "单一关系";
+
+            if (relationType) {
+              results.doubleRelations.push({
+                type: relationType,
+                pair: [`${label1}(${pillars[i]})`, `${label2}(${pillars[j]})`],
+                details: description.join("<br>"),
+                ganRelation: ganHe || ganChong || null,
+                zhiRelation: zhiHe || zhiChong || zhiHai || null
+              });
+            }
+          }
+        }
+
+        // 2. 分析三合三会（需要遍历所有三柱组合）
+        const allZhi = parsed.map((p, idx) => ({ 
+          zhi: p.zhi, 
+          label: labels[idx] || `柱${idx + 1}`, 
+          full: pillars[idx] 
+        }));
+
+        // 生成所有可能的三柱组合
+        const getCombinations = (arr, n) => {
+          if (n === 1) return arr.map(x => [x]);
+          const result = [];
+          for (let i = 0; i <= arr.length - n; i++) {
+            const rest = getCombinations(arr.slice(i + 1), n - 1);
+            rest.forEach(r => result.push([arr[i], ...r]));
+          }
+          return result;
+        };
+
+        const triplets = getCombinations(allZhi, 3);
+
+        for (let combo of triplets) {
+          const zhiList = combo.map(c => c.zhi);
+          const info = combo.map(c => `${c.label}(${c.full})`);
+
+          // 检查三合
+          for (let sh of sanhe) {
+            if (sh.trio.every(t => zhiList.includes(t))) {
+              results.sanheSanhui.push({
+                type: "三合",
+                name: sh.name,
+                involved: info,
+                zhi: zhiList
+              });
+            }
+          }
+
+          // 检查三会
+          for (let sh of sanhui) {
+            if (sh.group.every(g => zhiList.includes(g))) {
+              results.sanheSanhui.push({
+                type: "三会",
+                name: sh.name,
+                involved: info,
+                zhi: zhiList
+              });
+            }
+          }
+        }
+
+        // 去重
+        const uniqueKey = (item) => item.name + item.involved.sort().join("");
+        results.sanheSanhui = Array.from(new Map(results.sanheSanhui.map(item => [uniqueKey(item), item])).values());
+
+        // 统计摘要
+        results.summary = {
+          totalRelations: results.doubleRelations.length,
+          doubleHe: results.doubleRelations.filter(r => r.type === "双合").length,
+          doubleChong: results.doubleRelations.filter(r => r.type === "双冲").length,
+          tianHeDiChong: results.doubleRelations.filter(r => r.type === "天合地冲").length,
+          tianChongDiHe: results.doubleRelations.filter(r => r.type === "天冲地合").length,
+          sanhe: results.sanheSanhui.filter(r => r.type === "三合").length,
+          sanhui: results.sanheSanhui.filter(r => r.type === "三会").length
+        };
+
+        return results;
+      }
+
+
+
+      // ============ 使用示例 ============
+      
+      // 示例1：仅四柱
+      const sizhuOnly = currentMingli.slice(0, 4);
+      content += `<br>=== 四柱分析 ===`;
+   
+      const doubleResult = analyzeDoubleRelations(sizhuOnly);
+      content += `<br>✅ 【双冲双合分析】`;
+      content += `<br>双合：${ doubleResult.doubleHe.length > 0 ? doubleResult.doubleHe.map(d => d.description).join("<br>") : "无"}`;
+      content += `<br>双冲：${doubleResult.doubleChong.length > 0 ? doubleResult.doubleChong.map(d => d.description).join("<br>") : "无"}`;
+      content += `<br>天合地冲：${doubleResult.tianHeDiChong.length > 0 ? doubleResult.tianHeDiChong.map(d => d.description).join("<br>") : "无"}`;
+      content += `<br>天冲地合：${ doubleResult.tianChongDiHe.length > 0 ? doubleResult.tianChongDiHe.map(d => d.description).join("<br>") : "无"}`;
+      content += `<br>单一关系：${ doubleResult.singleRelations.length > 0 ? doubleResult.singleRelations.map(d => d.description).join("<br>") : "无"}`;
+
+      const sanheResult = analyzeSanHeSanHui(sizhuOnly);
+      content += `<br>✅ 【三合三会分析】`;
+      content += `<br>三合：${ sanheResult.sanhe.length > 0 ? sanheResult.sanhe.map(s => `${s.name} (${s.involved.join(", ")})`).join("<br>") : "无"}`;
+      content += `<br>三会：${ sanheResult.sanhui.length > 0 ? sanheResult.sanhui.map(s => `${s.name} (${s.involved.join(", ")})`).join("<br>") : "无"}`;
+
+      // 示例2：四柱 + 大运 + 流年
+      const withLuck = currentMingli.slice(0, 7);
+      const labels = ["年柱", "月柱", "日柱", "时柱", "大运", "流年","流月"];
+
+     if ( idx >= 4) { 
+        content += `<br><br>=== 四柱大运流年流月分析 ===`;
+        // content += `所有柱：${withLuck.map((z, i) => `${labels[i]}:${z}`).join(" | ")}`;
+
+        const fullResult = analyzeAllPillars(withLuck, labels);
+        content += `<br>✅ 【所有双冲双合关系】`;
+        fullResult.doubleRelations.forEach(r => {
+          content +=`<br>${r.type}: ${r.pair.join(" vs ")} - ${r.details}`;
         });
 
-        if (out !== "✅ 天干冲合：") {
-          content += `${out}<br>`;
-        }
+        content += `<br>✅ 【所有三合三会】`;
+        fullResult.sanheSanhui.forEach(s => {
+          content +=`<br>${s.type}: ${s.name} (${s.involved.join(", ")})`;
+        });
 
-        // ======================
-        // 地支关系
-        // ======================
-        out = "✅ 四柱地支：<br>";
-        function checkPair(list) {
-          list.forEach(
-            (x) =>
-              x.p &&
-              x.p.every((z) => zhi.includes(z)) &&
-              (out += "* " + x.n + "\n"),
-          );
-        }
-        function checkTrio(list) {
-          list.forEach(
-            (x) =>
-              x.t &&
-              x.t.every((z) => zhi.includes(z)) &&
-              (out += "* " + x.n + "\n"),
-          );
-        }
-        function checkGroup(list) {
-          list.forEach(
-            (x) =>
-              x.g &&
-              x.g.every((z) => zhi.includes(z)) &&
-              (out += "* " + x.n + "\n"),
-          );
-        }
-        function checkZiXing() {
-          const s = xing.find((x) => x.s);
-          const cnt = zhi.filter((z) => s.s.includes(z)).length;
-          if (cnt >= 2) out += "* " + s.n + "\n";
-        }
-        // out += '六合：\n'; checkPair(liuhe);
-        // out += '三合：\n'; checkTrio(sanhe);
-        // out += '三会：\n'; checkGroup(sanhui);
-        // out += '相冲：\n'; checkPair(chong);
-        // out += '相害：\n'; checkPair(hai);
-        // out += '相刑：\n'; checkPair(xing); checkTrio(xing); checkZiXing();
-        // out += '\n';
-        checkPair(liuhe);
-        checkTrio(sanhe);
-        checkGroup(sanhui);
-        checkPair(chong);
-        checkPair(hai);
-        checkPair(xing);
-        checkTrio(xing);
-        checkZiXing();
-        let out1 = out;
+        // console.log(fullResult.summary);
+        content += `<br><br>✅ 【统计摘要】`
+        content +=`<br>总关系数: ${fullResult.summary.totalRelations}`;
+        content +=`<br>双合: ${fullResult.summary.doubleHe} 个`;
+        content +=`<br>双冲: ${fullResult.summary.doubleChong} 个`;
+        content +=`<br>天合地冲: ${fullResult.summary.tianHeDiChong} 个`;
+        content +=`<br>天冲地合: ${fullResult.summary.tianChongDiHe} 个`;
+        content +=`<br>三合局: ${fullResult.summary.sanhe} 个`;
+        content +=`<br>三会局: ${fullResult.summary.sanhui} 个`;
 
-        if (out !== "✅ 四柱地支：<br>") {
-          content += `${out}<br>`;
-        }
+      } 
 
-        out = "✅ 四柱大运流年：<br>";
-        // 方法1: slice() —— 最常用，返回新数组
-        const sizhu0 = currentMingli.slice(0, 6);
-        // const gan0 = sizhu0.map(s => s[0]);
-        zhi = sizhu0.map((s) => s[1]);
-        checkPair(liuhe);
-        checkTrio(sanhe);
-        checkGroup(sanhui);
-        checkPair(chong);
-        checkPair(hai);
-        checkPair(xing);
-        checkTrio(xing);
-        checkZiXing();
 
-        const out2 = out;
 
-        // 分割成数组，去重，再合并
-        const items1 = out1
-          .split("*")
-          .map((s) => s.trim())
-          .filter(Boolean);
-        const items2 = out2
-          .split("*")
-          .map((s) => s.trim())
-          .filter(Boolean);
-
-        // 过滤掉out1中存在的
-        const unique = items2.filter((item) => !items1.includes(item));
-
-        const result = "* " + unique.join(" * ");
-
-        const result0 = result.replace("*", "").trim();
-
-        if (result0 !== "✅ 四柱大运流年：<br>" && idx >= 4) {
-          content += `${result0}<br>`;
-          console.log(result0);
-        }
 
         // content += `${result}<br>`;
 
