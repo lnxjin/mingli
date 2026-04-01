@@ -8,7 +8,7 @@
     />
     <title>灵机八字排盘</title>
     <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
-    <style>
+ <style>
       /* 添加弹窗样式 */
       .modal-overlay {
         display: none;
@@ -99,14 +99,10 @@
         line-height: 1.6;
         color: #555;
         max-height: 60vh;
-        /* 添加：最大高度为视口高度的60% */
         overflow-y: auto;
-        /* 添加：垂直方向自动显示滚动条 */
         padding-right: 8px;
-        /* 添加：给滚动条留点空间，避免内容贴边 */
       }
 
-      /* 追加在这里 ↓↓↓ */
       .modal-body::-webkit-scrollbar {
         width: 6px;
       }
@@ -124,27 +120,24 @@
       .modal-body::-webkit-scrollbar-thumb:hover {
         background: #a1a1a1;
       }
+
       /* 让干支竖排显示（writing-mode方式）让干支可以点击 */
       .pillar-ganzhi {
         font-size: 1.6rem;
         font-weight: 700;
         color: #8b4513;
-        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
+        margin: 2px auto;
         font-family: "Noto Serif SC", serif;
-        cursor: pointer; /* 鼠标变成手型 */
+        cursor: pointer;
         transition: all 0.2s;
-        padding: 4px 10px; /* 上下padding增大，左右减小 */
+        padding: 4px 10px;
         border-radius: 6px;
-
-        /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
-
-        /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 4px;
+        display: block;
+        text-align: center;
+        width: fit-content;
       }
 
       .pillar-ganzhi:hover {
@@ -152,7 +145,7 @@
         transform: scale(1.05);
       }
 
-      /* 样式保持不变 */
+      /* 基础样式 */
       * {
         box-sizing: border-box;
         margin: 0;
@@ -187,28 +180,36 @@
         margin-top: 2px;
       }
 
+      /* 修改：主容器改为上下布局 */
       .main-container {
-        max-width: 1400px;
+        max-width: 1024px;
         margin: 0 auto;
-        display: grid;
-        grid-template-columns: 300px 1fr;
+        display: flex;
+        flex-direction: column;
         gap: 0;
         min-height: calc(100vh - 52px);
       }
 
+      /* 修改：控制区改为顶部横条 */
       .control-sidebar {
         background: #fff;
-        border-right: 1px solid #e0e0e0;
+        border-right: none;
+        border-bottom: 1px solid #e0e0e0;
         padding: 16px;
-        overflow-y: auto;
+        overflow-y: visible;
+        display: flex;
+        flex-wrap: wrap;
+        gap: 16px;
+        justify-content: flex-start;
       }
 
       .calendar-section {
         background: #fafafa;
         border-radius: 10px;
         padding: 12px;
-        margin-bottom: 16px;
         border: 1px solid #e8e8e8;
+        flex: 0 0 auto;
+        width: 320px;
       }
 
       .calendar-header {
@@ -251,7 +252,6 @@
         border-color: #8b4513;
       }
 
-      /* 回到今天按钮样式 */
       .today-btn {
         background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
         color: white;
@@ -372,6 +372,8 @@
         border-radius: 10px;
         padding: 12px;
         border: 1px solid #e8e8e8;
+        flex: 0 0 auto;
+        width: 320px;
       }
 
       .section-title {
@@ -459,17 +461,19 @@
         line-height: 1.4;
       }
 
+      /* 修改：内容区域 */
       .content-area {
         padding: 20px;
-        overflow-y: auto;
         background: #f5f5f5;
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
       }
 
       .info-bar {
         background: white;
         border-radius: 10px;
         padding: 12px 16px;
-        margin-bottom: 16px;
         display: flex;
         flex-wrap: wrap;
         gap: 16px;
@@ -502,7 +506,6 @@
         background: white;
         border-radius: 10px;
         padding: 16px;
-        margin-bottom: 16px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         border: 1px solid #e8e8e8;
       }
@@ -530,54 +533,51 @@
         font-size: 0.9rem;
       }
 
-      /* 四柱容器 - 桌面端横向排列，包含四柱和动态三柱 */
+      /* 修改：四柱容器改为上下排列 */
       .pillars-container {
         display: flex;
-        flex-direction: row;
-        flex-wrap: nowrap;
-        gap: 12px;
-        overflow-x: auto;
-        padding-bottom: 8px;
+        flex-direction: column;
+        gap: 16px;
+        align-items: center;
       }
 
-      /* 四柱分组 */
+      /* 四柱分组 - 横向排列 */
       .sizhu-group {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         gap: 12px;
-        flex: 0 0 auto;
+        justify-content: center;
       }
 
-      /* 分隔线 */
+      /* 修改：分隔线改为水平 */
       .pillars-divider {
-        width: 2px;
+        width: 80%;
+        height: 2px;
         background: linear-gradient(
-          180deg,
+          90deg,
           transparent 0%,
           #d4a574 50%,
           transparent 100%
         );
-        margin: 0 8px;
-        flex-shrink: 0;
+        margin: 0;
       }
 
-      /* 动态三柱分组 */
+      /* 动态三柱分组 - 横向排列 */
       .dynamic-group {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         gap: 12px;
-        flex: 0 0 auto;
+        justify-content: center;
       }
 
-      /* 父容器也需要居中 */
       .pillar-card {
         display: flex;
         flex-direction: column;
-        align-items: center; /* 子元素水平居中 */
+        align-items: center;
         flex: 0 0 auto;
-        min-width: 120px;
+        min-width: 110px;
         background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
         border-radius: 10px;
         padding: 12px;
@@ -604,7 +604,6 @@
         background: linear-gradient(90deg, #8b4513, #d2691e);
       }
 
-      /* 动态柱特殊样式 */
       .pillar-card.dynamic {
         background: linear-gradient(180deg, #fff9f0 0%, #fff5e6 100%);
         border-color: #e8d5c4;
@@ -652,14 +651,6 @@
         font-weight: 500;
       }
 
-      /* .pillar-ganzhi {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #8B4513;
-            margin: 6px 0;
-            font-family: 'Noto Serif SC', serif;
-        } */
-
       .pillar-shishen {
         display: inline-block;
         background: #8b4513;
@@ -704,7 +695,6 @@
         background: white;
         border-radius: 10px;
         padding: 16px;
-        margin-bottom: 16px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         border: 1px solid #e8e8e8;
       }
@@ -793,17 +783,13 @@
         font-size: 1.5rem;
         font-weight: 500;
         color: #8b4513;
-        /* margin-bottom: 2px; */
-        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
-        /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
-
-        /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        margin: 2px auto;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 4px;
+        display: block;
+        text-align: center;
+        width: fit-content;
       }
 
       .dayun-item.active .dayun-ganzhi {
@@ -863,16 +849,13 @@
         font-size: 1.5rem;
         font-weight: 500;
         color: #8b4513;
-        margin: 6px auto; /* 上下6px，左右auto实现水平居中 */
-        /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
-
-        /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        margin: 6px auto;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 4px;
+        display: block;
+        text-align: center;
+        width: fit-content;
       }
 
       .liunian-item.active .liunian-ganzhi {
@@ -948,16 +931,13 @@
         font-size: 1.5rem;
         font-weight: 500;
         color: #333;
-        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
-        /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
-
-        /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        margin: 2px auto;
+        writing-mode: vertical-rl;
+        text-orientation: upright;
+        letter-spacing: 4px;
+        display: block;
+        text-align: center;
+        width: fit-content;
       }
 
       .liuyue-item.active .liuyue-ganzhi {
@@ -974,24 +954,25 @@
         color: rgba(255, 255, 255, 0.9);
       }
 
-      /* 新增：八字反推功能样式 */
+      /* 八字反推功能样式 */
       .bazi-reverse-section {
         background: #fafafa;
         border-radius: 10px;
         padding: 12px;
-        margin-bottom: 16px;
         border: 1px solid #e8e8e8;
+        flex: 0 0 auto;
+        width: 320px;
       }
 
       .bazi-input-row {
         display: flex;
-        flex-direction: column; /* 改为垂直排列 */
+        flex-direction: column;
         gap: 8px;
         margin-bottom: 10px;
       }
 
       .bazi-input {
-        width: 100%; /* 确保输入框占满宽度 */
+        width: 100%;
         padding: 8px 10px;
         border: 1px solid #ddd;
         border-radius: 6px;
@@ -1000,7 +981,7 @@
         outline: none;
         transition: border-color 0.2s;
         letter-spacing: 2px;
-        box-sizing: border-box; /* 确保padding不撑大宽度 */
+        box-sizing: border-box;
       }
 
       .bazi-input:focus {
@@ -1018,12 +999,12 @@
       }
 
       .reverse-btn {
-        width: 100%; /* 按钮也占满宽度 */
+        width: 100%;
         background: linear-gradient(135deg, #475663 0%, #7c6146 100%);
         color: white;
         border: none;
         border-radius: 6px;
-        padding: 10px 16px; /* 稍微增加上下padding，更易点击 */
+        padding: 10px 16px;
         font-size: 1rem;
         cursor: pointer;
         transition: all 0.2s;
@@ -1127,311 +1108,6 @@
         color: #8b4513;
         font-size: 0.9rem;
       }
-
-     
-      /* 平板和桌面端（768px以上）：改为两行排列 */
-      @media (min-width: 768px) {
-        .bazi-input-row {
-          flex-direction: column; /* 垂直排列 */
-        }
-
-        .bazi-input {
-          width: 100%;
-        }
-
-        .reverse-btn {
-          width: 100%;
-        }
-
-        body {
-          font-size: 18px;
-        }
-
-        .header h1 {
-          font-size: 2.2rem;
-        }
-
-        .header .subtitle {
-          font-size: 1.4rem;
-        }
-
-        .content-area {
-          padding: 16px;
-        }
-
-        .info-bar {
-          flex-direction: column;
-          gap: 10px;
-          padding: 14px;
-        }
-
-        .info-item {
-          justify-content: left;
-          width: 100%;
-        }
-
-        .info-label {
-          font-size: 1.4rem;
-        }
-
-        .info-value {
-          font-size: 1.4rem;
-        }
-
-        .yun-header {
-          flex-direction: column;
-          align-items: flex-start;
-          gap: 8px;
-        }
-
-        .yun-header-main {
-          flex-direction: column;
-          gap: 6px;
-        }
-
-        .yun-header h2 {
-          font-size: 1.5rem;
-        }
-
-        .yun-meta {
-          font-size: 1.4rem;
-        }
-
-        .yun-subtitle {
-          font-size: 0.95rem;
-        }
-
-        .control-sidebar {
-          padding: 20px;
-        }
-
-        .calendar-title {
-          font-size: 1.7rem;
-        }
-
-        .nav-btn {
-          width: 60px;
-          height: 40px;
-          font-size: 1.5rem;
-          margin-right: 10px;
-        }
-
-        .today-btn {
-          font-size: 1.5rem;
-          padding: 8px 14px;
-        }
-
-        .ym-select {
-          font-size: 1.5rem;
-          padding: 10px 8px;
-        }
-
-        .weekday-header {
-          font-size: 1.4rem;
-          padding: 10px 0;
-        }
-
-        .calendar-day {
-          font-size: 1.8rem;
-          min-height: 48px;
-        }
-
-        .lunar-date {
-          font-size: 1.1rem;
-          transform: scale(0.9);
-        }
-
-        .section-title {
-          font-size: 1.6rem;
-        }
-
-        .section-header h2 {
-          font-size: 1.4rem;
-        }
-
-        .tag {
-          font-size: 1.4rem;
-        }
-
-        .bazi-hint {
-          font-size: 1.4rem;
-        }
-
-        .form-label {
-          font-size: 1.4rem;
-        }
-
-        .form-select {
-          font-size: 1.5rem;
-          padding: 12px;
-        }
-
-        .late-zi-title {
-          font-size: 1.6rem;
-        }
-
-        .radio-item {
-          font-size: 1.4rem;
-          padding: 10px 16px;
-        }
-
-        .bazi-results-title {
-          font-size: 1.6rem;
-        }
-
-        .bazi-result-date {
-          font-size: 1.6rem;
-        }
-
-        .bazi-result-lunar {
-          font-size: 1.6rem;
-        }
-
-        .tips-box {
-          font-size: 1.4rem;
-          padding: 12px;
-        }
-
-        /* 弹窗 */
-        .modal-title {
-          font-size: 1.8rem;
-        }
-
-        .modal-close {
-          font-size: 1.8rem;
-        }
-
-        .modal-body {
-          font-size: 1.6rem;
-          /* 你原有的放大字号 */
-          max-height: 75vh;
-          /* 添加：手机端更高，留少点边距 */
-          overflow-y: auto;
-          /* 添加 */
-          padding-right: 12px;
-          /* 可选：稍宽点，方便手指滑动 */
-        }
-
-        /* 手机端：四柱和动态柱垂直排列 */
-        .pillars-container {
-          flex-direction: column;
-          gap: 16px;
-        }
-
-        .sizhu-group {
-          justify-content: center;
-          width: 100%;
-        }
-
-        .pillars-divider {
-          width: 100%;
-          height: 2px;
-          margin: 8px 0;
-          background: linear-gradient(
-            90deg,
-            transparent 0%,
-            #d4a574 50%,
-            transparent 100%
-          );
-        }
-
-        .dynamic-group {
-          justify-content: center;
-          width: 100%;
-        }
-
-        .pillar-card {
-          min-width: 100px;
-          flex: 1;
-          max-width: 130px;
-          padding: 14px 10px;
-        }
-
-        .pillar-ganzhi {
-          font-size: 1.6 rem;
-        }
-
-        .pillar-label {
-          font-size: 1.1rem;
-        }
-
-        .pillar-shishen {
-          font-size: 1.2rem;
-          padding: 3px 10px;
-        }
-
-        .canggan-box {
-          font-size: 1.4rem;
-          padding: 8px;
-          line-height: 1.4;
-        }
-
-        .canggan-box span {
-          font-size: 1.3rem;
-        }
-
-        .nayin-text {
-          font-size: 1.3rem;
-        }
-
-        .yun-meta span {
-          color: #8b4513;
-          font-size: 1.25rem;
-        }
-
-        .dayun-item {
-          min-width: 95px;
-          padding: 14px 16px;
-        }
-
-        .dayun-ganzhi {
-          font-size: 1.8rem;
-        }
-
-        .dayun-shishen {
-          font-size: 1.2rem;
-          padding: 3px 10px;
-        }
-
-        .dayun-age {
-          font-size: 1.1rem;
-        }
-
-        .liunian-item {
-          min-width: 85px;
-          padding: 12px 14px;
-        }
-
-        .liunian-ganzhi {
-          font-size: 1.8rem;
-        }
-
-        .liunian-shishen {
-          font-size: 1.2rem;
-          padding: 3px 8px;
-        }
-
-        .liunian-year,
-        .liunian-sui {
-          font-size: 1.1rem;
-        }
-
-        .liuyue-item {
-          min-width: 85px;
-          padding: 10px 14px;
-        }
-
-        .liuyue-ganzhi {
-          font-size: 1.8 rem;
-        }
-
-        .liuyue-month,
-        .liuyue-shishen {
-          font-size: 1.2rem;
-        }
-      }
-
-    
 
       ::-webkit-scrollbar {
         width: 6px;
