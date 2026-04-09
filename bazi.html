@@ -4,11 +4,11 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=0.6, maximum-scale=1.0, user-scalable=no"
-    />
+      content="width=device-width, initial-scale=0.6, maximum-scale=1.0, user-scalable=no" />
     <title>灵机八字排盘</title>
-    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
- <style>
+    <script
+      src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
+    <style>
       /* 添加弹窗样式 */
       .modal-overlay {
         display: none;
@@ -69,7 +69,7 @@
       }
 
       .modal-title {
-        font-size: 1.6rem;
+        font-size: 1.2rem;
         font-weight: 600;
         color: #8b4513;
       }
@@ -81,7 +81,7 @@
         background: #f5f5f5;
         border-radius: 50%;
         cursor: pointer;
-        font-size: 1.6rem;
+        font-size: 1.2rem;
         color: #666;
         display: flex;
         align-items: center;
@@ -95,14 +95,18 @@
       }
 
       .modal-body {
-        font-size: 1.4rem;
+        font-size: 1rem;
         line-height: 1.6;
         color: #555;
         max-height: 60vh;
+        /* 添加：最大高度为视口高度的60% */
         overflow-y: auto;
+        /* 添加：垂直方向自动显示滚动条 */
         padding-right: 8px;
+        /* 添加：给滚动条留点空间，避免内容贴边 */
       }
 
+      /* 追加在这里 ↓↓↓ */
       .modal-body::-webkit-scrollbar {
         width: 6px;
       }
@@ -120,24 +124,27 @@
       .modal-body::-webkit-scrollbar-thumb:hover {
         background: #a1a1a1;
       }
-
       /* 让干支竖排显示（writing-mode方式）让干支可以点击 */
       .pillar-ganzhi {
-        font-size: 1.8rem;
+        font-size: 1.6rem;
         font-weight: 700;
         color: #8b4513;
-        margin: 2px auto;
+        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
         font-family: "Noto Serif SC", serif;
-        cursor: pointer;
+        cursor: pointer; /* 鼠标变成手型 */
         transition: all 0.2s;
-        padding: 4px 10px;
+        padding: 4px 10px; /* 上下padding增大，左右减小 */
         border-radius: 6px;
-        writing-mode: vertical-rl;
-        text-orientation: upright;
-        letter-spacing: 4px;
-        display: block;
-        text-align: center;
-        width: fit-content;
+
+        /* 竖排核心代码 */
+        writing-mode: vertical-rl; /* 从右到左竖排 */
+        text-orientation: upright; /* 文字直立 */
+        letter-spacing: 4px; /* 增加字间距 */
+
+        /* 水平居中关键 */
+        display: block; /* 块级元素 */
+        text-align: center; /* 文字居中 */
+        width: fit-content; /* 宽度自适应内容 */
       }
 
       .pillar-ganzhi:hover {
@@ -145,7 +152,7 @@
         transform: scale(1.05);
       }
 
-      /* 基础样式 */
+      /* 样式保持不变 */
       * {
         box-sizing: border-box;
         margin: 0;
@@ -166,50 +173,44 @@
         color: white;
         padding: 12px 20px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-        margin: 0 auto;
-         max-width: 1024px;
+        margin: 20px auto;
+        max-width: 1400px;
       }
 
       .header h1 {
-        font-size: 2rem;
+        font-size: 1.2rem;
         font-weight: 600;
         letter-spacing: 1px;
       }
 
       .header .subtitle {
-        font-size: 1.6rem;
+        font-size: 0.8rem;
         opacity: 0.9;
         margin-top: 2px;
       }
 
-      /* 修改：主容器改为上下布局 */
       .main-container {
-        max-width: 1024px;
+        max-width: 1400px;
         margin: 0 auto;
-        display: flex;
-        flex-direction: column;
+        display: grid;
+        grid-template-columns: 300px 1fr;
         gap: 0;
         min-height: calc(100vh - 52px);
       }
 
-      /* 修改：控制区改为顶部横条 */
       .control-sidebar {
-         background: #fff;
-        border-right: none;
-        border-bottom: 1px solid #e0e0e0;
+        background: #fff;
+        border-right: 1px solid #e0e0e0;
         padding: 16px;
-        overflow-y: visible;
-        display: flex;
-        flex-direction: column; /* 改为纵向排列 */
-        gap: 16px;
+        overflow-y: auto;
       }
 
       .calendar-section {
         background: #fafafa;
-  border-radius: 10px;
-  padding: 12px;
-  border: 1px solid #e8e8e8;
-  width: 100%; /* 日历占满整行 */
+        border-radius: 10px;
+        padding: 12px;
+        margin-bottom: 16px;
+        border: 1px solid #e8e8e8;
       }
 
       .calendar-header {
@@ -222,7 +223,7 @@
       }
 
       .calendar-title {
-        font-size: 1.6rem;
+        font-size: 1rem;
         font-weight: 600;
         color: #8b4513;
       }
@@ -233,8 +234,8 @@
       }
 
       .nav-btn {
-        width: 36px;
-        height: 32px;
+        width: 28px;
+        height: 26px;
         border: 1px solid #ddd;
         background: white;
         border-radius: 4px;
@@ -242,9 +243,8 @@
         display: flex;
         align-items: center;
         justify-content: center;
-        font-size: 1.6rem;
+        font-size: 0.9rem;
         transition: all 0.2s;
-        margin-right: 24px;
       }
 
       .nav-btn:hover {
@@ -253,13 +253,14 @@
         border-color: #8b4513;
       }
 
+      /* 回到今天按钮样式 */
       .today-btn {
         background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
         color: white;
         border: none;
         border-radius: 6px;
         padding: 6px 12px;
-        font-size: 1.6rem;
+        font-size: 0.85rem;
         cursor: pointer;
         transition: all 0.2s;
         margin-left: 8px;
@@ -282,7 +283,7 @@
         padding: 6px 4px;
         border: 1px solid #ddd;
         border-radius: 6px;
-        font-size: 1.6rem;
+        font-size: 0.8rem;
         background: white;
         outline: none;
         cursor: pointer;
@@ -304,7 +305,7 @@
       }
 
       .weekday-header {
-        font-size: 1.6rem;
+        font-size: 0.7rem;
         color: #666;
         padding: 6px 0;
         font-weight: 600;
@@ -319,7 +320,7 @@
         justify-content: center;
         background: white;
         cursor: pointer;
-        font-size: 1.4rem;
+        font-size: 0.85rem;
         transition: all 0.2s;
         position: relative;
         min-height: 32px;
@@ -361,40 +362,22 @@
       }
 
       .lunar-date {
-        font-size: 1.2rem;
+        font-size: 0.6rem;
         opacity: 0.8;
         margin-top: 1px;
         transform: scale(0.85);
         line-height: 1;
       }
 
-/* 新增：八字反推和时间选择的容器 */
-.control-sidebar-bottom {
-  display: flex;
-  flex-direction: row;
-  gap: 16px;
-}
-
-.bazi-reverse-section, .time-section {
-  flex: 1; /* 两个模块平分宽度 */
-  width: auto; /* 移除固定宽度 */
-}
       .time-section {
         background: #fafafa;
         border-radius: 10px;
         padding: 12px;
         border: 1px solid #e8e8e8;
-        flex: 0 0 auto;
-        width: 100%;
       }
 
-
-
-
-
-
       .section-title {
-        font-size:1.6rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #555;
         margin-bottom: 10px;
@@ -408,7 +391,7 @@
       }
 
       .form-label {
-        font-size: 1.4rem;
+        font-size: 0.85rem;
         color: #666;
         margin-bottom: 4px;
         display: block;
@@ -420,7 +403,7 @@
         padding: 8px 10px;
         border: 1px solid #ddd;
         border-radius: 6px;
-        font-size: 1.4rem;
+        font-size: 0.85rem;
         background: white;
         outline: none;
         transition: border-color 0.2s;
@@ -441,7 +424,7 @@
       }
 
       .late-zi-title {
-        font-size: 1.6rem;
+        font-size: 0.85rem;
         color: #666;
         margin-bottom: 6px;
         font-weight: 500;
@@ -457,16 +440,14 @@
         align-items: center;
         gap: 4px;
         cursor: pointer;
-        font-size: 1.6rem;
+        font-size: 0.85rem;
         color: #555;
-        margin-right: 24px;
       }
 
       .radio-item input {
         width: 14px;
         height: 14px;
         accent-color: #8b4513;
-        
       }
 
       .tips-box {
@@ -475,24 +456,23 @@
         padding: 8px 10px;
         border-radius: 0 6px 6px 0;
         margin-top: 12px;
-        font-size:1.6rem;
+        font-size: 0.85rem;
         color: #8b4513;
         line-height: 1.4;
       }
 
-      /* 修改：内容区域 */
       .content-area {
-        padding: 20px;
+        padding: 20px auto;
+        padding-left: 20px;
+        overflow-y: auto;
         background: #f5f5f5;
-        display: flex;
-        flex-direction: column;
-        gap: 16px;
       }
 
       .info-bar {
         background: white;
         border-radius: 10px;
         padding: 12px 16px;
+        margin-bottom: 16px;
         display: flex;
         flex-wrap: wrap;
         gap: 16px;
@@ -507,12 +487,12 @@
       }
 
       .info-label {
-        font-size: 1.4rem;
+        font-size: 0.9rem;
         color: #888;
       }
 
       .info-value {
-        font-size: 1.4rem;
+        font-size: 0.9rem;
         font-weight: 600;
         color: #333;
       }
@@ -525,6 +505,7 @@
         background: white;
         border-radius: 10px;
         padding: 16px;
+        margin-bottom: 16px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         border: 1px solid #e8e8e8;
       }
@@ -539,7 +520,7 @@
       }
 
       .section-header h2 {
-        font-size: 1.4rem;
+        font-size: 1.1rem;
         color: #333;
         font-weight: 600;
       }
@@ -549,54 +530,57 @@
         color: black;
         padding: 3px 10px;
         border-radius: 20px;
-        font-size: 1.4rem;
+        font-size: 0.9rem;
       }
 
-      /* 修改：四柱容器改为上下排列 */
+      /* 四柱容器 - 桌面端横向排列，包含四柱和动态三柱 */
       .pillars-container {
         display: flex;
-        flex-direction: column;
-        gap: 16px;
-        align-items: center;
+        flex-direction: row;
+        flex-wrap: nowrap;
+        gap: 12px;
+        overflow-x: auto;
+        padding-bottom: 8px;
       }
 
-      /* 四柱分组 - 横向排列 */
+      /* 四柱分组 */
       .sizhu-group {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         gap: 12px;
-        justify-content: center;
+        flex: 0 0 auto;
       }
 
-      /* 修改：分隔线改为水平 */
+      /* 分隔线 */
       .pillars-divider {
-        width: 80%;
-        height: 2px;
+        width: 2px;
         background: linear-gradient(
-          90deg,
+          180deg,
           transparent 0%,
           #d4a574 50%,
           transparent 100%
         );
-        margin: 0;
+        margin: 0 8px;
+        flex-shrink: 0;
       }
 
-      /* 动态三柱分组 - 横向排列 */
+      /* 动态三柱分组 */
       .dynamic-group {
         display: flex;
         flex-direction: row;
         flex-wrap: nowrap;
         gap: 12px;
-        justify-content: center;
+        flex: 0 0 auto;
       }
 
+      /* 父容器也需要居中 */
       .pillar-card {
         display: flex;
         flex-direction: column;
-        align-items: center;
+        align-items: center; /* 子元素水平居中 */
         flex: 0 0 auto;
-        min-width: 110px;
+        min-width: 120px;
         background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
         border-radius: 10px;
         padding: 12px;
@@ -623,6 +607,7 @@
         background: linear-gradient(90deg, #8b4513, #d2691e);
       }
 
+      /* 动态柱特殊样式 */
       .pillar-card.dynamic {
         background: linear-gradient(180deg, #fff9f0 0%, #fff5e6 100%);
         border-color: #e8d5c4;
@@ -664,11 +649,19 @@
       }
 
       .pillar-label {
-        font-size: 1rem;
+        font-size: 0.85rem;
         color: #888;
         margin-bottom: 6px;
         font-weight: 500;
       }
+
+      /* .pillar-ganzhi {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #8B4513;
+            margin: 6px 0;
+            font-family: 'Noto Serif SC', serif;
+        } */
 
       .pillar-shishen {
         display: inline-block;
@@ -676,7 +669,7 @@
         color: white;
         padding: 2px 8px;
         border-radius: 10px;
-        font-size: 1rem;
+        font-size: 0.8rem;
         margin-bottom: 6px;
       }
 
@@ -693,19 +686,19 @@
         border-radius: 6px;
         padding: 6px;
         margin: 6px 0;
-        font-size: 1.2rem;
+        font-size: 0.95rem;
         color: #666;
         border: 1px solid #eee;
       }
 
       .canggan-box span {
-        font-size: 1rem;
+        font-size: 0.85rem;
         color: #999;
         margin-left: 2px;
       }
 
       .nayin-text {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
         color: #999;
         margin-top: 4px;
       }
@@ -714,6 +707,7 @@
         background: white;
         border-radius: 10px;
         padding: 16px;
+        margin-bottom: 16px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
         border: 1px solid #e8e8e8;
       }
@@ -734,13 +728,13 @@
       }
 
       .yun-header h2 {
-        font-size: 1.4rem;
+        font-size: 1.1rem;
         color: #333;
         font-weight: 600;
       }
 
       .yun-meta {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
         color: #888;
       }
 
@@ -750,7 +744,7 @@
       }
 
       .yun-subtitle {
-        font-size: 1.2rem;
+        font-size: 0.9rem;
         color: #888;
       }
 
@@ -799,16 +793,20 @@
       }
 
       .dayun-ganzhi {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
         font-weight: 500;
         color: #8b4513;
-        margin: 2px auto;
-        writing-mode: vertical-rl;
-        text-orientation: upright;
-        letter-spacing: 4px;
-        display: block;
-        text-align: center;
-        width: fit-content;
+        /* margin-bottom: 2px; */
+        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
+        /* 竖排核心代码 */
+        writing-mode: vertical-rl; /* 从右到左竖排 */
+        text-orientation: upright; /* 文字直立 */
+        letter-spacing: 4px; /* 增加字间距 */
+
+        /* 水平居中关键 */
+        display: block; /* 块级元素 */
+        text-align: center; /* 文字居中 */
+        width: fit-content; /* 宽度自适应内容 */
       }
 
       .dayun-item.active .dayun-ganzhi {
@@ -816,7 +814,7 @@
       }
 
       .dayun-shishen {
-        font-size: 1rem;
+        font-size: 0.9rem;
         background: #f0f0f0;
         padding: 1px 6px;
         border-radius: 8px;
@@ -831,7 +829,7 @@
       }
 
       .dayun-age {
-        font-size: 1rem;
+        font-size: 0.85rem;
         color: #666;
       }
 
@@ -865,16 +863,19 @@
       }
 
       .liunian-ganzhi {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
         font-weight: 500;
         color: #8b4513;
-        margin: 6px auto;
-        writing-mode: vertical-rl;
-        text-orientation: upright;
-        letter-spacing: 4px;
-        display: block;
-        text-align: center;
-        width: fit-content;
+        margin: 6px auto; /* 上下6px，左右auto实现水平居中 */
+        /* 竖排核心代码 */
+        writing-mode: vertical-rl; /* 从右到左竖排 */
+        text-orientation: upright; /* 文字直立 */
+        letter-spacing: 4px; /* 增加字间距 */
+
+        /* 水平居中关键 */
+        display: block; /* 块级元素 */
+        text-align: center; /* 文字居中 */
+        width: fit-content; /* 宽度自适应内容 */
       }
 
       .liunian-item.active .liunian-ganzhi {
@@ -882,7 +883,7 @@
       }
 
       .liunian-shishen {
-        font-size: 1rem;
+        font-size: 0.9rem;
         background: #f0f0f0;
         padding: 1px 4px;
         border-radius: 6px;
@@ -897,12 +898,12 @@
       }
 
       .liunian-year {
-        font-size: 1rem;
+        font-size: 0.85rem;
         color: #888;
       }
 
       .liunian-sui {
-        font-size: 1rem;
+        font-size: 0.85rem;
         color: #888;
       }
 
@@ -937,7 +938,7 @@
       }
 
       .liuyue-month {
-        font-size: 1rem;
+        font-size: 0.8rem;
         color: #888;
         margin-bottom: 2px;
       }
@@ -947,16 +948,19 @@
       }
 
       .liuyue-ganzhi {
-        font-size: 1.6rem;
+        font-size: 1.5rem;
         font-weight: 500;
         color: #333;
-        margin: 2px auto;
-        writing-mode: vertical-rl;
-        text-orientation: upright;
-        letter-spacing: 4px;
-        display: block;
-        text-align: center;
-        width: fit-content;
+        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
+        /* 竖排核心代码 */
+        writing-mode: vertical-rl; /* 从右到左竖排 */
+        text-orientation: upright; /* 文字直立 */
+        letter-spacing: 4px; /* 增加字间距 */
+
+        /* 水平居中关键 */
+        display: block; /* 块级元素 */
+        text-align: center; /* 文字居中 */
+        width: fit-content; /* 宽度自适应内容 */
       }
 
       .liuyue-item.active .liuyue-ganzhi {
@@ -964,7 +968,7 @@
       }
 
       .liuyue-shishen {
-        font-size: 1rem;
+        font-size: 0.85rem;
         color: #8b4513;
         margin-top: 1px;
       }
@@ -973,34 +977,33 @@
         color: rgba(255, 255, 255, 0.9);
       }
 
-      /* 八字反推功能样式 */
+      /* 新增：八字反推功能样式 */
       .bazi-reverse-section {
         background: #fafafa;
         border-radius: 10px;
         padding: 12px;
+        margin-bottom: 16px;
         border: 1px solid #e8e8e8;
-        flex: 0 0 auto;
-        width: 100%;
       }
 
       .bazi-input-row {
         display: flex;
-        flex-direction: row;
+        flex-direction: column; /* 改为垂直排列 */
         gap: 8px;
         margin-bottom: 10px;
       }
 
       .bazi-input {
-        width: 80%;
+        width: 100%; /* 确保输入框占满宽度 */
         padding: 8px 10px;
         border: 1px solid #ddd;
         border-radius: 6px;
-        font-size: 1.8rem;
+        font-size: 1rem;
         background: white;
         outline: none;
         transition: border-color 0.2s;
         letter-spacing: 2px;
-        box-sizing: border-box;
+        box-sizing: border-box; /* 确保padding不撑大宽度 */
       }
 
       .bazi-input:focus {
@@ -1018,13 +1021,13 @@
       }
 
       .reverse-btn {
-        width: 20%;
+        width: 100%; /* 按钮也占满宽度 */
         background: linear-gradient(135deg, #475663 0%, #7c6146 100%);
         color: white;
         border: none;
         border-radius: 6px;
-        padding: 10px 16px;
-        font-size: 1.5rem;
+        padding: 10px 16px; /* 稍微增加上下padding，更易点击 */
+        font-size: 1rem;
         cursor: pointer;
         transition: all 0.2s;
         font-weight: 500;
@@ -1042,14 +1045,14 @@
       }
 
       .bazi-hint {
-        font-size: 1.4rem;
+        font-size: 0.75rem;
         color: #888;
         margin-top: 4px;
         line-height: 1.4;
       }
 
       .bazi-error {
-        font-size: 1.4rem;
+        font-size: 0.8rem;
         color: #e74c3c;
         margin-top: 4px;
         display: none;
@@ -1088,25 +1091,25 @@
       }
 
       .bazi-result-date {
-        font-size: 1.6rem;
+        font-size: 0.9rem;
         color: #333;
         font-weight: 500;
       }
 
       .bazi-result-lunar {
-        font-size: 1.6rem;
+        font-size: 0.8rem;
         color: #888;
       }
 
       .bazi-result-ganzhi {
-        font-size: 1.4rem;
+        font-size: 0.85rem;
         color: #8b4513;
         font-weight: 600;
         display: none;
       }
 
       .bazi-results-title {
-        font-size: 1.6rem;
+        font-size: 0.85rem;
         color: #666;
         padding: 8px 12px;
         background: #f5f5f5;
@@ -1118,16 +1121,1131 @@
         padding: 20px;
         text-align: center;
         color: #999;
-        font-size: 1.4rem;
+        font-size: 0.9rem;
       }
 
       .bazi-loading {
         padding: 20px;
         text-align: center;
         color: #8b4513;
-        font-size: 1.4rem;
+        font-size: 0.9rem;
       }
 
+      @media (max-width: 768px) {
+        /* 添加弹窗样式 */
+        .modal-overlay {
+          display: none;
+          position: fixed;
+          top: 0;
+          left: 0;
+          width: 100%;
+          height: 100%;
+          background: rgba(0, 0, 0, 0.5);
+          z-index: 1000;
+          justify-content: center;
+          align-items: center;
+        }
+
+        .modal-overlay.active {
+          display: flex;
+        }
+
+        .modal-content {
+          position: relative;
+          left: 50%;
+          top: 50%;
+          transform: translate(-50%, -50%);
+          background: white;
+          border-radius: 12px;
+          padding: 24px;
+          max-width: 400px;
+          width: 90%;
+          box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+          animation: modalSlideIn 0.3s ease;
+          cursor: grab;
+        }
+
+        .modal-content.dragging {
+          cursor: grabbing;
+          user-select: none;
+        }
+
+        @keyframes modalSlideIn {
+          from {
+            opacity: 0;
+            transform: translateY(-20px);
+          }
+
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        .modal-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
+          border-bottom: 2px solid #f0f0f0;
+        }
+
+        .modal-title {
+          font-size: 1.6rem;
+          font-weight: 600;
+          color: #8b4513;
+        }
+
+        .modal-close {
+          width: 32px;
+          height: 32px;
+          border: none;
+          background: #f5f5f5;
+          border-radius: 50%;
+          cursor: pointer;
+          font-size: 1.6rem;
+          color: #666;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+        }
+
+        .modal-close:hover {
+          background: #e0e0e0;
+          color: #333;
+        }
+
+        .modal-body {
+          font-size: 1.4rem;
+          line-height: 1.6;
+          color: #555;
+          max-height: 60vh;
+          overflow-y: auto;
+          padding-right: 8px;
+        }
+
+        .modal-body::-webkit-scrollbar {
+          width: 6px;
+        }
+
+        .modal-body::-webkit-scrollbar-track {
+          background: #f1f1f1;
+          border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb {
+          background: #c1c1c1;
+          border-radius: 3px;
+        }
+
+        .modal-body::-webkit-scrollbar-thumb:hover {
+          background: #a1a1a1;
+        }
+
+        /* 让干支竖排显示（writing-mode方式）让干支可以点击 */
+        .pillar-ganzhi {
+          font-size: 1.8rem;
+          font-weight: 700;
+          color: #8b4513;
+          margin: 2px auto;
+          font-family: "Noto Serif SC", serif;
+          cursor: pointer;
+          transition: all 0.2s;
+          padding: 4px 10px;
+          border-radius: 6px;
+          writing-mode: vertical-rl;
+          text-orientation: upright;
+          letter-spacing: 4px;
+          display: block;
+          text-align: center;
+          width: fit-content;
+        }
+
+        .pillar-ganzhi:hover {
+          background: rgba(139, 69, 19, 0.1);
+          transform: scale(1.05);
+        }
+
+        /* 基础样式 */
+        * {
+          box-sizing: border-box;
+          margin: 0;
+          padding: 0;
+        }
+
+        body {
+          font-family:
+            -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC",
+            sans-serif;
+          background: #f5f5f5;
+          min-height: 100vh;
+          color: #333;
+        }
+
+        .header {
+          background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+          color: white;
+          padding: 12px 20px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+          margin: 0 auto;
+          max-width: 1024px;
+        }
+
+        .header h1 {
+          font-size: 2rem;
+          font-weight: 600;
+          letter-spacing: 1px;
+        }
+
+        .header .subtitle {
+          font-size: 1.6rem;
+          opacity: 0.9;
+          margin-top: 2px;
+        }
+
+        /* 修改：主容器改为上下布局 */
+        .main-container {
+          max-width: 1024px;
+          margin: 0 auto;
+          display: flex;
+          flex-direction: column;
+          gap: 0;
+          min-height: calc(100vh - 52px);
+        }
+
+        /* 修改：控制区改为顶部横条 */
+        .control-sidebar {
+          background: #fff;
+          border-right: none;
+          border-bottom: 1px solid #e0e0e0;
+          padding: 16px;
+          overflow-y: visible;
+          display: flex;
+          flex-direction: column; /* 改为纵向排列 */
+          gap: 16px;
+        }
+
+        .calendar-section {
+          background: #fafafa;
+          border-radius: 10px;
+          padding: 12px;
+          border: 1px solid #e8e8e8;
+          width: 100%; /* 日历占满整行 */
+        }
+
+        .calendar-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+          padding-bottom: 8px;
+          border-bottom: 1px solid #eee;
+        }
+
+        .calendar-title {
+          font-size: 1.6rem;
+          font-weight: 600;
+          color: #8b4513;
+        }
+
+        .calendar-nav {
+          display: flex;
+          gap: 14px;
+        }
+
+        .nav-btn {
+          width: 36px;
+          height: 32px;
+          border: 1px solid #ddd;
+          background: white;
+          border-radius: 4px;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 1.6rem;
+          transition: all 0.2s;
+          margin-right: 24px;
+        }
+
+        .nav-btn:hover {
+          background: #8b4513;
+          color: white;
+          border-color: #8b4513;
+        }
+
+        .today-btn {
+          background: linear-gradient(135deg, #8b4513 0%, #a0522d 100%);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 6px 12px;
+          font-size: 1.6rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          margin-left: 8px;
+          font-weight: 500;
+        }
+
+        .today-btn:hover {
+          opacity: 0.9;
+          transform: translateY(-1px);
+        }
+
+        .ym-selector {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 8px;
+        }
+
+        .ym-select {
+          flex: 1;
+          padding: 6px 4px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 1.6rem;
+          background: white;
+          outline: none;
+          cursor: pointer;
+        }
+
+        .ym-select:focus {
+          border-color: #8b4513;
+        }
+
+        .calendar-grid {
+          display: grid;
+          grid-template-columns: repeat(7, 1fr);
+          gap: 1px;
+          text-align: center;
+          background: #e8e8e8;
+          border-radius: 6px;
+          overflow: hidden;
+          border: 1px solid #e8e8e8;
+        }
+
+        .weekday-header {
+          font-size: 1.6rem;
+          color: #666;
+          padding: 6px 0;
+          font-weight: 600;
+          background: #f5f5f5;
+        }
+
+        .calendar-day {
+          aspect-ratio: 1;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          background: white;
+          cursor: pointer;
+          font-size: 1.4rem;
+          transition: all 0.2s;
+          position: relative;
+          min-height: 32px;
+          padding: 2px;
+        }
+
+        .calendar-day:hover {
+          background: #f8f4f0;
+        }
+
+        .calendar-day.selected {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          font-weight: 600;
+          box-shadow: 0 2px 8px rgba(102, 126, 234, 0.4);
+        }
+
+        .calendar-day.other-month {
+          color: #ccc;
+          background: #fafafa;
+        }
+
+        .calendar-day.today {
+          background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+          color: white;
+          font-weight: 600;
+        }
+
+        .calendar-day.today::after {
+          content: "";
+          position: absolute;
+          bottom: 2px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 4px;
+          height: 4px;
+          background: white;
+          border-radius: 50%;
+        }
+
+        .lunar-date {
+          font-size: 1.2rem;
+          opacity: 0.8;
+          margin-top: 1px;
+          transform: scale(0.85);
+          line-height: 1;
+        }
+
+        /* 新增：八字反推和时间选择的容器 */
+        .control-sidebar-bottom {
+          display: flex;
+          flex-direction: row;
+          gap: 16px;
+        }
+
+        .bazi-reverse-section,
+        .time-section {
+          flex: 1; /* 两个模块平分宽度 */
+          width: auto; /* 移除固定宽度 */
+        }
+        .time-section {
+          background: #fafafa;
+          border-radius: 10px;
+          padding: 12px;
+          border: 1px solid #e8e8e8;
+          flex: 0 0 auto;
+          width: 100%;
+        }
+
+        .section-title {
+          font-size: 1.6rem;
+          font-weight: 600;
+          color: #555;
+          margin-bottom: 10px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .form-row {
+          margin-bottom: 10px;
+        }
+
+        .form-label {
+          font-size: 1.4rem;
+          color: #666;
+          margin-bottom: 4px;
+          display: block;
+        }
+
+        .form-select,
+        .form-input {
+          width: 100%;
+          padding: 8px 10px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 1.4rem;
+          background: white;
+          outline: none;
+          transition: border-color 0.2s;
+        }
+
+        .form-select:focus,
+        .form-input:focus {
+          border-color: #8b4513;
+        }
+
+        .late-zi-options {
+          background: white;
+          border-radius: 6px;
+          padding: 10px;
+          margin-top: 8px;
+          margin-bottom: 8px;
+          border: 1px solid #eee;
+        }
+
+        .late-zi-title {
+          font-size: 1.6rem;
+          color: #666;
+          margin-bottom: 6px;
+          font-weight: 500;
+        }
+
+        .radio-group {
+          display: flex;
+          gap: 12px;
+        }
+
+        .radio-item {
+          display: flex;
+          align-items: center;
+          gap: 4px;
+          cursor: pointer;
+          font-size: 1.6rem;
+          color: #555;
+          margin-right: 24px;
+        }
+
+        .radio-item input {
+          width: 14px;
+          height: 14px;
+          accent-color: #8b4513;
+        }
+
+        .tips-box {
+          background: #fff8e6;
+          border-left: 3px solid #d2691e;
+          padding: 8px 10px;
+          border-radius: 0 6px 6px 0;
+          margin-top: 12px;
+          font-size: 1.6rem;
+          color: #8b4513;
+          line-height: 1.4;
+        }
+
+        /* 修改：内容区域 */
+        .content-area {
+          padding: 20px;
+          background: #f5f5f5;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+        }
+
+        .info-bar {
+          background: white;
+          border-radius: 10px;
+          padding: 12px 16px;
+          display: flex;
+          flex-wrap: wrap;
+          gap: 16px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          border: 1px solid #e8e8e8;
+        }
+
+        .info-item {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .info-label {
+          font-size: 1.4rem;
+          color: #888;
+        }
+
+        .info-value {
+          font-size: 1.4rem;
+          font-weight: 600;
+          color: #333;
+        }
+
+        .info-value.highlight {
+          color: #8b4513;
+        }
+
+        .sizhu-section {
+          background: white;
+          border-radius: 10px;
+          padding: 16px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          border: 1px solid #e8e8e8;
+        }
+
+        .section-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #f0f0f0;
+        }
+
+        .section-header h2 {
+          font-size: 1.4rem;
+          color: #333;
+          font-weight: 600;
+        }
+
+        .tag {
+          background: #ffebd7;
+          color: black;
+          padding: 3px 10px;
+          border-radius: 20px;
+          font-size: 1.4rem;
+        }
+
+        /* 修改：四柱容器改为上下排列 */
+        .pillars-container {
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          align-items: center;
+        }
+
+        /* 四柱分组 - 横向排列 */
+        .sizhu-group {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 12px;
+          justify-content: center;
+        }
+
+        /* 修改：分隔线改为水平 */
+        .pillars-divider {
+          width: 80%;
+          height: 2px;
+          background: linear-gradient(
+            90deg,
+            transparent 0%,
+            #d4a574 50%,
+            transparent 100%
+          );
+          margin: 0;
+        }
+
+        /* 动态三柱分组 - 横向排列 */
+        .dynamic-group {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 12px;
+          justify-content: center;
+        }
+
+        .pillar-card {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          flex: 0 0 auto;
+          min-width: 110px;
+          background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
+          border-radius: 10px;
+          padding: 12px;
+          text-align: center;
+          border: 1px solid #e8e8e8;
+          transition: all 0.3s;
+          position: relative;
+          overflow: hidden;
+        }
+
+        .pillar-card:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+          border-color: #d4a574;
+        }
+
+        .pillar-card::before {
+          content: "";
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+          background: linear-gradient(90deg, #8b4513, #d2691e);
+        }
+
+        .pillar-card.dynamic {
+          background: linear-gradient(180deg, #fff9f0 0%, #fff5e6 100%);
+          border-color: #e8d5c4;
+          cursor: pointer;
+        }
+
+        .pillar-card.dynamic::before {
+          background: linear-gradient(90deg, #d2691e, #ff8c00);
+        }
+
+        .pillar-card.dynamic:hover {
+          background: linear-gradient(180deg, #fff0e0 0%, #ffe8d0 100%);
+          border-color: #d2691e;
+        }
+
+        .pillar-card.dynamic.active {
+          background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+          color: white;
+          border-color: #f12711;
+          box-shadow: 0 4px 12px rgba(241, 39, 17, 0.3);
+          transform: translateY(-2px);
+        }
+
+        .pillar-card.dynamic.active .pillar-ganzhi,
+        .pillar-card.dynamic.active .pillar-label,
+        .pillar-card.dynamic.active .pillar-shishen,
+        .pillar-card.dynamic.active .nayin-text,
+        .pillar-card.dynamic.active .canggan-box {
+          color: white;
+        }
+
+        .pillar-card.dynamic.active .canggan-box {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.3);
+        }
+
+        .pillar-card.dynamic.active .canggan-box span {
+          color: rgba(255, 255, 255, 0.9) !important;
+        }
+
+        .pillar-label {
+          font-size: 1rem;
+          color: #888;
+          margin-bottom: 6px;
+          font-weight: 500;
+        }
+
+        .pillar-shishen {
+          display: inline-block;
+          background: #8b4513;
+          color: white;
+          padding: 2px 8px;
+          border-radius: 10px;
+          font-size: 1rem;
+          margin-bottom: 6px;
+        }
+
+        .pillar-card.dynamic .pillar-shishen {
+          background: #d2691e;
+        }
+
+        .pillar-card.dynamic.active .pillar-shishen {
+          background: rgba(255, 255, 255, 0.25);
+        }
+
+        .canggan-box {
+          background: white;
+          border-radius: 6px;
+          padding: 6px;
+          margin: 6px 0;
+          font-size: 1.2rem;
+          color: #666;
+          border: 1px solid #eee;
+        }
+
+        .canggan-box span {
+          font-size: 1rem;
+          color: #999;
+          margin-left: 2px;
+        }
+
+        .nayin-text {
+          font-size: 1.2rem;
+          color: #999;
+          margin-top: 4px;
+        }
+
+        .yun-section {
+          background: white;
+          border-radius: 10px;
+          padding: 16px;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+          border: 1px solid #e8e8e8;
+        }
+
+        .yun-header {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 12px;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #f0f0f0;
+        }
+
+        .yun-header-main {
+          display: flex;
+          align-items: baseline;
+          gap: 12px;
+        }
+
+        .yun-header h2 {
+          font-size: 1.4rem;
+          color: #333;
+          font-weight: 600;
+        }
+
+        .yun-meta {
+          font-size: 1.2rem;
+          color: #888;
+        }
+
+        .yun-meta span {
+          color: #8b4513;
+          font-weight: 500;
+        }
+
+        .yun-subtitle {
+          font-size: 1.2rem;
+          color: #888;
+        }
+
+        .dayun-scroll,
+        .liunian-scroll,
+        .liuyue-scroll {
+          overflow-x: auto;
+          margin-bottom: 16px;
+          padding-bottom: 8px;
+          -webkit-overflow-scrolling: touch;
+        }
+
+        .dayun-row,
+        .liunian-row,
+        .liuyue-row {
+          display: flex;
+          flex-direction: row;
+          flex-wrap: nowrap;
+          gap: 8px;
+          min-width: max-content;
+        }
+
+        .dayun-item {
+          flex: 0 0 auto;
+          background: #fafafa;
+          border: 1px solid #e8e8e8;
+          border-radius: 8px;
+          padding: 10px 14px;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
+          min-width: 80px;
+        }
+
+        .dayun-item:hover {
+          background: #f5f5f5;
+          border-color: #d4a574;
+        }
+
+        .dayun-item.active {
+          background: linear-gradient(135deg, #f5af19 0%, #f12711 100%);
+          color: white;
+          border-color: #f12711;
+          box-shadow: 0 4px 12px rgba(241, 39, 17, 0.3);
+          transform: translateY(-2px);
+        }
+
+        .dayun-ganzhi {
+          font-size: 1.6rem;
+          font-weight: 500;
+          color: #8b4513;
+          margin: 2px auto;
+          writing-mode: vertical-rl;
+          text-orientation: upright;
+          letter-spacing: 4px;
+          display: block;
+          text-align: center;
+          width: fit-content;
+        }
+
+        .dayun-item.active .dayun-ganzhi {
+          color: white;
+        }
+
+        .dayun-shishen {
+          font-size: 1rem;
+          background: #f0f0f0;
+          padding: 1px 6px;
+          border-radius: 8px;
+          color: #666;
+          display: inline-block;
+          margin-bottom: 4px;
+        }
+
+        .dayun-item.active .dayun-shishen {
+          background: rgba(255, 255, 255, 0.25);
+          color: white;
+        }
+
+        .dayun-age {
+          font-size: 1rem;
+          color: #666;
+        }
+
+        .dayun-item.active .dayun-age {
+          color: rgba(255, 255, 255, 0.95);
+        }
+
+        .liunian-item {
+          flex: 0 0 auto;
+          background: #fafafa;
+          border: 1px solid #e8e8e8;
+          border-radius: 8px;
+          padding: 8px 12px;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
+          min-width: 70px;
+        }
+
+        .liunian-item:hover {
+          background: #f5f5f5;
+          border-color: #d4a574;
+        }
+
+        .liunian-item.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-color: #764ba2;
+          box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+          transform: translateY(-2px);
+        }
+
+        .liunian-ganzhi {
+          font-size: 1.6rem;
+          font-weight: 500;
+          color: #8b4513;
+          margin: 6px auto;
+          writing-mode: vertical-rl;
+          text-orientation: upright;
+          letter-spacing: 4px;
+          display: block;
+          text-align: center;
+          width: fit-content;
+        }
+
+        .liunian-item.active .liunian-ganzhi {
+          color: white;
+        }
+
+        .liunian-shishen {
+          font-size: 1rem;
+          background: #f0f0f0;
+          padding: 1px 4px;
+          border-radius: 6px;
+          color: #666;
+          display: inline-block;
+          margin-bottom: 2px;
+        }
+
+        .liunian-item.active .liunian-shishen {
+          background: rgba(255, 255, 255, 0.25);
+          color: white;
+        }
+
+        .liunian-year {
+          font-size: 1rem;
+          color: #888;
+        }
+
+        .liunian-sui {
+          font-size: 1rem;
+          color: #888;
+        }
+
+        .liunian-item.active .liunian-year,
+        .liunian-item.active .liunian-sui {
+          color: rgba(255, 255, 255, 0.95);
+        }
+
+        .liuyue-item {
+          flex: 0 0 auto;
+          background: #fafafa;
+          border: 1px solid #e8e8e8;
+          border-radius: 6px;
+          padding: 6px 10px;
+          cursor: pointer;
+          transition: all 0.2s;
+          text-align: center;
+          min-width: 60px;
+        }
+
+        .liuyue-item:hover {
+          background: #f5f5f5;
+          border-color: #d4a574;
+        }
+
+        .liuyue-item.active {
+          background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+          color: white;
+          border-color: #764ba2;
+          box-shadow: 0 4px 12px rgba(118, 75, 162, 0.3);
+          transform: translateY(-2px);
+        }
+
+        .liuyue-month {
+          font-size: 1rem;
+          color: #888;
+          margin-bottom: 2px;
+        }
+
+        .liuyue-item.active .liuyue-month {
+          color: rgba(255, 255, 255, 0.95);
+        }
+
+        .liuyue-ganzhi {
+          font-size: 1.6rem;
+          font-weight: 500;
+          color: #333;
+          margin: 2px auto;
+          writing-mode: vertical-rl;
+          text-orientation: upright;
+          letter-spacing: 4px;
+          display: block;
+          text-align: center;
+          width: fit-content;
+        }
+
+        .liuyue-item.active .liuyue-ganzhi {
+          color: white;
+        }
+
+        .liuyue-shishen {
+          font-size: 1rem;
+          color: #8b4513;
+          margin-top: 1px;
+        }
+
+        .liuyue-item.active .liuyue-shishen {
+          color: rgba(255, 255, 255, 0.9);
+        }
+
+        /* 八字反推功能样式 */
+        .bazi-reverse-section {
+          background: #fafafa;
+          border-radius: 10px;
+          padding: 12px;
+          border: 1px solid #e8e8e8;
+          flex: 0 0 auto;
+          width: 100%;
+        }
+
+        .bazi-input-row {
+          display: flex;
+          flex-direction: row;
+          gap: 8px;
+          margin-bottom: 10px;
+        }
+
+        .bazi-input {
+          width: 80%;
+          padding: 8px 10px;
+          border: 1px solid #ddd;
+          border-radius: 6px;
+          font-size: 1.8rem;
+          background: white;
+          outline: none;
+          transition: border-color 0.2s;
+          letter-spacing: 2px;
+          box-sizing: border-box;
+        }
+
+        .bazi-input:focus {
+          border-color: #8b4513;
+        }
+
+        .bazi-input.error {
+          border-color: #e74c3c;
+          background: #fdf2f2;
+        }
+
+        .bazi-input.valid {
+          border-color: #27ae60;
+          background: #f0fff4;
+        }
+
+        .reverse-btn {
+          width: 20%;
+          background: linear-gradient(135deg, #475663 0%, #7c6146 100%);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 10px 16px;
+          font-size: 1.5rem;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-weight: 500;
+        }
+
+        .reverse-btn:hover {
+          opacity: 0.9;
+          transform: translateY(-1px);
+        }
+
+        .reverse-btn:disabled {
+          background: #ccc;
+          cursor: not-allowed;
+          transform: none;
+        }
+
+        .bazi-hint {
+          font-size: 1.4rem;
+          color: #888;
+          margin-top: 4px;
+          line-height: 1.4;
+        }
+
+        .bazi-error {
+          font-size: 1.4rem;
+          color: #e74c3c;
+          margin-top: 4px;
+          display: none;
+        }
+
+        .bazi-results {
+          margin-top: 12px;
+          max-height: 200px;
+          overflow-y: auto;
+          border: 1px solid #e8e8e8;
+          border-radius: 6px;
+          background: white;
+          display: none;
+        }
+
+        .bazi-results.has-results {
+          display: block;
+        }
+
+        .bazi-result-item {
+          padding: 10px 12px;
+          border-bottom: 1px solid #f0f0f0;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+        }
+
+        .bazi-result-item:last-child {
+          border-bottom: none;
+        }
+
+        .bazi-result-item:hover {
+          background: #f8f4f0;
+        }
+
+        .bazi-result-date {
+          font-size: 1.6rem;
+          color: #333;
+          font-weight: 500;
+        }
+
+        .bazi-result-lunar {
+          font-size: 1.6rem;
+          color: #888;
+        }
+
+        .bazi-result-ganzhi {
+          font-size: 1.4rem;
+          color: #8b4513;
+          font-weight: 600;
+          display: none;
+        }
+
+        .bazi-results-title {
+          font-size: 1.6rem;
+          color: #666;
+          padding: 8px 12px;
+          background: #f5f5f5;
+          border-bottom: 1px solid #e8e8e8;
+          font-weight: 500;
+        }
+
+        .bazi-no-result {
+          padding: 20px;
+          text-align: center;
+          color: #999;
+          font-size: 1.4rem;
+        }
+
+        .bazi-loading {
+          padding: 20px;
+          text-align: center;
+          color: #8b4513;
+          font-size: 1.4rem;
+        }
+      }
       ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -1178,13 +2296,11 @@
             <select
               class="ym-select"
               id="yearSelect"
-              onchange="onYearMonthChange()"
-            ></select>
+              onchange="onYearMonthChange()"></select>
             <select
               class="ym-select"
               id="monthSelect"
-              onchange="onYearMonthChange()"
-            >
+              onchange="onYearMonthChange()">
               <option value="0">1月</option>
               <option value="1">2月</option>
               <option value="2">3月</option>
@@ -1208,8 +2324,7 @@
             <select
               class="form-select"
               id="hourSelect"
-              onchange="onHourChange()"
-            >
+              onchange="onHourChange()">
               <option value="0">子时 23:00-00:59</option>
               <option value="1">丑时 01:00-02:59</option>
               <option value="2">寅时 03:00-04:59</option>
@@ -1233,8 +2348,7 @@
                   name="lateZiType"
                   value="next"
                   checked
-                  onChange="renderAll()"
-                />
+                  onChange="renderAll()" />
                 <span>日柱算明天</span>
               </label>
               <label class="radio-item">
@@ -1242,8 +2356,7 @@
                   type="radio"
                   name="lateZiType"
                   value="same"
-                  onChange="renderAll()"
-                />
+                  onChange="renderAll()" />
                 <span>日柱算当天</span>
               </label>
             </div>
@@ -1254,8 +2367,7 @@
             <select
               class="form-select"
               id="genderSelect"
-              onchange="renderAll()"
-            >
+              onchange="renderAll()">
               <option value="1">乾造 (男)</option>
               <option value="0">坤造 (女)</option>
             </select>
@@ -1271,13 +2383,11 @@
                 class="bazi-input"
                 placeholder="甲子 乙丑 丙寅 丁卯"
                 maxlength="11"
-                oninput="validateBaziInput()"
-              />
+                oninput="validateBaziInput()" />
               <button
                 class="reverse-btn"
                 onclick="reverseBazi()"
-                id="reverseBtn"
-              >
+                id="reverseBtn">
                 反推
               </button>
             </div>
@@ -1303,24 +2413,24 @@
       <div class="content-area">
         <div class="info-bar">
           <div class="info-item">
-            <span class="info-label">命造： </span
-            ><span class="info-value highlight" id="genderText">乾造</span>
+            <span class="info-label">命造： </span><span
+              class="info-value highlight" id="genderText">乾造</span>
           </div>
           <div class="info-item">
-            <span class="info-label">公历：</span
-            ><span class="info-value" id="solarDate">—</span>
+            <span class="info-label">公历：</span><span class="info-value"
+              id="solarDate">—</span>
           </div>
           <div class="info-item">
-            <span class="info-label">农历：</span
-            ><span class="info-value" id="lunarDate">—</span>
+            <span class="info-label">农历：</span><span class="info-value"
+              id="lunarDate">—</span>
           </div>
           <div class="info-item">
-            <span class="info-label">生肖：</span
-            ><span class="info-value highlight" id="shengxiao">—</span>
+            <span class="info-label">生肖：</span><span
+              class="info-value highlight" id="shengxiao">—</span>
           </div>
           <div class="info-item">
-            <span class="info-label">当月节气：</span
-            ><span class="info-value" id="jqInfo">—</span>
+            <span class="info-label">当月节气：</span><span class="info-value"
+              id="jqInfo">—</span>
           </div>
         </div>
         <div class="sizhu-section">
@@ -1335,8 +2445,7 @@
                 text-align: center;
                 color: #999;
                 padding: 40px;
-              "
-            >
+              ">
               请选择出生日期
             </div>
           </div>
@@ -1347,9 +2456,7 @@
               <h2>⚡ 大运</h2>
               <div class="yun-meta" id="dayunMeta">
                 起运：<span id="qiyunText">—</span> · 交运：<span
-                  id="jiaoyunText"
-                  >—</span
-                >
+                  id="jiaoyunText">—</span>
               </div>
             </div>
             <span class="yun-subtitle">点击选择大运查看流年</span>
@@ -1388,7 +2495,7 @@
     <script>
       // let currentBazi = null; // 存储当前八字
       let currentMingli = null; // 存储当前四柱和大运流年流月七组干支
-      let tiangan = [
+      const tianGan = [
         "甲",
         "乙",
         "丙",
@@ -1400,7 +2507,7 @@
         "壬",
         "癸",
       ];
-      let wuxingMap = {
+      const wuxingMap = {
         甲: "木",
         乙: "木",
         丙: "火",
@@ -1424,7 +2531,7 @@
         亥: "水",
         子: "水",
       };
-      let cangGan = {
+      const cangGan = {
         子: ["癸"],
         丑: ["己", "癸", "辛"],
         寅: ["甲", "丙", "戊"],
@@ -1438,7 +2545,7 @@
         戌: ["戊", "辛", "丁"],
         亥: ["壬", "甲"],
       };
-      let dizhi = [
+      const diZhi = [
         "子",
         "丑",
         "寅",
@@ -1457,15 +2564,11 @@
         document.body.innerHTML =
           '<div style="text-align:center;padding:50px;color:red;">错误：无法加载 lunar-javascript 库<br>请检查网络连接或CDN链接</div>';
       } else {
-        // 十神计算
-        // const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-        // const wuxingMap = { '甲': '木', '乙': '木', '丙': '火', '丁': '火', '戊': '土', '己': '土', '庚': '金', '辛': '金', '壬': '水', '癸': '水', '寅': '木', '卯': '木', '巳': '火', '午': '火', '辰': '土', '戌': '土', '丑': '土', '未': '土', '申': '金', '酉': '金', '亥': '水', '子': '水' };
-  
         function getShiShen(riGan, targetGan) {
           if (!riGan || !targetGan || riGan === targetGan) return "比肩";
           const wRi = wuxingMap[riGan],
             wTarget = wuxingMap[targetGan];
-          const isYang = (gan) => tiangan.indexOf(gan) % 2 === 0;
+          const isYang = (gan) => tianGan.indexOf(gan) % 2 === 0;
           const riYang = isYang(riGan),
             targetYang = isYang(targetGan);
           if (wRi === wTarget) return riYang === targetYang ? "比肩" : "劫财";
@@ -1817,33 +2920,6 @@
          * @returns {string} 时柱干支
          */
         function calculateShiZhu(dayGan, hourIndex) {
-          const tianGan = [
-            "甲",
-            "乙",
-            "丙",
-            "丁",
-            "戊",
-            "己",
-            "庚",
-            "辛",
-            "壬",
-            "癸",
-          ];
-          const diZhi = [
-            "子",
-            "丑",
-            "寅",
-            "卯",
-            "辰",
-            "巳",
-            "午",
-            "未",
-            "申",
-            "酉",
-            "戌",
-            "亥",
-          ];
-
           // 日上起时法：根据日干确定子时的天干
           let startGanIndex; // 子时的天干索引
 
@@ -2276,33 +3352,7 @@
           if (!ganZhi || ganZhi.length !== 2) return false;
           const gan = ganZhi.charAt(0);
           const zhi = ganZhi.charAt(1);
-          const tianGan = [
-            "甲",
-            "乙",
-            "丙",
-            "丁",
-            "戊",
-            "己",
-            "庚",
-            "辛",
-            "壬",
-            "癸",
-          ];
-          const diZhi = [
-            "子",
-            "丑",
-            "寅",
-            "卯",
-            "辰",
-            "巳",
-            "午",
-            "未",
-            "申",
-            "酉",
-            "戌",
-            "亥",
-          ];
-          return tianGan.indexOf(gan) !== -1 && diZhi.indexOf(zhi) !== -1;
+           return tianGan.indexOf(gan) !== -1 && diZhi.indexOf(zhi) !== -1;
         }
 
         // 验证并解析八字输入
@@ -2354,17 +3404,81 @@
           }
         }
 
+        function gIdx(g) {
+          return tianGan.indexOf(g) + 1;
+        }
+        function zIdx(z) {
+          return diZhi.indexOf(z) + 1;
+        }
+
+        // 年上起月（纯逻辑）
+        function getYueGan(nianGan, yueZhi) {
+          let n = gIdx(nianGan);
+          let yinGan = (n - 1) * 2 + 3;
+          let offset = zIdx(yueZhi) - 3;
+          let res = ((yinGan + offset - 1) % 10) + 1;
+          return tianGan[res - 1];
+        }
+
+        // 日上起时（纯逻辑）
+        function getShiGan(riGan, shiZhi) {
+          let n = gIdx(riGan);
+          let ziGan = (n - 1) * 2 + 1;
+          let offset = zIdx(shiZhi) - 1;
+          let res = ((ziGan + offset - 1) % 10) + 1;
+          return tianGan[res - 1];
+        }
+
         // 执行八字反推
         function reverseBazi() {
           const input = document.getElementById("baziInput").value.trim();
           const resultsDiv = document.getElementById("baziResults");
           const resultsList = document.getElementById("baziResultsList");
+          const errorMsg = document.getElementById("baziError");
           const btn = document.getElementById("reverseBtn");
 
           const parsed = parseBaziInput(input);
           if (!parsed) {
             alert("请输入正确的八字格式，如：甲子 乙丑 丙寅 丁卯");
             return;
+          }
+
+          let [n, y, r, s] = [
+            parsed.year,
+            parsed.month,
+            parsed.day,
+            parsed.time,
+          ];
+          let ng = n?.[0],
+            nz = n?.[1];
+          let yg = y?.[0],
+            yz = y?.[1];
+          let rg = r?.[0],
+            rz = r?.[1];
+          let sg = s?.[0],
+            sz = s?.[1];
+
+          // 4. 年上起月 错误检测
+          let err = '';
+          let trueYg = getYueGan(ng, yz);
+          if (trueYg !== yg) {
+            err +=`❌ 月柱错误：${ng}年${yz}月 应为 ${trueYg}${yz}`;
+          }
+
+          // 5. 日上起时 错误检测
+          let trueSg = getShiGan(rg, sz);
+          if (trueSg !== sg) {
+            err +=`<br>❌ 时柱错误：${rg}日${sz}时 应为 ${trueSg}${sz}`;
+          }
+
+          if (err){
+            errorMsg.innerHTML = err;
+            errorMsg.style.display = "block";
+            return;
+          }else{
+            errorMsg.textContent = '格式错误：请输入四个有效的干支'; 
+            errorMsg.style.display = "none";
+
           }
 
           // 显示加载状态
@@ -2648,7 +3762,6 @@
         window.reverseBazi = reverseBazi;
         window.selectBaziResult = selectBaziResult;
 
-
         function getCurrentShiChenIndex() {
           const hour = new Date().getHours();
           if (hour === 23) return 0;
@@ -2673,8 +3786,8 @@
     <script>
       // 索引从0开始
       const pillars = ["年柱", "月柱", "日柱", "时柱", "大运", "流年", "流月"];
-      // const tiangan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
-      // const dizhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+      // const tianGan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+      // const diZhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
       // 日主喜忌
       const rizhuxiji = {
         甲: "阳木，为大林之木。甲不离庚，最忌乙合庚。",
@@ -3256,69 +4369,69 @@
 
         // console.log(gz + idx + "----" + currentMingli[2]);
         if (
-          yuede[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]
+          yuede[diZhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]
         ) {
           shensha += `月德 `;
         }
         if (
-          tiande[dizhi.indexOf(currentMingli[1][1])] ===
+          tiande[diZhi.indexOf(currentMingli[1][1])] ===
             currentMingli[idx][0] ||
-          tiande[dizhi.indexOf(currentMingli[1][1])] === currentMingli[idx][1]
+          tiande[diZhi.indexOf(currentMingli[1][1])] === currentMingli[idx][1]
         ) {
           shensha += `天德 `;
         }
         if (
-          yima[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+          yima[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
         ) {
           shensha += `驿马 `;
         }
         if (
-          huagai[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+          huagai[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
         ) {
           shensha += `华盖 `;
         }
         if (
-          taohua[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+          taohua[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
         ) {
           shensha += `桃花 `;
         }
         if (
-          jiesha[dizhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+          jiesha[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
         ) {
           shensha += `劫煞 `;
         }
         if (
-          jiangxing[dizhi.indexOf(currentMingli[2][1])] ===
+          jiangxing[diZhi.indexOf(currentMingli[2][1])] ===
           currentMingli[idx][1]
         ) {
           shensha += `将星 `;
         }
         if (
-          yangren[dizhi.indexOf(currentMingli[2][0])] === currentMingli[idx][1]
+          yangren[diZhi.indexOf(currentMingli[2][0])] === currentMingli[idx][1]
         ) {
           shensha += `羊刃 `;
         }
         if (
-          tianyi[tiangan.indexOf(currentMingli[2][0])].indexOf(
+          tianyi[tianGan.indexOf(currentMingli[2][0])].indexOf(
             currentMingli[idx][1],
           ) !== -1
         ) {
           shensha += `天乙 `;
         }
         if (
-          wenchang[tiangan.indexOf(currentMingli[2][0])].indexOf(
+          wenchang[tianGan.indexOf(currentMingli[2][0])].indexOf(
             currentMingli[idx][1],
           ) !== -1
         ) {
           shensha += `文昌 `;
         }
         if (
-          guchen[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
+          guchen[diZhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
         ) {
           shensha += `孤辰 `;
         }
         if (
-          guasu[dizhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
+          guasu[diZhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
         ) {
           shensha += `寡宿 `;
         }
@@ -3327,8 +4440,8 @@
           content += `${shensha}<br>`;
         }
 
-        content += `✅ ${gz[0]}禄在${GanLu[tiangan.indexOf(gz[0])]}，绝在${GanJue[tiangan.indexOf(gz[0])]}。<br></div>`;
-        content += `✅ 日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tiangan.indexOf(currentMingli[2][0])][dizhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
+        content += `✅ ${gz[0]}禄在${GanLu[tianGan.indexOf(gz[0])]}，绝在${GanJue[tianGan.indexOf(gz[0])]}。<br></div>`;
+        content += `✅ 日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tianGan.indexOf(currentMingli[2][0])][diZhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
 
         // ============ 核心工具函数 ============
 
@@ -4095,8 +5208,7 @@
     <div
       class="modal-overlay"
       id="modalOverlay"
-      onclick="closeModalOnOverlay(event)"
-    >
+      onclick="closeModalOnOverlay(event)">
       <div class="modal-content">
         <div class="modal-header">
           <div class="modal-title" id="modalTitle">标题</div>
