@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>lunar</title>
+    <meta name="keywords" content="lunar,阳历,阴历,公历,农历,佛历,道历" />
+    <meta name="description" content="lunar是一个无依赖的支持阳历、阴历、佛历和道历的日历工具库。" />
+    <meta name="author" content="6tail" />
+    <style type="text/css">
+        @charset "UTF-8";
+        
+        * {
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+        
+        html {
+            font-size: 14px;
+        }
+        
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f5f5f5;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 10px;
+        }
+        
+        .markdown-body {
+            margin: 10px 0;
+            padding: 15px;
+            background: #FFF;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        
+        .line {
+            margin: 15px 0;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            position: relative;
+        }
+        
+        .line label {
+            min-width: 60px;
+            font-weight: 500;
+            color: #333;
+            flex-shrink: 0;
+        }
+        
+        /* 自定义下拉框样式 */
+        .custom-select {
+            flex: 1;
+            position: relative;
+        }
+        
+        .select-trigger {
+            width: 100%;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fff;
+            color: #c41e3a;
+            font-weight: 600;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .select-trigger::after {
+            content: '';
+            width: 0;
+            height: 0;
+            border-left: 5px solid transparent;
+            border-right: 5px solid transparent;
+            border-top: 5px solid #666;
+            margin-left: 8px;
+        }
+        
+        .select-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            max-height: 250px;
+            overflow-y: auto;
+            background: #fff;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+            z-index: 1000;
+            display: none;
+        }
+        
+        .select-dropdown.active {
+            display: block;
+        }
+        
+        .select-option {
+            padding: 8px 12px;
+            font-size: 13px;
+            color: #333;
+            cursor: pointer;
+            border-bottom: 1px solid #f0f0f0;
+        }
+        
+        .select-option:last-child {
+            border-bottom: none;
+        }
+        
+        .select-option:hover, .select-option.selected {
+            background-color: #f5f5f5;
+            color: #c41e3a;
+        }
+        
+        .line input {
+            flex: 1;
+            padding: 10px;
+            font-size: 16px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fff;
+        }
+        
+        .hint {
+            color: #666;
+            font-size: 12px;
+        }
+        
+        h1 {
+            font-size: 22px;
+            margin: 25px 0 18px 0;
+            color: #c41e3a;
+            border-bottom: 3px solid #c41e3a;
+            padding-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        #solars {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+        }
+        
+        #solars li {
+            padding: 12px 15px;
+            margin: 8px 0;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            border-left: 4px solid #007bff;
+            font-size: 15px;
+            word-break: break-all;
+        }
+        
+        #solars li:first-child {
+            background-color: #e3f2fd;
+            border-left-color: #1976d2;
+            font-weight: 500;
+        }
+        
+        /* 遮罩层 */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: transparent;
+            z-index: 999;
+            display: none;
+        }
+        
+        .overlay.active {
+            display: block;
+        }
+        
+        /* 手机端优化 */
+        @media screen and (max-width: 768px) {
+            html {
+                font-size: 12px;
+            }
+            
+            .container {
+                padding: 5px;
+            }
+            
+            .markdown-body {
+                margin: 5px 0;
+                padding: 12px;
+                border-radius: 6px;
+            }
+            
+            .line {
+                margin: 10px 0;
+                gap: 8px;
+            }
+            
+            .line label {
+                min-width: 50px;
+                font-size: 16px;
+                font-weight: 600;
+            }
+            
+            .select-trigger {
+                padding: 8px 10px;
+                font-size: 16px;
+            }
+            
+            .select-option {
+                padding: 6px 10px;
+                font-size: 12px;
+            }
+            
+            .hint {
+                display: none;
+            }
+            
+            h1 {
+                font-size: 20px;
+                margin: 20px 0 12px 0;
+                color: #c41e3a;
+                border-bottom: 3px solid #c41e3a;
+                padding-bottom: 8px;
+            }
+            
+            #solars li {
+                padding: 10px 12px;
+                font-size: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="overlay" id="overlay"></div>
+    <div class="container">
+        <div class="markdown-body">
+            <h1>八字</h1>
+            <div class="line">
+                <label>年柱：</label>
+                <div class="custom-select" id="yearSelect"></div>
+                <span class="hint">选择年柱后，月柱将自动更新</span>
+            </div>
+            <div class="line">
+                <label>月柱：</label>
+                <div class="custom-select" id="monthSelect"></div>
+                <span class="hint" id="monthHint">请先选择年柱</span>
+            </div>
+            <div class="line">
+                <label>日柱：</label>
+                <div class="custom-select" id="daySelect"></div>
+                <span class="hint">选择日柱后，时柱将自动更新</span>
+            </div>
+            <div class="line">
+                <label>时柱：</label>
+                <div class="custom-select" id="timeSelect"></div>
+                <span class="hint" id="timeHint">请先选择日柱</span>
+            </div>
+            <div class="line">
+                <label>起年：</label>
+                <input id="baseYear" type="number" value="1900" min="1">
+                <span class="hint">起始年份</span>
+            </div>
+            <div class="line">
+                <label>流派：</label>
+                <div class="custom-select" id="sectSelect"></div>
+                <span class="hint">晚子时计算方式</span>
+            </div>
+            
+            <h1>阳历</h1>
+            <ul id="solars"></ul>
+        </div>
+    </div>
+
+    <script src="https://6tail.cn/calendar/libs/jquery/1.11.3/jquery.min.js"></script>
+    <script src="https://6tail.cn/calendar/lunar.js"></script>
+    <script>
+        mdr('.md');
+    </script>
+    <script>
+        (function () {
+            // 天干
+            var tianGan = ['甲', '乙', '丙', '丁', '戊', '己', '庚', '辛', '壬', '癸'];
+            // 地支
+            var diZhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+            
+            // 生成60甲子
+            var jiaZi = [];
+            for (var i = 0; i < 60; i++) {
+                jiaZi.push(tianGan[i % 10] + diZhi[i % 12]);
+            }
+            
+            // 年上起月法
+            var yearToMonthStart = {
+                '甲': 2, '己': 2,
+                '乙': 4, '庚': 4,
+                '丙': 6, '辛': 6,
+                '丁': 8, '壬': 8,
+                '戊': 0, '癸': 0
+            };
+            
+            // 日上起时法
+            var dayToTimeStart = {
+                '甲': 0, '己': 0,
+                '乙': 2, '庚': 2,
+                '丙': 4, '辛': 4,
+                '丁': 6, '壬': 6,
+                '戊': 8, '癸': 8
+            };
+            
+            var monthZhi = ['寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥', '子', '丑'];
+            var timeZhi = ['子', '丑', '寅', '卯', '辰', '巳', '午', '未', '申', '酉', '戌', '亥'];
+            
+            // 自定义下拉框组件
+            function createCustomSelect(containerId, options, onChange, disabled) {
+                var container = $('#' + containerId);
+                container.empty();
+                
+                var trigger = $('<div class="select-trigger">请选择</div>');
+                var dropdown = $('<div class="select-dropdown"></div>');
+                
+                container.append(trigger);
+                container.append(dropdown);
+                
+                function updateOptions(newOptions, selectedValue) {
+                    dropdown.empty();
+                    if (newOptions.length === 0) {
+                        trigger.text('请选择').addClass('disabled');
+                        return;
+                    }
+                    
+                    newOptions.forEach(function(opt) {
+                        var optionEl = $('<div class="select-option">' + opt + '</div>');
+                        optionEl.on('click', function(e) {
+                            e.stopPropagation();
+                            trigger.text(opt);
+                            dropdown.removeClass('active');
+                            $('#overlay').removeClass('active');
+                            if (onChange) onChange(opt);
+                        });
+                        if (opt === selectedValue) {
+                            optionEl.addClass('selected');
+                            trigger.text(opt);
+                        }
+                        dropdown.append(optionEl);
+                    });
+                }
+                
+                trigger.on('click', function(e) {
+                    e.stopPropagation();
+                    if (dropdown.children().length === 0) return;
+                    
+                    $('.select-dropdown').removeClass('active');
+                    dropdown.addClass('active');
+                    $('#overlay').addClass('active');
+                });
+                
+                return {
+                    updateOptions: updateOptions,
+                    getValue: function() {
+                        return trigger.text() === '请选择' ? '' : trigger.text();
+                    },
+                    setValue: function(val) {
+                        trigger.text(val);
+                        dropdown.find('.select-option').removeClass('selected');
+                        dropdown.find('.select-option:contains("' + val + '")').addClass('selected');
+                    },
+                    disable: function() {
+                        trigger.addClass('disabled');
+                        dropdown.removeClass('active');
+                    },
+                    enable: function() {
+                        trigger.removeClass('disabled');
+                    }
+                };
+            }
+            
+            // 初始化自定义下拉框
+            var yearSelect = createCustomSelect('yearSelect', jiaZi, function(val) {
+                updateMonthOptions(val);
+                onChange();
+            });
+            yearSelect.updateOptions(jiaZi);
+            
+            var monthSelect = createCustomSelect('monthSelect', [], function(val) {
+                onChange();
+            });
+            
+            var daySelect = createCustomSelect('daySelect', jiaZi, function(val) {
+                updateTimeOptions(val);
+                onChange();
+            });
+            daySelect.updateOptions(jiaZi);
+            
+            var timeSelect = createCustomSelect('timeSelect', [], function(val) {
+                onChange();
+            });
+            
+            var sectSelect = createCustomSelect('sectSelect', [
+                {text: '晚子时日柱算当天', value: '2'},
+                {text: '晚子时日柱算明天', value: '1'}
+            ], function(val) {
+                onChange();
+            });
+            sectSelect.updateOptions(['晚子时日柱算当天', '晚子时日柱算明天']);
+            sectSelect.setValue('晚子时日柱算当天');
+            
+            function updateMonthOptions(yearGanZhi) {
+                if (!yearGanZhi) {
+                    monthSelect.disable();
+                    $('#monthHint').text('请先选择年柱');
+                    return;
+                }
+                var gan = yearGanZhi.charAt(0);
+                var startGanIndex = yearToMonthStart[gan];
+                var options = [];
+                for (var i = 0; i < 12; i++) {
+                    var ganIndex = (startGanIndex + i) % 10;
+                    options.push(tianGan[ganIndex] + monthZhi[i]);
+                }
+                monthSelect.enable();
+                monthSelect.updateOptions(options);
+                $('#monthHint').text('共' + options.length + '个选项');
+            }
+            
+            function updateTimeOptions(dayGanZhi) {
+                if (!dayGanZhi) {
+                    timeSelect.disable();
+                    $('#timeHint').text('请先选择日柱');
+                    return;
+                }
+                var gan = dayGanZhi.charAt(0);
+                var startGanIndex = dayToTimeStart[gan];
+                var options = [];
+                for (var i = 0; i < 12; i++) {
+                    var ganIndex = (startGanIndex + i) % 10;
+                    options.push(tianGan[ganIndex] + timeZhi[i]);
+                }
+                timeSelect.enable();
+                timeSelect.updateOptions(options);
+                $('#timeHint').text('共' + options.length + '个选项');
+            }
+            
+            // 计算函数
+            var compute = function () {
+                $('#solars').html('<li>计算中...</li>');
+                try {
+                    var year = yearSelect.getValue();
+                    var month = monthSelect.getValue();
+                    var day = daySelect.getValue();
+                    var time = timeSelect.getValue();
+                    var solars = [];
+                    if (year && month && day && time) {
+                        var sect = sectSelect.getValue() === '晚子时日柱算明天' ? 1 : 2;
+                        var baseYear = parseInt($('#baseYear').val());
+                        solars = Solar.fromBaZi(year, month, day, time, sect, baseYear);
+                    }
+                    var size = solars.length;
+                    if (size < 1) {
+                        $('#solars').html('<li>无</li>');
+                    } else {
+                        $('#solars').html('');
+                        for (var i = 0; i < size; i++) {
+                            var solar = solars[i];
+                            $('<li>' + solar.toYmdHms() + '</li>').appendTo($('#solars'));
+                        }
+                    }
+                } catch (e) {
+                    $('#solars').html('<li>出错了！</li>');
+                }
+            };
+
+            // 节流函数
+            var throttle = function (fn, delay, atleast) {
+                var timer = null;
+                var previous = null;
+                return function () {
+                    var now = +new Date();
+                    if (!previous) previous = now;
+                    if (atleast && now - previous > atleast) {
+                        fn();
+                        previous = now;
+                        clearTimeout(timer);
+                    } else {
+                        clearTimeout(timer);
+                        timer = setTimeout(function () {
+                            fn();
+                            previous = null;
+                        }, delay);
+                    }
+                }
+            };
+
+            var onChange = throttle(function () {
+                compute();
+            }, 30, 80);
+
+            // 点击遮罩层关闭下拉
+            $('#overlay').on('click', function() {
+                $('.select-dropdown').removeClass('active');
+                $(this).removeClass('active');
+            });
+            
+            // 点击其他地方关闭下拉
+            $(document).on('click', function() {
+                $('.select-dropdown').removeClass('active');
+                $('#overlay').removeClass('active');
+            });
+
+            // 设置默认值
+            var today = Solar.fromDate(new Date());
+            var eightChar = today.getLunar().getEightChar();
+            
+            yearSelect.setValue(eightChar.getYear());
+            daySelect.setValue(eightChar.getDay());
+            
+            // 触发更新月柱和时柱
+            updateMonthOptions(eightChar.getYear());
+            updateTimeOptions(eightChar.getDay());
+            
+            // 设置月柱和时柱的默认值
+            monthSelect.setValue(eightChar.getMonth());
+            timeSelect.setValue(eightChar.getTime());
+
+            // 初始计算
+            compute();
+
+            // 其他事件监听
+            $('#baseYear').on('input propertychange', onChange);
+        })();
+    </script>
+</body>
+</html>
