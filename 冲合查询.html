@@ -1,0 +1,1038 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>四柱八字双合双冲查询</title>
+        <script
+            src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
+        <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+        }
+        body {
+            background-color: #f5f5f5;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .title {
+            text-align: center;
+            color: #c0392b;
+            margin-bottom: 30px;
+            font-size: 36px;
+        }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .form-group label {
+            font-weight: bold;
+            min-width: 80px;
+        }
+        .pillar-select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            min-width: 120px;
+        }
+        .pillar-select.auto-calculated {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .gender-radio {
+            margin-right: 5px;
+        }
+        .btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 25px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #c0392b;
+        }
+        .btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #3498db;
+            margin-left: 10px;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #2980b9;
+        }
+        .result-title {
+            color: #2c3e50;
+            margin: 20px 0 10px;
+            font-size: 18px;
+            border-left: 4px solid #e74c3c;
+            padding-left: 10px;
+        }
+        .result-item {
+            padding: 10px;
+            background: #f8f9fa;
+            border-radius: 5px;
+            margin-bottom: 8px;
+            border-radius:5px;
+            border-left: 3px solid #e74c3c;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .no-data {
+            color: #7f8c8d;
+            padding: 10px;
+        }
+        .info-box {
+            background: #e8f4fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .date-info {
+            background: #e8f5e9;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            border-left: 4px solid #4caf50;
+        }
+        .date-info .label {
+            color: #2e7d32;
+            font-weight: bold;
+        }
+        .method-tag {
+            display: inline-block;
+            background: #ff9800;
+            color: white;
+            padding: 2px 8px;
+            border-radius: 3px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+        .loading {
+            color: #ff9800;
+            font-style: italic;
+        }
+        .error {
+            color: #e74c3c;
+            font-weight: bold;
+        }
+        .success {
+            color: #4caf50;
+            font-weight: bold;
+        }
+        .date-selector {
+            margin-top: 15px;
+            padding: 10px;
+            background: #f5f5f5;
+            border-radius: 5px;
+        }
+        .date-selector label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+        }
+        .date-radio {
+            display: flex;  /* 使用 flex 布局 */
+            align-items: center;  /* 垂直居中 */
+            margin-bottom: 8px;
+            padding: 5px;
+            background: white;
+            border-radius: 3px;
+            cursor: pointer;
+        }
+        .date-radio input {
+                margin-right: 8px;  /* input 和 label 之间的间距 */
+                flex-shrink: 0;  /* 防止 input 被压缩 */
+        }
+        .date-radio label {
+            padding-top: 4px;
+        }
+        .warning-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin: 10px 0;
+            border-radius: 5px;
+            color: #856404;
+        }
+        .dayun-group {
+            margin-bottom: 20px;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        .dayun-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 15px;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .dayun-content {
+            padding: 10px;
+            background: #fafafa;
+        }
+        .dayun-item {
+            padding: 8px 12px;
+            margin: 5px 0;
+            background: white;
+            border-radius: 5px;
+            border-left: 3px solid #e74c3c;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        .dayun-empty {
+            padding: 15px;
+            color: #7f8c8d;
+            font-style: italic;
+            text-align: center;
+        }
+        /* 手机端适配：屏幕宽度小于等于768px */
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .title {
+                font-size: 24px;
+                margin-bottom: 20px;
+            }
+        .container {
+            background: white;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+        .form-group label {
+            font-weight: bold;
+            min-width: 40px;
+        }
+        .pillar-select {
+            padding: 8px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 16px;
+            min-width: 120px;
+        }
+        .pillar-select.auto-calculated {
+            background-color: #e8f5e9;
+            border-color: #4caf50;
+        }
+        .gender-radio {
+            margin-right: 5px;
+        }
+        .btn {
+            background-color: #e74c3c;
+            color: white;
+            border: none;
+            padding: 10px 10px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .btn:hover {
+            background-color: #c0392b;
+        }
+        .btn:disabled {
+            background-color: #bdc3c7;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background-color: #3498db;
+            margin-left: 10px;
+        }
+        .btn-secondary:hover:not(:disabled) {
+            background-color: #2980b9;
+        }     
+            /* .container {
+                padding: 15px;
+                margin-bottom: 15px;
+            }
+            
+            .form-group {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .form-group label {
+                min-width: auto;
+                margin-bottom: 5px;
+            }
+            
+            .pillar-select {
+                width: 100%;
+                min-width: auto;
+            }
+            
+            .btn, .btn-secondary {
+                width: 100%;
+                margin-left: 0;
+                margin-top: 10px;
+            } */
+            
+            .result-title {
+                font-size: 16px;
+            }
+            
+            .dayun-header {
+                font-size: 14px;
+                padding: 10px;
+            }
+            
+            .dayun-item {
+                font-size: 14px;
+                padding: 6px 10px;
+            }
+            
+            .date-radio {
+                width: 100%;
+            }
+        }
+
+    </style>
+    </head>
+    <body>
+        <h1 class="title">四柱八字双合双冲查询系统</h1>
+
+        <div class="container">
+            <div class="form-group">
+                <label>年柱：</label>
+                <select id="yearPillar" class="pillar-select"
+                    onchange="onYearChange()"></select>
+                <!-- <span style="color: #666; font-size: 14px;">← 选择年柱后自动推算月柱</span> -->
+            </div>
+            <div class="form-group">
+                <label>月柱：</label>
+                <select id="monthPillar" class="pillar-select auto-calculated"
+                    onchange="onPillarChange()"></select>
+                <span class="method-tag">五虎遁</span>
+            </div>
+            <div class="form-group">
+                <label>日柱：</label>
+                <select id="dayPillar" class="pillar-select"
+                    onchange="onDayChange()"></select>
+                <!-- <span style="color: #666; font-size: 14px;">← 选择日柱后自动推算时柱</span> -->
+            </div>
+            <div class="form-group">
+                <label>时柱：</label>
+                <select id="hourPillar" class="pillar-select auto-calculated"
+                    onchange="onPillarChange()"></select>
+                <span class="method-tag">五鼠遁</span>
+            </div>
+            <div class="form-group">
+                <label>性别：</label>
+                <input type="radio" name="gender" id="male" value="male"
+                    class="gender-radio" checked onchange="onPillarChange()">
+                <label for="male">男</label>
+                <input type="radio" name="gender" id="female" value="female"
+                    class="gender-radio" onchange="onPillarChange()">
+                <label for="female">女</label>
+            </div>
+            <div class="form-group">
+                <button class="btn btn-secondary"
+                    onclick="autoMatchDate()">八字反推日期</button>
+                <button class="btn" id="calculateBtn" onclick="calculate()"
+                    disabled>查询双合双冲</button>
+
+            </div>
+        </div>
+
+        <div class="container" id="dateInfo" style="display: none;">
+            <div class="result-title">出生日期信息（八字反推）</div>
+            <div class="date-info" id="dateInfoContent"></div>
+        </div>
+
+        <div class="container" id="baseInfo" style="display: none;">
+            <div class="result-title">八字基础信息</div>
+            <div class="info-box" id="baseInfoContent"></div>
+        </div>
+
+        <div class="container" id="result1" style="display: none;">
+            <div class="result-title">1. 四柱之间双合双冲</div>
+            <div id="result1Content"></div>
+        </div>
+
+        <div class="container" id="result2" style="display: none;">
+            <div class="result-title">2. 大运与四柱双合双冲</div>
+            <div id="result2Content"></div>
+        </div>
+
+        <div class="container" id="result3" style="display: none;">
+            <div class="result-title">3. 每步大运与管辖10年流年双合双冲</div>
+            <div id="result3Content"></div>
+        </div>
+
+        <div class="container" id="result4" style="display: none;">
+            <div class="result-title">4. 流年与四柱双合双冲 - 按大运分组</div>
+            <div id="result4Content"></div>
+        </div>
+
+        <script>
+// ====================== 天干地支基础数据 ======================
+const tianGan = ["甲","乙","丙","丁","戊","己","庚","辛","壬","癸"];
+const diZhi = ["子","丑","寅","卯","辰","巳","午","未","申","酉","戌","亥"];
+
+// 月份地支（正月建寅）
+const monthZhi = ["寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥", "子", "丑"];
+// 时辰地支（子时起）
+const hourZhi = ["子", "丑", "寅", "卯", "辰", "巳", "午", "未", "申", "酉", "戌", "亥"];
+
+const tianGanWuHe = [
+  { name: "甲己合土", pair: ["甲", "己"] },
+  { name: "乙庚合金", pair: ["乙", "庚"] },
+  { name: "丙辛合水", pair: ["丙", "辛"] },
+  { name: "丁壬合木", pair: ["丁", "壬"] },
+  { name: "戊癸合火", pair: ["戊", "癸"] },
+];
+const tianGanSiChong = [
+  { name: "甲庚冲", pair: ["甲", "庚"] },
+  { name: "乙辛冲", pair: ["乙", "辛"] },
+  { name: "丙壬冲", pair: ["丙", "壬"] },
+  { name: "丁癸冲", pair: ["丁", "癸"] },
+];
+
+const diZhiLiuHe = [
+  { name: "子丑合土", pair: ["子", "丑"] },
+  { name: "寅亥合木", pair: ["寅", "亥"] },
+  { name: "卯戌合火", pair: ["卯", "戌"] },
+  { name: "辰酉合金", pair: ["辰", "酉"] },
+  { name: "巳申合水", pair: ["巳", "申"] },
+  { name: "午未合土", pair: ["午", "未"] },
+];
+const diZhiLiuChong = [
+  { name: "子午冲", pair: ["子", "午"] },
+  { name: "丑未冲", pair: ["丑", "未"] },
+  { name: "寅申冲", pair: ["寅", "申"] },
+  { name: "卯酉冲", pair: ["卯", "酉"] },
+  { name: "辰戌冲", pair: ["辰", "戌"] },
+  { name: "巳亥冲", pair: ["巳", "亥"] },
+];
+
+// ====================== 五虎遁：年上起月法 ======================
+function getMonthGan(yearGan) {
+    const map = {
+        "甲": "丙", "己": "丙",
+        "乙": "戊", "庚": "戊",
+        "丙": "庚", "辛": "庚",
+        "丁": "壬", "壬": "壬",
+        "戊": "甲", "癸": "甲"
+    };
+    return map[yearGan] || "甲";
+}
+
+// ====================== 五鼠遁：日上起时法 ======================
+function getHourGan(dayGan) {
+    const map = {
+        "甲": "甲", "己": "甲",
+        "乙": "丙", "庚": "丙",
+        "丙": "戊", "辛": "戊",
+        "丁": "庚", "壬": "庚",
+        "戊": "壬", "癸": "壬"
+    };
+    return map[dayGan] || "甲";
+}
+
+// ====================== 工具函数 ======================
+function generateAllJiaZi() {
+  let jiaZi = [];
+  for (let i = 0; i < 60; i++) {
+    let gan = tianGan[i % 10];
+    let zhi = diZhi[i % 12];
+    jiaZi.push(gan + zhi);
+  }
+  return jiaZi;
+}
+
+function splitPillar(pillar) {
+  if (!pillar || pillar.length !== 2) return [null, null];
+  return [pillar[0], pillar[1]];
+}
+
+function isTianGanHe(g1, g2) {
+  return tianGanWuHe.some(item =>
+    (item.pair[0] === g1 && item.pair[1] === g2) ||
+    (item.pair[0] === g2 && item.pair[1] === g1)
+  );
+}
+
+function isTianGanChong(g1, g2) {
+  return tianGanSiChong.some(item =>
+    (item.pair[0] === g1 && item.pair[1] === g2) ||
+    (item.pair[0] === g2 && item.pair[1] === g1)
+  );
+}
+
+function isDiZhiHe(z1, z2) {
+  return diZhiLiuHe.some(item =>
+    (item.pair[0] === z1 && item.pair[1] === z2) ||
+    (item.pair[0] === z2 && item.pair[1] === z1)
+  );
+}
+
+function isDiZhiChong(z1, z2) {
+  return diZhiLiuChong.some(item =>
+    (item.pair[0] === z1 && item.pair[1] === z2) ||
+    (item.pair[0] === z2 && item.pair[1] === z1)
+  );
+}
+
+function isDoubleHe(p1, p2) {
+  const [g1, z1] = splitPillar(p1);
+  const [g2, z2] = splitPillar(p2);
+  return isTianGanHe(g1, g2) && isDiZhiHe(z1, z2);
+}
+
+function isDoubleChong(p1, p2) {
+  const [g1, z1] = splitPillar(p1);
+  const [g2, z2] = splitPillar(p2);
+  return isTianGanChong(g1, g2) && isDiZhiChong(z1, z2);
+}
+
+function getRelationName(p1, p2) {
+  if (isDoubleHe(p1, p2)) return "双合";
+  if (isDoubleChong(p1, p2)) return "双冲";
+  return "无";
+}
+
+// ====================== 初始化下拉框 ======================
+function initSelects() {
+  const jiaZi = generateAllJiaZi();
+  
+  // 年柱选择（全部60甲子）
+  const yearSelect = document.getElementById('yearPillar');
+  const defaultYear = '己酉';
+  jiaZi.forEach(jz => {
+    let opt = document.createElement('option');
+    opt.value = jz;
+    opt.textContent = jz;
+    if (defaultYear === jz) opt.selected = true;
+    yearSelect.appendChild(opt);
+  });
+  
+  // 日柱选择（全部60甲子）
+  const daySelect = document.getElementById('dayPillar');
+  const defaultDay = '甲子';
+  jiaZi.forEach(jz => {
+    let opt = document.createElement('option');
+    opt.value = jz;
+    opt.textContent = jz;
+    if (defaultDay === jz) opt.selected = true;
+    daySelect.appendChild(opt);
+  });
+  
+  // 初始推算月柱和时柱
+  updateMonthPillars();
+  updateHourPillars();
+}
+
+// ====================== 年柱改变时更新月柱（五虎遁） ======================
+function onYearChange() {
+    updateMonthPillars();
+    onPillarChange();
+}
+
+// ====================== 日柱改变时更新时柱（五鼠遁） ======================
+function onDayChange() {
+    updateHourPillars();
+    onPillarChange();
+}
+
+// ====================== 根据年柱更新月柱选项 ======================
+function updateMonthPillars() {
+    const yearPillar = document.getElementById('yearPillar').value;
+    const yearGan = yearPillar[0];
+    const startGan = getMonthGan(yearGan);
+    const startGanIdx = tianGan.indexOf(startGan);
+    
+    const monthSelect = document.getElementById('monthPillar');
+    const currentValue = monthSelect.value;
+    
+    monthSelect.innerHTML = '';
+    
+    // 生成12个月的月柱（正月到腊月）
+    for (let i = 0; i < 12; i++) {
+        const gan = tianGan[(startGanIdx + i) % 10];
+        const zhi = monthZhi[i];
+        const pillar = gan + zhi;
+        
+        let opt = document.createElement('option');
+        opt.value = pillar;
+        opt.textContent = `${pillar}`;
+        // opt.textContent = `${i + 1}月 ${pillar}`;
+        monthSelect.appendChild(opt);
+    }
+    
+    // 尝试保持之前的选择，如果不在列表中则选择正月
+    if (currentValue) {
+        const options = Array.from(monthSelect.options);
+        const found = options.find(opt => opt.value === currentValue);
+        if (found) {
+            monthSelect.value = currentValue;
+        } else {
+            monthSelect.selectedIndex = 0;
+        }
+    } else {
+        monthSelect.selectedIndex = 0;
+    }
+}
+
+// ====================== 根据日柱更新时柱选项 ======================
+function updateHourPillars() {
+    const dayPillar = document.getElementById('dayPillar').value;
+    const dayGan = dayPillar[0];
+    const startGan = getHourGan(dayGan);
+    const startGanIdx = tianGan.indexOf(startGan);
+    
+    const hourSelect = document.getElementById('hourPillar');
+    const currentValue = hourSelect.value;
+    
+    hourSelect.innerHTML = '';
+    
+    // 生成12个时辰的时柱
+    for (let i = 0; i < 12; i++) {
+        const gan = tianGan[(startGanIdx + i) % 10];
+        const zhi = hourZhi[i];
+        const pillar = gan + zhi;
+        
+        let opt = document.createElement('option');
+        opt.value = pillar;
+        opt.textContent = `${pillar}`;
+        // opt.textContent = `${zhi}时 ${pillar}`;
+        hourSelect.appendChild(opt);
+    }
+    
+    // 尝试保持之前的选择，如果不在列表中则选择子时
+    if (currentValue) {
+        const options = Array.from(hourSelect.options);
+        const found = options.find(opt => opt.value === currentValue);
+        if (found) {
+            hourSelect.value = currentValue;
+        } else {
+            hourSelect.selectedIndex = 0;
+        }
+    } else {
+        hourSelect.selectedIndex = 0;
+    }
+}
+
+// ====================== 四柱改变事件处理 ======================
+let matchedDate = null;
+let matchedDates = []; // 存储所有匹配的日期
+let selectedDateIndex = 0; // 当前选择的日期索引
+let daYunArr = [];
+let yun = null;
+
+function onPillarChange() {
+    // 清除之前匹配的日期
+    matchedDate = null;
+    matchedDates = [];
+    selectedDateIndex = 0;
+    
+    // 隐藏所有结果区域
+    document.getElementById('dateInfo').style.display = 'none';
+    document.getElementById('baseInfo').style.display = 'none';
+    document.getElementById('result1').style.display = 'none';
+    document.getElementById('result2').style.display = 'none';
+    document.getElementById('result3').style.display = 'none';
+    document.getElementById('result4').style.display = 'none';
+    
+    // 禁用查询按钮
+    document.getElementById('calculateBtn').disabled = true;
+}
+
+// ====================== 八字反推日期 ======================
+function autoMatchDate() {
+    const nian = document.getElementById('yearPillar').value;
+    const yue = document.getElementById('monthPillar').value;
+    const ri = document.getElementById('dayPillar').value;
+    const shi = document.getElementById('hourPillar').value;
+    
+    // 显示加载状态
+    document.getElementById('dateInfo').style.display = 'block';
+    document.getElementById('dateInfoContent').innerHTML = '<span class="loading">正在使用八字反推出生日期，请稍候...</span>';
+    
+    // 使用setTimeout让UI先更新
+    setTimeout(() => {
+        try {
+            // 使用Solar.fromBaZi进行八字反推
+            const solarList = Solar.fromBaZi(nian, yue, ri, shi, 2, 1900);
+            
+            if (solarList && solarList.length > 0) {
+                // 存储所有匹配的日期
+                matchedDates = solarList;
+                
+                // 默认选择最近的日期（最接近当前日期）
+                const now = new Date();
+                let closestIndex = 0;
+                let minDiff = Infinity;
+                
+                for (let i = 0; i < solarList.length; i++) {
+                    const solar = solarList[i];
+                    const date = new Date(solar.getYear(), solar.getMonth() - 1, solar.getDay());
+                    const diff = Math.abs(now - date);
+                    if (diff < minDiff) {
+                        minDiff = diff;
+                        closestIndex = i;
+                    }
+                }
+                
+                selectedDateIndex = closestIndex;
+                matchedDate = {
+                    year: solarList[closestIndex].getYear(),
+                    month: solarList[closestIndex].getMonth(),
+                    day: solarList[closestIndex].getDay(),
+                    hour: solarList[closestIndex].getHour(),
+                    minute: solarList[closestIndex].getMinute(),
+                    second: solarList[closestIndex].getSecond(),
+                    pillars: [nian, yue, ri, shi]
+                };
+                
+                displayDateInfo();
+                
+                // 启用查询按钮
+                document.getElementById('calculateBtn').disabled = false;
+            } else {
+                document.getElementById('dateInfoContent').innerHTML = '<span class="error">未找到匹配的出生日期（搜索范围：1900年起）<br>提示：请检查四柱组合是否合理。</span>';
+                document.getElementById('calculateBtn').disabled = true;
+            }
+        } catch (e) {
+            console.error('八字反推失败:', e);
+            document.getElementById('dateInfoContent').innerHTML = '<span class="error">八字反推出错：' + e.message + '</span>';
+            document.getElementById('calculateBtn').disabled = true;
+        }
+    }, 100);
+}
+
+// 显示日期信息
+function displayDateInfo() {
+    const gender = document.querySelector('input[name="gender"]:checked').value;
+    const genderText = gender === 'male' ? '男' : '女';
+    const nian = document.getElementById('yearPillar').value;
+    const yue = document.getElementById('monthPillar').value;
+    const ri = document.getElementById('dayPillar').value;
+    const shi = document.getElementById('hourPillar').value;
+    
+    let html = `<div class="label">八字反推成功！找到 ${matchedDates.length} 个匹配日期</div>`;
+    
+    // 显示当前选择的日期
+    const current = matchedDates[selectedDateIndex];
+    html += `<div style="margin: 10px 0; padding: 10px; background: #f5f5f5; border-radius: 5px;">
+        <div><strong>当前选择：</strong>${current.getYear()}年${current.getMonth()}月${current.getDay()}日 ${String(current.getHour()).padStart(2, '0')}:${String(current.getMinute()).padStart(2, '0')}</div>
+        <div style="margin-top: 5px; color: #666; font-size: 14px;">八字：${nian} ${yue} ${ri} ${shi}</div>
+        <div style="margin-top: 5px; color: #666; font-size: 14px;">性别：${genderText}</div>
+    </div>`;
+    
+    // 如果有多条记录，显示选择器
+    if (matchedDates.length > 1) {
+        html += `<div class="date-selector">
+            <label>选择其他可能的出生日期（共${matchedDates.length}个）：</label>
+            <div style="max-height: 200px; overflow-y: auto; margin-top: 5px;">`;
+        
+        for (let i = 0; i < matchedDates.length; i++) {
+            const solar = matchedDates[i];
+            const isSelected = i === selectedDateIndex;
+            html += `<div class="date-radio">
+                <input type="radio" name="dateSelect" id="date${i}" value="${i}" ${isSelected ? 'checked' : ''} onchange="selectDate(${i})">
+                <label for="date${i}">${solar.getYear()}年${solar.getMonth()}月${solar.getDay()}日 ${String(solar.getHour()).padStart(2, '0')}:${String(solar.getMinute()).padStart(2, '0')}</label>
+            </div>`;
+        }
+        html += `</div></div>`;
+    }
+    
+    html += `<div style="margin-top: 10px; color: #4caf50; font-size: 14px;">
+        ✓ 已选择出生日期，现在可以点击"开始查询双合双冲"进行详细分析。
+    </div>`;
+    
+    document.getElementById('dateInfoContent').innerHTML = html;
+}
+
+// 选择日期
+function selectDate(index) {
+    selectedDateIndex = index;
+    const solar = matchedDates[index];
+    matchedDate = {
+        year: solar.getYear(),
+        month: solar.getMonth(),
+        day: solar.getDay(),
+        hour: solar.getHour(),
+        minute: solar.getMinute(),
+        second: solar.getSecond(),
+        pillars: [
+            document.getElementById('yearPillar').value,
+            document.getElementById('monthPillar').value,
+            document.getElementById('dayPillar').value,
+            document.getElementById('hourPillar').value
+        ]
+    };
+    
+    // 重新显示日期信息（更新选中状态）
+    displayDateInfo();
+    
+    // 清除之前的大运计算结果
+    document.getElementById('baseInfo').style.display = 'none';
+    document.getElementById('result1').style.display = 'none';
+    document.getElementById('result2').style.display = 'none';
+    document.getElementById('result3').style.display = 'none';
+    document.getElementById('result4').style.display = 'none';
+}
+
+// ====================== 计算大运 ======================
+function calculateDaYun() {
+    if (!matchedDate) {
+        return false;
+    }
+    
+    const gender = document.querySelector('input[name="gender"]:checked').value;
+    // gender: 1为男，0为女
+    const genderCode = gender === 'male' ? 1 : 0;
+    
+    try {
+        // 使用精确到时分秒的日期创建Solar对象
+        const solar = Solar.fromYmdHms(
+            matchedDate.year, 
+            matchedDate.month, 
+            matchedDate.day, 
+            matchedDate.hour, 
+            matchedDate.minute, 
+            matchedDate.second
+        );
+        const lunar = solar.getLunar();
+        const eightChar = lunar.getEightChar();
+        
+        // 获取运（包含起运岁数计算）
+        yun = eightChar.getYun(genderCode);
+        
+        // 获取大运列表
+        daYunArr = yun.getDaYun();
+        
+        return true;
+    } catch (e) {
+        console.error('计算大运失败:', e);
+        return false;
+    }
+}
+
+// ====================== 主计算函数 ======================
+function calculate() {
+    // 检查是否有匹配的日期
+    if (!matchedDate) {
+        alert('请先点击"八字反推日期"按钮，选择出生日期');
+        return;
+    }
+    
+    const nian = document.getElementById('yearPillar').value;
+    const yue = document.getElementById('monthPillar').value;
+    const ri = document.getElementById('dayPillar').value;
+    const shi = document.getElementById('hourPillar').value;
+    const pillars = [nian, yue, ri, shi];
+    const pillarNames = ['年柱', '月柱', '日柱', '时柱'];
+    const gender = document.querySelector('input[name="gender"]:checked').value;
+    
+    // 计算大运
+    if (!calculateDaYun()) {
+        alert('大运计算失败，请检查日期数据');
+        return;
+    }
+    
+    doCalculate(pillars, pillarNames, gender);
+}
+
+function doCalculate(pillars, pillarNames, gender) {
+    // ====================== 展示基础信息 ======================
+    document.getElementById('baseInfo').style.display = 'block';
+    
+    // 获取性别代码
+    const genderCode = gender === 'male' ? 1 : 0;
+    
+    // 判断年柱阴阳
+    const yearGan = pillars[0][0];
+    const yangGan = ['甲', '丙', '戊', '庚', '壬'];
+    const isYangYear = yangGan.includes(yearGan);
+    
+    // 判断顺逆
+    let direction = '';
+    if (isYangYear && gender === 'male') {
+        direction = '顺排';
+    } else if (!isYangYear && gender === 'female') {
+        direction = '顺排';
+    } else {
+        direction = '逆排';
+    }
+    
+    let baseHtml = `
+        八字：${pillars.join('　')}<br>
+        性别：${gender === 'male' ? '男' : '女'}<br>
+        年柱阴阳：${isYangYear ? '阳年' : '阴年'}<br>
+        大运方向：${direction}<br>
+    `;
+    
+    if (matchedDate) {
+        baseHtml += `出生日期：${matchedDate.year}年${matchedDate.month}月${matchedDate.day}日 ${String(matchedDate.hour).padStart(2, '0')}:${String(matchedDate.minute).padStart(2, '0')}<br>`;
+    }
+    
+    // 显示起运信息
+    if (yun) {
+        baseHtml += `<br><strong>起运信息：</strong><br>`;
+        baseHtml += `起运岁数：${yun.getStartYear()}岁<br>`;
+        baseHtml += `起运日期：${yun.getStartYear()}年${yun.getStartMonth()}月${yun.getStartDay()}日<br>`;
+    }
+    
+    baseHtml += `<br><strong>大运列表：</strong><br>`;
+
+    let daYunNames = [];
+    if (daYunArr && daYunArr.length > 0) {
+        daYunArr.forEach((dy, i) => {
+            const gz = dy.getGanZhi() || '无';
+            daYunNames.push(gz);
+            const startAge = dy.getStartAge ? dy.getStartAge() : (yun.getStartYear() + i * 10);
+            const endAge = dy.getEndAge ? dy.getEndAge() : (startAge + 9);
+            baseHtml += `第${i + 1}步大运：${gz}　${startAge} - ${endAge}岁<br>`;
+        });
+    } else {
+        baseHtml += `<div class="warning-box">大运数据获取失败</div>`;
+    }
+
+    document.getElementById('baseInfoContent').innerHTML = baseHtml;
+
+    // ====================== 1. 四柱内部双合双冲 ======================
+    document.getElementById('result1').style.display = 'block';
+    let res1Html = '';
+    for (let i = 0; i < pillars.length; i++) {
+        for (let j = i + 1; j < pillars.length; j++) {
+            const rel = getRelationName(pillars[i], pillars[j]);
+            if (rel === '双合' || rel === '双冲') {
+                res1Html += `<div class="result-item">${pillarNames[i]}(${pillars[i]}) ↔ ${pillarNames[j]}(${pillars[j]}) → ${rel}</div>`;
+            }
+        }
+    }
+    if (!res1Html) res1Html = '<div class="no-data">四柱之间无任何双合双冲</div>';
+    document.getElementById('result1Content').innerHTML = res1Html;
+
+    // ====================== 2. 大运与四柱双合双冲 ======================
+    document.getElementById('result2').style.display = 'block';
+    let res2Html = '';
+    daYunNames.forEach((dy, idx) => {
+        pillars.forEach((zhu, zhuIdx) => {
+            const rel = getRelationName(dy, zhu);
+            if (rel === '双合' || rel === '双冲') {
+                res2Html += `<div class="result-item">大运${idx + 1}(${dy}) ↔ ${pillarNames[zhuIdx]}(${zhu}) → ${rel}</div>`;
+            }
+        });
+    });
+    if (!res2Html) res2Html = '<div class="no-data">大运与四柱无任何双合双冲</div>';
+    document.getElementById('result2Content').innerHTML = res2Html;
+
+    // ====================== 3. 大运 ↔ 流年 双合双冲 ======================
+    document.getElementById('result3').style.display = 'block';
+    let res3Html = '';
+    if (daYunArr && daYunArr.length > 0) {
+        daYunArr.forEach((dy, dyIdx) => {
+            const dyName = dy.getGanZhi() || '无';
+            const liuNianArr = dy.getLiuNian();
+            if (liuNianArr && liuNianArr.length > 0) {
+                liuNianArr.forEach(ln => {
+                    const lnName = ln.getGanZhi();
+                    const rel = getRelationName(dyName, lnName);
+                    if (rel === '双合' || rel === '双冲') {
+                        res3Html += `<div class="result-item">大运${dyIdx + 1}(${dyName}) ↔ ${ln.getYear()}年(${lnName}) → ${rel}</div>`;
+                    }
+                });
+            }
+        });
+    }
+    if (!res3Html) res3Html = '<div class="no-data">大运与流年无任何双合双冲</div>';
+    document.getElementById('result3Content').innerHTML = res3Html;
+
+    // ====================== 4. 流年与四柱双合双冲（按大运分组） ======================
+    document.getElementById('result4').style.display = 'block';
+    let res4Html = '';
+    
+    if (daYunArr && daYunArr.length > 0) {
+        daYunArr.forEach((dy, dyIdx) => {
+            const dyName = dy.getGanZhi() || '无';
+            const liuNianArr = dy.getLiuNian();
+            
+            if (liuNianArr && liuNianArr.length > 0) {
+                // 获取该大运管辖的年份范围
+                const startYear = liuNianArr[0].getYear();
+                const endYear = liuNianArr[liuNianArr.length - 1].getYear();
+                
+                // 收集该大运下所有与四柱有双合双冲的流年
+                let matchedLiuNian = [];
+                
+                liuNianArr.forEach(ln => {
+                    const lnName = ln.getGanZhi();
+                    const lnYear = ln.getYear();
+                    
+                    // 检查该流年与四柱的每一柱是否有双合双冲
+                    pillars.forEach((zhu, zhuIdx) => {
+                        const rel = getRelationName(lnName, zhu);
+                        if (rel === '双合' || rel === '双冲') {
+                            matchedLiuNian.push({
+                                year: lnYear,
+                                lnName: lnName,
+                                pillarName: pillarNames[zhuIdx],
+                                pillar: zhu,
+                                relation: rel
+                            });
+                        }
+                    });
+                });
+                
+                // 如果有匹配的流年，显示该大运分组
+                if (matchedLiuNian.length > 0) {
+                    res4Html += `<div class="dayun-group">
+                        <div class="dayun-header">
+                            大运${dyIdx + 1}(${dyName}) 管辖：${startYear}-${endYear}年
+                        </div>
+                        <div class="dayun-content">`;
+                    
+                    matchedLiuNian.forEach(item => {
+                        res4Html += `<div class="dayun-item">
+                            ${item.year}年(${item.lnName}) ↔ ${item.pillarName}(${item.pillar}) → ${item.relation}
+                        </div>`;
+                    });
+                    
+                    res4Html += `</div></div>`;
+                }
+            }
+        });
+    }
+    
+    if (!res4Html) {
+        res4Html = '<div class="no-data">所有大运流年中，与四柱无任何双合双冲</div>';
+    }
+    
+    document.getElementById('result4Content').innerHTML = res4Html;
+}
+
+window.onload = initSelects;
+</script>
+    </body>
+</html>
