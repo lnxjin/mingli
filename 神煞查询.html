@@ -1,236 +1,1558 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="zh-CN">
+
 <head>
-<meta charset="UTF-8">
-<title>四柱神煞查询系统（年日双查）</title>
-<style>
-*{box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif}
-body{max-width:1300px;margin:30px auto;padding:0 20px;background:#f5f7fa}
-.input-card{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);margin-bottom:24px}
-#baziInput{width:100%;padding:12px 15px;font-size:16px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:14px}
-button{padding:10px 24px;background:#3b82f6;color:#fff;border:none;border-radius:8px;cursor:pointer;font-size:15px}
-.pillars{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:16px;margin-bottom:30px}
-.pillar{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05);border-top:3px solid #3b82f6}
-.pillar-title{font-size:17px;font-weight:bold;text-align:center;margin-bottom:10px;color:#1e293b}
-.pillar-bazi{font-size:26px;font-weight:bold;text-align:center;color:#ef4444;margin-bottom:16px}
-.shensha-tag{display:inline-block;background:#eff6ff;color:#2563eb;padding:4px 8px;border-radius:6px;margin:3px;font-size:13px}
-.global-box{background:#fff;border-radius:12px;padding:20px;box-shadow:0 2px 8px rgba(0,0,0,0.05)}
-.global-title{font-size:17px;font-weight:bold;margin-bottom:12px;color:#1e293b}
-</style>
+    <meta charset="UTF-8" />
+    <title>专业神煞查询系统（含大运版）</title>
+    <script src="https://cdn.bootcdn.net/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <style>
+        * {
+            box-sizing: border-box;
+            font-family: "Microsoft YaHei", sans-serif;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            margin: 0;
+            padding: 10px;
+            background: #f5f7fa;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        .card {
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05);
+            margin-bottom: 16px;
+        }
+
+        .bazi-hint {
+            font-size: 0.8rem;
+            color: #888;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .bazi-error {
+            font-size: 0.8rem;
+            color: #e74c3c;
+            margin-top: 4px;
+            display: none;
+        }
+
+        input {
+            width: 100%;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            margin-bottom: 2px;
+            /* -webkit-appearance: none; */
+        }
+
+        .group {
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            margin: 20px auto;
+        }
+
+        .gender {
+            display: flex;
+            gap: 15px;
+            flex-wrap: nowrap;
+        }
+
+        .gender label {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            cursor: pointer;
+            white-space: nowrap;
+            flex-shrink: 0;
+            font-size: 15px;
+        }
+
+        .btns {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            padding: 10px 14px;
+            border: none;
+            border-radius: 8px;
+            background: #3b82f6;
+            color: #fff;
+            cursor: pointer;
+            transition: background 0.2s;
+            font-size: 14px;
+            /* -webkit-appearance: none; */
+        }
+
+        button:hover {
+            background: #2563eb;
+        }
+
+        button:active {
+            transform: scale(0.98);
+        }
+
+        .btn-rule {
+            background: #64748b;
+        }
+
+        .btn-rule:hover {
+            background: #475569;
+        }
+
+        .btn-export {
+            background: #10b981;
+        }
+
+        .btn-export:hover {
+            background: #059669;
+        }
+
+        /* 四柱容器 */
+        .pillars {
+            display: flex;
+            flex-direction: row;
+            gap: 8px;
+            margin-bottom: 20px;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .pillars::-webkit-scrollbar {
+            display: none;
+        }
+
+        .pillar {
+            flex: 0 0 calc((100% - 24px) / 4);
+            min-width: 140px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 16px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        .pillar-title,
+        .dy-title {
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 8px;
+            font-size: 15px;
+        }
+
+        .pillar-bazi,
+        .dy-bazi {
+            font-size: 20px;
+            color: #dc2626;
+            text-align: center;
+            margin-bottom: 10px;
+            font-weight: bold;
+        }
+
+        .shensha-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+        }
+
+        .shensha {
+            padding: 6px 10px;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: transform 0.1s;
+        }
+
+        .shensha:hover {
+            transform: scale(1.02);
+        }
+
+        .shensha:active {
+            transform: scale(0.98);
+        }
+
+        .shensha.ji {
+            background: #dbeafe;
+            color: #1e40af;
+        }
+
+        .shensha.zhong {
+            background: #fef3c7;
+            color: #92400e;
+        }
+
+        .shensha.xiong {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        .rule-box {
+            display: none;
+            margin-bottom: 20px;
+        }
+
+        .rule-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+        }
+
+        .rule-item {
+            border-bottom: 1px solid #eee;
+            padding-bottom: 8px;
+            margin-bottom: 8px;
+        }
+
+        .rule-name {
+            font-weight: bold;
+            color: #3b82f6;
+        }
+
+        .rule-desc {
+            font-size: 14px;
+            color: #555;
+        }
+
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            z-index: 999;
+        }
+
+        .modal-body {
+            background: #fff;
+            border-radius: 12px;
+            padding: 20px;
+            max-width: 500px;
+            width: 100%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .modal-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 10px;
+        }
+
+        .modal-text {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .modal-close {
+            margin-top: 15px;
+            padding: 8px 16px;
+            background: #ddd;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .modal-close:hover {
+            background: #ccc;
+        }
+
+        /* 大运容器 */
+        .dayun-box {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            margin-bottom: 20px;
+        }
+
+        .dayun-row {
+            display: flex;
+            gap: 8px;
+            width: 100%;
+            overflow-x: auto;
+            padding-bottom: 8px;
+            scrollbar-width: none;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .dayun-row::-webkit-scrollbar {
+            display: none;
+        }
+
+        .dy-item {
+            flex: 0 0 calc((100% - 24px) / 4);
+            min-width: 140px;
+            background: #fff;
+            border-radius: 12px;
+            padding: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+        }
+
+        #loading-mask {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #fff;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            transition: opacity 0.3s;
+        }
+
+        .spinner {
+            width: 40px;
+            height: 40px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #3b82f6;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        /* 平板适配 (768px及以下) */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 8px;
+            }
+
+            .card {
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            input {
+                padding: 10px;
+                font-size: 16px;
+            }
+
+            .bazi-hint {
+                font-size: 0.8rem;
+                color: #888;
+                margin-top: 4px;
+                line-height: 1.4;
+            }
+
+            .bazi-error {
+                font-size: 0.8rem;
+                color: #e74c3c;
+                margin-top: 4px;
+                display: none;
+            }
+
+            .group {
+                margin: 15px auto;
+                gap: 8px;
+            }
+
+            .gender {
+                gap: 12px;
+            }
+
+            .gender label {
+                font-size: 15px;
+            }
+
+            .btns {
+                gap: 8px;
+            }
+
+            button {
+                padding: 8px 12px;
+                font-size: 14px;
+                flex: 1;
+                min-width: 80px;
+            }
+
+            /* 四柱保持4个横向滚动 - 缩小间距和宽度 */
+            .pillars {
+                gap: 6px;
+                margin-bottom: 15px;
+            }
+
+            .pillar {
+                flex: 0 0 calc((100% - 18px) / 4);
+                min-width: 80px;
+                padding: 10px 6px;
+                border-radius: 8px;
+            }
+
+            .pillar-title,
+            .dy-title {
+                font-size: 15px;
+                margin-bottom: 6px;
+            }
+
+            .pillar-bazi,
+            .dy-bazi {
+                font-size: 20px;
+                margin-bottom: 8px;
+            }
+
+            .shensha-list {
+                gap: 4px;
+            }
+
+            .shensha {
+                padding: 5px 4px;
+                font-size: 14px;
+            }
+
+            /* 大运保持4个横向滚动 */
+            .dayun-box {
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .dayun-row {
+                gap: 6px;
+            }
+
+            .dy-item {
+                flex: 0 0 calc((100% - 18px) / 4);
+                min-width: 80px;
+                padding: 10px 6px;
+                border-radius: 8px;
+            }
+
+            .rule-box {
+                margin-bottom: 15px;
+            }
+
+            .rule-item {
+                padding-bottom: 6px;
+                margin-bottom: 6px;
+            }
+
+            .rule-name {
+                font-size: 14px;
+            }
+
+            .rule-desc {
+                font-size: 13px;
+            }
+
+            .modal {
+                padding: 15px;
+            }
+
+            .modal-body {
+                padding: 16px;
+                border-radius: 10px;
+            }
+
+            .modal-title {
+                font-size: 18px;
+            }
+
+            .modal-text {
+                font-size: 15px;
+            }
+
+            .modal-close {
+                padding: 10px 16px;
+                width: 100%;
+            }
+        }
+
+        /* 超小屏幕适配 (480px及以下) */
+        @media screen and (max-width: 480px) {
+            .pillar {
+                min-width: 70px;
+                padding: 8px 4px;
+            }
+
+            .dy-item {
+                min-width: 70px;
+                padding: 8px 4px;
+            }
+        }
+    </style>
 </head>
 
 <body>
-<h2 style="text-align:center;color:#1e293b">四柱神煞查询系统（年日双查）</h2>
+    <div id="loading">
+        <div style="text-align:center;">
+            <div class="spinner"></div>
+            <p style="margin-top:10px;color:#666;font-size:14px;">正在加载，请稍候...</p>
+        </div>
+    </div>
 
-<div class="input-card">
-  <input type="text" id="baziInput" placeholder="输入四柱：己酉 丙寅 甲子 辛未（空格分隔）" value="己酉 丙寅 甲子 辛未">
-  <button onclick="compute()">查询神煞</button>
-</div>
 
-<div id="pillars" class="pillars"></div>
-<div id="global" class="global-box"></div>
+    <div class="container" id="printArea">
+        <h2 style="text-align: center">专业神煞查询系统（含大运）</h2>
 
-<script>
-// 1. 解析四柱
-function parseBazi(str) {
-  const arr = str.trim().split(/\s+/).filter(s => s.length === 2);
-  if (arr.length !== 4) return null;
-  return [
-    { name: "年柱", g: arr[0][0], z: arr[0][1] },
-    { name: "月柱", g: arr[1][0], z: arr[1][1] },
-    { name: "日柱", g: arr[2][0], z: arr[2][1] },
-    { name: "时柱", g: arr[3][0], z: arr[3][1] }
-  ];
-}
+        <div class="card">
+            <input id="baziInput" placeholder="例如：己酉 丙寅 甲子 辛未（空格分隔）" value="己酉 丙寅 甲子 辛未" />
+            <div class="bazi-hint">格式：年柱 月柱 日柱 时柱（空格分隔）</div>
+            <div class="bazi-error" id="baziError">
+                格式错误：请输入四个有效的干支
+            </div>
+            <div class="group">
+                <div class="gender">
+                    <label><input type="radio" name="gender" value="qian" checked />乾造（男）</label>
+                    <label><input type="radio" name="gender" value="kun" />坤造（女）</label>
+                </div>
+                <div class="btns" style="margin-bottom: 0">
+                    <button onclick="compute()">开始查询</button>
+                    <button class="btn-rule" onclick="toggleRule()">神煞规则</button>
+                    <button class="btn-export" onclick="exportImage()">导出图片</button>
+                </div>
+            </div>
+        </div>
 
-// 2. 万能神煞规则库（年支 / 日支 / 年干 / 日干 / 月支）
-const shenshaRules = [
-  // ========== 日支查 ==========
-  { name: "桃花", by: "riZhi", source: "日", fn: (b, t) => {
-    const m = {申:"酉",子:"酉",辰:"酉",巳:"午",酉:"午",丑:"午",寅:"卯",午:"卯",戌:"卯",亥:"子",卯:"子",未:"子"};
-    return m[b] === t;
-  }},
-  { name: "驿马", by: "riZhi", source: "日", fn: (b, t) => {
-    const m = {申:"寅",子:"寅",辰:"寅",寅:"申",午:"申",戌:"申",巳:"亥",酉:"亥",丑:"亥",亥:"巳",卯:"巳",未:"巳"};
-    return m[b] === t;
-  }},
-  { name: "华盖", by: "riZhi", source: "日", fn: (b, t) => {
-    const m = {寅:"戌",午:"戌",戌:"戌",亥:"未",卯:"未",未:"未",申:"辰",子:"辰",辰:"辰",巳:"丑",酉:"丑",丑:"丑"};
-    return m[b] === t;
-  }},
-  { name: "将星", by: "riZhi", source: "日", fn: (b, t) => {
-    const m = {寅:"午",午:"午",戌:"午",巳:"酉",酉:"酉",丑:"酉",申:"子",子:"子",辰:"子",亥:"卯",卯:"卯",未:"卯"};
-    return m[b] === t;
-  }},
-  { name: "孤辰", by: "riZhi", source: "日", fn: (b, t) => {
-    const m = {寅:"寅",卯:"寅",辰:"寅",巳:"巳",午:"巳",未:"巳",申:"申",酉:"申",戌:"申",亥:"亥",子:"亥",丑:"亥"};
-    return m[b] === t;
-  }},
-  { name: "寡宿", by: "riZhi", source: "日", fn: (b, t) => {
-    const m = {寅:"戌",卯:"戌",辰:"戌",巳:"丑",午:"丑",未:"丑",申:"辰",酉:"辰",戌:"辰",亥:"未",子:"未",丑:"未"};
-    return m[b] === t;
-  }},
+        <div class="rule-box card" id="ruleBox">
+            <div class="rule-title">神煞口诀与说明</div>
+            <div class="rule-item">
+                <div class="rule-name">天乙贵人</div>
+                <div class="rule-desc">
+                    甲戊并牛羊，乙己鼠猴乡，丙丁猪鸡位，壬癸兔蛇藏，庚辛逢虎马，此是贵人方。主贵人、逢凶化吉。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">文昌贵人</div>
+                <div class="rule-desc">
+                    甲乙巳午报君知，丙戊申宫丁己鸡，庚猪辛鼠壬逢虎，癸人见卯入云梯。主聪明、学业、文职。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">空亡</div>
+                <div class="rule-desc">
+                    六甲旬空，甲子旬中戌亥空，甲戌旬中申酉空；甲午旬中辰巳空，甲辰旬中寅卯空；甲申旬中午未空，甲寅旬中子丑空。主虚空、变动、机缘不实。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">桃花</div>
+                <div class="rule-desc">
+                    申子辰见酉、亥卯未见子、寅午戌见卯、巳酉丑见午。主人缘、异性缘。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">驿马</div>
+                <div class="rule-desc">
+                    申子辰马在寅，寅午戌马在申，巳酉丑马在亥，亥卯未马在巳。主动、奔波、远行。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">华盖</div>
+                <div class="rule-desc">
+                    寅午戌见戌，亥卯未见未，申子辰见辰，巳酉丑见丑。主艺术、玄学、孤独。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">孤辰寡宿</div>
+                <div class="rule-desc">主孤独、亲情淡薄、婚姻缘薄、内心寂寞。</div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">天德月德</div>
+                <div class="rule-desc">
+                    天德贵人<br />正月生者见丁，二月生者见申，三月生者见壬，四月生者见辛，五月生者见亥，六月生者见甲，七月生者见癸，八月生者见寅，九月生者见丙，十月生者见乙，十一月生者见巳，十二月生者见庚。
+                    <br />月德贵人<br />寅午戌月生者见丙，申子辰月生者见壬，亥卯未月生者见甲，巳酉丑月生者见庚。最强解厄吉神，主平安、逢凶化吉、仁慈有福。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">三奇贵人</div>
+                <div class="rule-desc">
+                    天上三奇甲戊庚，地下三奇乙丙丁，人中三奇壬癸辛。主天赋、奇遇、不凡。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">将星</div>
+                <div class="rule-desc">
+                    寅午戌见午，巳酉丑见酉，申子辰见子，亥卯未见卯。
+                </div>
+            </div>
+            <div class="rule-item">
+                <div class="rule-name">太极贵人</div>
+                <div class="rule-desc">
+                    甲乙生人子午中，丙丁鸡兔定亨通，戊己两干临四季，庚辛寅亥禄丰隆，壬癸巳申偏喜美，值此应当福气重，更须贵格来相扶，候封万户到三公。
+                </div>
+            </div>
+        </div>
 
-  // ========== 年支查 ==========
-  { name: "桃花", by: "nianZhi", source: "年", fn: (b, t) => {
-    const m = {申:"酉",子:"酉",辰:"酉",巳:"午",酉:"午",丑:"午",寅:"卯",午:"卯",戌:"卯",亥:"子",卯:"子",未:"子"};
-    return m[b] === t;
-  }},
-  { name: "驿马", by: "nianZhi", source: "年", fn: (b, t) => {
-    const m = {申:"寅",子:"寅",辰:"寅",寅:"申",午:"申",戌:"申",巳:"亥",酉:"亥",丑:"亥",亥:"巳",卯:"巳",未:"巳"};
-    return m[b] === t;
-  }},
-  { name: "华盖", by: "nianZhi", source: "年", fn: (b, t) => {
-    const m = {寅:"戌",午:"戌",戌:"戌",亥:"未",卯:"未",未:"未",申:"辰",子:"辰",辰:"辰",巳:"丑",酉:"丑",丑:"丑"};
-    return m[b] === t;
-  }},
-  { name: "将星", by: "nianZhi", source: "年", fn: (b, t) => {
-    const m = {寅:"午",午:"午",戌:"午",巳:"酉",酉:"酉",丑:"酉",申:"子",子:"子",辰:"子",亥:"卯",卯:"卯",未:"卯"};
-    return m[b] === t;
-  }},
-  { name: "孤辰", by: "nianZhi", source: "年", fn: (b, t) => {
-    const m = {寅:"寅",卯:"寅",辰:"寅",巳:"巳",午:"巳",未:"巳",申:"申",酉:"申",戌:"申",亥:"亥",子:"亥",丑:"亥"};
-    return m[b] === t;
-  }},
-  { name: "寡宿", by: "nianZhi", source: "年", fn: (b, t) => {
-    const m = {寅:"戌",卯:"戌",辰:"戌",巳:"丑",午:"丑",未:"丑",申:"辰",酉:"辰",戌:"辰",亥:"未",子:"未",丑:"未"};
-    return m[b] === t;
-  }},
+        <div class="card">
+            <h3 style="margin: 0 0 10px">四柱神煞</h3>
+        </div>
+        <div id="pillars" class="pillars"></div>
 
-  // ========== 年干查（关键修复） ==========
-  { name: "天乙", by: "nianGan", source: "年", fn: (b, t) => {
-    const m = {甲:["丑","未"],戊:["丑","未"],庚:["丑","未"],乙:["子","申"],己:["子","申"],丙:["亥","酉"],丁:["亥","酉"],壬:["卯","巳"],癸:["卯","巳"],辛:["寅","午"]};
-    return m[b]?.includes(t);
-  }},
-  { name: "文昌", by: "nianGan", source: "年", fn: (b, t) => {
-    const m = {甲:["巳"],乙:["午"],丙:["申"],戊:["申"],丁:["酉"],己:["酉"],庚:["亥"],辛:["子"],壬:["寅"],癸:["卯"]};
-    return m[b]?.includes(t);
-  }},
-  { name: "太极", by: "nianGan", source: "年", fn: (b, t) => {
-    const m = {甲:["子","午"],乙:["子","午"],丙:["酉","卯"],丁:["酉","卯"],戊:["辰","戌","丑","未"],己:["辰","戌","丑","未"],庚:["寅","亥"],辛:["寅","亥"],壬:["巳","申"],癸:["巳","申"]};
-    return m[b]?.includes(t);
-  }},
-  { name: "禄神", by: "nianGan", source: "年", fn: (b, t) => {
-    const m = {甲:"寅",乙:"卯",丙:"巳",丁:"午",戊:"巳",己:"午",庚:"申",辛:"酉",壬:"亥",癸:"子"};
-    return m[b] === t;
-  }},
-  { name: "羊刃", by: "nianGan", source: "年", fn: (b, t) => {
-    const m = {甲:"卯",乙:"寅",丙:"午",丁:"巳",戊:"午",己:"巳",庚:"酉",辛:"申",壬:"子",癸:"亥"};
-    return m[b] === t;
-  }},
-  { name: "红艳", by: "nianGan", source: "年", fn: (b, t) => {
-    const m = {甲:"午",乙:"申",丙:"寅",丁:"未",戊:"午",己:"申",庚:"卯",辛:"寅",壬:"子",癸:"酉"};
-    return m[b] === t;
-  }},
+        <div class="card">
+            <h3 style="margin: 0 0 10px">大运神煞（顺逆正宗）</h3>
+        </div>
+        <div id="dayun" class="dayun-box"></div>
+    </div>
 
-  // ========== 日干查 ==========
-  { name: "天乙", by: "riGan", source: "日", fn: (b, t) => {
-    const m = {甲:["丑","未"],戊:["丑","未"],庚:["丑","未"],乙:["子","申"],己:["子","申"],丙:["亥","酉"],丁:["亥","酉"],壬:["卯","巳"],癸:["卯","巳"],辛:["寅","午"]};
-    return m[b]?.includes(t);
-  }},
-  { name: "太极", by: "riGan", source: "日", fn: (b, t) => {
-    const m = {甲:["子","午"],乙:["子","午"],丙:["酉","卯"],丁:["酉","卯"],戊:["辰","戌","丑","未"],己:["辰","戌","丑","未"],庚:["寅","亥"],辛:["寅","亥"],壬:["巳","申"],癸:["巳","申"]};
-    return m[b]?.includes(t);
-  }},
-  { name: "文昌", by: "riGan", source: "日", fn: (b, t) => {
-    const m = {甲:["巳"],乙:["午"],丙:["申"],戊:["申"],丁:["酉"],己:["酉"],庚:["亥"],辛:["子"],壬:["寅"],癸:["卯"]};
-    return m[b]?.includes(t);
-  }},
-  { name: "禄神", by: "riGan", source: "日", fn: (b, t) => {
-    const m = {甲:"寅",乙:"卯",丙:"巳",丁:"午",戊:"巳",己:"午",庚:"申",辛:"酉",壬:"亥",癸:"子"};
-    return m[b] === t;
-  }},
-  { name: "羊刃", by: "riGan", source: "日", fn: (b, t) => {
-    const m = {甲:"卯",乙:"寅",丙:"午",丁:"巳",戊:"午",己:"巳",庚:"酉",辛:"申",壬:"子",癸:"亥"};
-    return m[b] === t;
-  }},
-  { name: "红艳", by: "riGan", source: "日", fn: (b, t) => {
-    const m = {甲:"午",乙:"申",丙:"寅",丁:"未",戊:"午",己:"申",庚:"卯",辛:"寅",壬:"子",癸:"酉"};
-    return m[b] === t;
-  }},
+    <div class="modal" id="modal">
+        <div class="modal-body">
+            <div class="modal-title" id="modalTitle"></div>
+            <div class="modal-text" id="modalText"></div>
+            <button class="modal-close" onclick="closeModal()">关闭</button>
+        </div>
+    </div>
 
-  // ========== 月支查（天德月德） ==========
-  { name: "天德", by: "yueZhi", source: "月", fn: (b, t) => {
-    const m = {寅:"丁",卯:"申",辰:"壬",巳:"辛",午:"亥",未:"甲",申:"癸",酉:"寅",戌:"丙",亥:"乙",子:"巳",丑:"庚"};
-    return m[b] === t;
-  }},
-  { name: "月德", by: "yueZhi", source: "月", fn: (b, t) => {
-    const m = {寅:"丙",午:"丙",戌:"丙",申:"壬",子:"壬",辰:"壬",亥:"甲",卯:"甲",未:"甲",巳:"庚",酉:"庚",丑:"庚"};
-    return m[b] === t;
-  }}
-];
+    <script>
 
-// 三奇贵人
-function getSanQi(gans) {
-  const t = ["甲","戊","庚"], d = ["乙","丙","丁"], r = ["壬","癸","辛"];
-  const res = [];
-  if(t.every(x=>gans.includes(x))) res.push("天上三奇");
-  if(d.every(x=>gans.includes(x))) res.push("地下三奇");
-  if(r.every(x=>gans.includes(x))) res.push("人中三奇");
-  return res.join(" ") || "无";
-}
+        // 吉凶分类
+        const ji = [
+            "天乙",
+            "文昌",
+            "太极",
+            "天德",
+            "月德",
+            "禄神",
+            "将星",
+            "三奇",
+        ];
+        const zhong = ["桃花", "驿马", "华盖", "红艳", "魁罡"];
+        const xiong = ["孤辰", "寡宿", "空亡"];
 
-// 魁罡
-function isKuigang(gan, zhi) {
-  return ["庚戌","庚辰","戊戌","壬辰"].includes(gan+zhi);
-}
+        // 神煞解释
+        const explain = {
+            天乙: "最高级吉神，主贵人运极强，遇事有人帮，逢凶化吉。",
+            文昌: "主聪明、悟性高、记忆力好，利考试、文职、技术、名声。",
+            太极: "主慧根、灵感、玄学缘分，思想深刻，有宗教艺术天赋。",
+            禄神: "主衣食俸禄、稳定收入、身体健康，一生衣食无忧。",
+            天德: "最强解厄之星，主仁慈、平安、大灾化小、遇难呈祥。",
+            月德: "主温和厚道、化解凶煞、家庭和睦、健康平安。",
+            将星: "主领导力、权威、管理才能，有威信，适合掌权。",
+            桃花: "主人缘、魅力、异性缘、艺术气质，吉则聪慧，凶则滥情。",
+            驿马: "主变动、远行、奔波、搬迁、转职，多在动中求财。",
+            华盖: "主艺术、玄学、清高、孤独、悟性高，内心独立有才华。",
+            红艳: "主感情缘分、浪漫多情，易有异性缘分与纠葛。",
+            魁罡: "主性格刚烈、果断、有魄力权威，女命稍硬。",
+            孤辰: "主性格孤独、六亲缘薄、易离家、内心寂寞。",
+            寡宿: "主婚姻缘薄、晚婚、夫妻少聚、易孤单。",
+            空亡: "主虚空、变动、机缘不实、起伏大，吉则超脱，凶则落空。",
+            三奇: "主天赋异禀、才华出众、一生多奇遇、格局不凡。",
+        };
+        const tianGan = [
+            "甲",
+            "乙",
+            "丙",
+            "丁",
+            "戊",
+            "己",
+            "庚",
+            "辛",
+            "壬",
+            "癸",
+        ];
+        const diZhi = [
+            "子",
+            "丑",
+            "寅",
+            "卯",
+            "辰",
+            "巳",
+            "午",
+            "未",
+            "申",
+            "酉",
+            "戌",
+            "亥",
+        ];
 
-// 主计算
-function compute() {
-  const val = document.getElementById("baziInput").value.trim();
-  const pillars = parseBazi(val);
-  if (!pillars) { alert("请输入正确四柱，如：己酉 丙寅 甲子 辛未"); return; }
+        // 六十甲子
+        const jiaZi = [
+            "甲子",
+            "乙丑",
+            "丙寅",
+            "丁卯",
+            "戊辰",
+            "己巳",
+            "庚午",
+            "辛未",
+            "壬申",
+            "癸酉",
+            "甲戌",
+            "乙亥",
+            "丙子",
+            "丁丑",
+            "戊寅",
+            "己卯",
+            "庚辰",
+            "辛巳",
+            "壬午",
+            "癸未",
+            "甲申",
+            "乙酉",
+            "丙戌",
+            "丁亥",
+            "戊子",
+            "己丑",
+            "庚寅",
+            "辛卯",
+            "壬辰",
+            "癸巳",
+            "甲午",
+            "乙未",
+            "丙申",
+            "丁酉",
+            "戊戌",
+            "己亥",
+            "庚子",
+            "辛丑",
+            "壬寅",
+            "癸卯",
+            "甲辰",
+            "乙巳",
+            "丙午",
+            "丁未",
+            "戊申",
+            "己酉",
+            "庚戌",
+            "辛亥",
+            "壬子",
+            "癸丑",
+            "甲寅",
+            "乙卯",
+            "丙辰",
+            "丁巳",
+            "戊午",
+            "己未",
+            "庚申",
+            "辛酉",
+            "壬戌",
+            "癸亥",
+        ];
 
-  const nianG = pillars[0].g;
-  const nianZ = pillars[0].z;
-  const yueZ  = pillars[1].z;
-  const riG   = pillars[2].g;
-  const riZ   = pillars[2].z;
-  const allGans = pillars.map(p => p.g);
+        // 六甲旬空亡表（正宗）
+        const xunKong = [
+            { xun: "甲子", kong: ["戌", "亥"] },
+            { xun: "甲戌", kong: ["申", "酉"] },
+            { xun: "甲申", kong: ["午", "未"] },
+            { xun: "甲午", kong: ["辰", "巳"] },
+            { xun: "甲辰", kong: ["寅", "卯"] },
+            { xun: "甲寅", kong: ["子", "丑"] },
+        ];
 
-  let html = "";
+        // 根据某柱（年/日）获取空亡地支
+        function getKongWangByZhu(ganZhi) {
+            const idx = jiaZi.indexOf(ganZhi);
+            if (idx === -1) return [];
+            const xunIndex = Math.floor(idx / 10);
+            return xunKong[xunIndex]?.kong || [];
+        }
 
-  pillars.forEach((zhu, index) => {
-    let tags = [];
-    shenshaRules.forEach(rule => {
-      let ok = false;
-      switch(rule.by) {
-        case "riZhi":
-          if (index !== 2) ok = rule.fn(riZ, zhu.z); break;
-        case "nianZhi":
-          if (index !== 0) ok = rule.fn(nianZ, zhu.z); break;
-        case "nianGan":
-          ok = rule.fn(nianG, zhu.z); break;
-        case "riGan":
-          ok = rule.fn(riG, zhu.z); break;
-        case "yueZhi":
-          ok = rule.fn(yueZ, zhu.g); break;
-      }
-      if (ok) tags.push(`${rule.name}(${rule.source})`);
-    });
+        // 判断：是否为【年柱空亡】（年查：月/日/时）
+        function isNianKong(zhi, nianZhu, zhuType) {
+            if (zhuType === "年") return false; // 年柱不查自己
+            const kw = getKongWangByZhu(nianZhu);
+            return kw.includes(zhi);
+        }
 
-    if (zhu.name === "日柱" && isKuigang(zhu.g, zhu.z)) {
-      tags.push("魁罡");
-    }
+        // 判断：是否为【日柱空亡】（日查：年/月/时）
+        function isRiKong(zhi, riZhu, zhuType) {
+            if (zhuType === "日") return false; // 日柱不查自己
+            const kw = getKongWangByZhu(riZhu);
+            return kw.includes(zhi);
+        }
 
-    const tagHtml = tags.map(t => `<span class="shensha-tag">${t}</span>`).join("");
-    html += `
-    <div class="pillar">
-      <div class="pillar-title">${zhu.name}</div>
-      <div class="pillar-bazi">${zhu.g}${zhu.z}</div>
-      <div>${tagHtml}</div>
-    </div>`;
-  });
+        // 三奇
+        function checkSanQi(gans) {
+            const tq = [
+                ["甲", "戊", "庚"],
+                ["乙", "丙", "丁"],
+                ["壬", "癸", "辛"],
+            ];
+            for (let arr of tq) {
+                if (arr.every((x) => gans.includes(x))) return "三奇";
+            }
+            return "";
+        }
 
-  document.getElementById("pillars").innerHTML = html;
-  const sanqi = getSanQi(allGans);
-  document.getElementById("global").innerHTML = `
-    <div class="global-title">全局神煞</div>
-    <div><span class="shensha-tag">${sanqi}</span></div>
-  `;
-}
+        // 年干阴阳
+        function isYangGan(gan) {
+            return ["甲", "丙", "戊", "庚", "壬"].includes(gan);
+        }
 
-window.onload = compute;
-</script>
+        // 正宗大运排法：阳男阴女顺排，阴男阳女逆排，从月柱起
+        function calcDayun(yueZhu, nianGan, isMale) {
+            const idx = jiaZi.indexOf(yueZhu);
+            if (idx === -1) return [];
+            const yangNian = isYangGan(nianGan);
+            const shun = (yangNian && isMale) || (!yangNian && !isMale);
+            const list = [];
+            for (let i = 1; i <= 10; i++) {
+                const newIdx = shun ? (idx + i) % 60 : (idx - i + 60) % 60;
+                list.push(jiaZi[newIdx]);
+            }
+            return list;
+        }
+
+        // 神煞规则
+        const rules = [
+            {
+                n: "天乙",
+                by: "ng",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        甲: ["丑", "未"],
+                        戊: ["丑", "未"],
+                        庚: ["丑", "未"],
+                        乙: ["子", "申"],
+                        己: ["子", "申"],
+                        丙: ["亥", "酉"],
+                        丁: ["亥", "酉"],
+                        壬: ["卯", "巳"],
+                        癸: ["卯", "巳"],
+                        辛: ["寅", "午"],
+                    };
+                    return m[b]?.includes(t);
+                },
+            },
+            {
+                n: "天乙",
+                by: "rg",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        甲: ["丑", "未"],
+                        戊: ["丑", "未"],
+                        庚: ["丑", "未"],
+                        乙: ["子", "申"],
+                        己: ["子", "申"],
+                        丙: ["亥", "酉"],
+                        丁: ["亥", "酉"],
+                        壬: ["卯", "巳"],
+                        癸: ["卯", "巳"],
+                        辛: ["寅", "午"],
+                    };
+                    return m[b]?.includes(t);
+                },
+            },
+            {
+                n: "文昌",
+                by: "ng",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        甲: ["巳"],
+                        乙: ["午"],
+                        丙: ["申"],
+                        戊: ["申"],
+                        丁: ["酉"],
+                        己: ["酉"],
+                        庚: ["亥"],
+                        辛: ["子"],
+                        壬: ["寅"],
+                        癸: ["卯"],
+                    };
+                    return m[b]?.includes(t);
+                },
+            },
+            {
+                n: "文昌",
+                by: "rg",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        甲: ["巳"],
+                        乙: ["午"],
+                        丙: ["申"],
+                        戊: ["申"],
+                        丁: ["酉"],
+                        己: ["酉"],
+                        庚: ["亥"],
+                        辛: ["子"],
+                        壬: ["寅"],
+                        癸: ["卯"],
+                    };
+                    return m[b]?.includes(t);
+                },
+            },
+            {
+                n: "太极",
+                by: "ng",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        甲: ["子", "午"],
+                        乙: ["子", "午"],
+                        丙: ["酉", "卯"],
+                        丁: ["酉", "卯"],
+                        戊: ["辰", "戌", "丑", "未"],
+                        己: ["辰", "戌", "丑", "未"],
+                        庚: ["寅", "亥"],
+                        辛: ["寅", "亥"],
+                        壬: ["巳", "申"],
+                        癸: ["巳", "申"],
+                    };
+                    return m[b]?.includes(t);
+                },
+            },
+            {
+                n: "太极",
+                by: "rg",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        甲: ["子", "午"],
+                        乙: ["子", "午"],
+                        丙: ["酉", "卯"],
+                        丁: ["酉", "卯"],
+                        戊: ["辰", "戌", "丑", "未"],
+                        己: ["辰", "戌", "丑", "未"],
+                        庚: ["寅", "亥"],
+                        辛: ["寅", "亥"],
+                        壬: ["巳", "申"],
+                        癸: ["巳", "申"],
+                    };
+                    return m[b]?.includes(t);
+                },
+            },
+            {
+                n: "禄神",
+                by: "rg",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        甲: "寅",
+                        乙: "卯",
+                        丙: "巳",
+                        丁: "午",
+                        戊: "巳",
+                        己: "午",
+                        庚: "申",
+                        辛: "酉",
+                        壬: "亥",
+                        癸: "子",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "桃花",
+                by: "nz",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        申: "酉",
+                        子: "酉",
+                        辰: "酉",
+                        巳: "午",
+                        酉: "午",
+                        丑: "午",
+                        寅: "卯",
+                        午: "卯",
+                        戌: "卯",
+                        亥: "子",
+                        卯: "子",
+                        未: "子",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "桃花",
+                by: "rz",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        申: "酉",
+                        子: "酉",
+                        辰: "酉",
+                        巳: "午",
+                        酉: "午",
+                        丑: "午",
+                        寅: "卯",
+                        午: "卯",
+                        戌: "卯",
+                        亥: "子",
+                        卯: "子",
+                        未: "子",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "驿马",
+                by: "nz",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        申: "寅",
+                        子: "寅",
+                        辰: "寅",
+                        寅: "申",
+                        午: "申",
+                        戌: "申",
+                        巳: "亥",
+                        酉: "亥",
+                        丑: "亥",
+                        亥: "巳",
+                        卯: "巳",
+                        未: "巳",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "驿马",
+                by: "rz",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        申: "寅",
+                        子: "寅",
+                        辰: "寅",
+                        寅: "申",
+                        午: "申",
+                        戌: "申",
+                        巳: "亥",
+                        酉: "亥",
+                        丑: "亥",
+                        亥: "巳",
+                        卯: "巳",
+                        未: "巳",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "华盖",
+                by: "nz",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        寅: "戌",
+                        午: "戌",
+                        戌: "戌",
+                        亥: "未",
+                        卯: "未",
+                        未: "未",
+                        申: "辰",
+                        子: "辰",
+                        辰: "辰",
+                        巳: "丑",
+                        酉: "丑",
+                        丑: "丑",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "华盖",
+                by: "rz",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        寅: "戌",
+                        午: "戌",
+                        戌: "戌",
+                        亥: "未",
+                        卯: "未",
+                        未: "未",
+                        申: "辰",
+                        子: "辰",
+                        辰: "辰",
+                        巳: "丑",
+                        酉: "丑",
+                        丑: "丑",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "将星",
+                by: "nz",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        寅: "午",
+                        午: "午",
+                        戌: "午",
+                        巳: "酉",
+                        酉: "酉",
+                        丑: "酉",
+                        申: "子",
+                        子: "子",
+                        辰: "子",
+                        亥: "卯",
+                        卯: "卯",
+                        未: "卯",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "将星",
+                by: "rz",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        寅: "午",
+                        午: "午",
+                        戌: "午",
+                        巳: "酉",
+                        酉: "酉",
+                        丑: "酉",
+                        申: "子",
+                        子: "子",
+                        辰: "子",
+                        亥: "卯",
+                        卯: "卯",
+                        未: "卯",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "孤辰",
+                by: "nz",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        寅: "寅",
+                        卯: "寅",
+                        辰: "寅",
+                        巳: "巳",
+                        午: "巳",
+                        未: "巳",
+                        申: "申",
+                        酉: "申",
+                        戌: "申",
+                        亥: "亥",
+                        子: "亥",
+                        丑: "亥",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "孤辰",
+                by: "rz",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        寅: "寅",
+                        卯: "寅",
+                        辰: "寅",
+                        巳: "巳",
+                        午: "巳",
+                        未: "巳",
+                        申: "申",
+                        酉: "申",
+                        戌: "申",
+                        亥: "亥",
+                        子: "亥",
+                        丑: "亥",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "寡宿",
+                by: "nz",
+                s: "年",
+                f: (b, t) => {
+                    const m = {
+                        寅: "戌",
+                        卯: "戌",
+                        辰: "戌",
+                        巳: "丑",
+                        午: "丑",
+                        未: "丑",
+                        申: "辰",
+                        酉: "辰",
+                        戌: "辰",
+                        亥: "未",
+                        子: "未",
+                        丑: "未",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "寡宿",
+                by: "rz",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        寅: "戌",
+                        卯: "戌",
+                        辰: "戌",
+                        巳: "丑",
+                        午: "丑",
+                        未: "丑",
+                        申: "辰",
+                        酉: "辰",
+                        戌: "辰",
+                        亥: "未",
+                        子: "未",
+                        丑: "未",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "天德",
+                by: "yz",
+                s: "月",
+                f: (b, t) => {
+                    const m = {
+                        寅: "丁",
+                        卯: "申",
+                        辰: "壬",
+                        巳: "辛",
+                        午: "亥",
+                        未: "甲",
+                        申: "癸",
+                        酉: "寅",
+                        戌: "丙",
+                        亥: "乙",
+                        子: "巳",
+                        丑: "庚",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "月德",
+                by: "yz",
+                s: "月",
+                f: (b, t) => {
+                    const m = {
+                        寅: "丙",
+                        午: "丙",
+                        戌: "丙",
+                        申: "壬",
+                        子: "壬",
+                        辰: "壬",
+                        亥: "甲",
+                        卯: "甲",
+                        未: "甲",
+                        巳: "庚",
+                        酉: "庚",
+                        丑: "庚",
+                    };
+                    return m[b] == t;
+                },
+            },
+            {
+                n: "红艳",
+                by: "rg",
+                s: "日",
+                f: (b, t) => {
+                    const m = {
+                        甲: "午",
+                        乙: "申",
+                        丙: "寅",
+                        丁: "未",
+                        戊: "午",
+                        己: "申",
+                        庚: "卯",
+                        辛: "寅",
+                        壬: "子",
+                        癸: "酉",
+                    };
+                    return m[b] == t;
+                },
+            },
+        ];
+
+        // 解析八字
+        function parseBazi(str) {
+            const arr = str
+                .trim()
+                .split(/\s+/)
+                .filter((s) => s.length === 2);
+            if (arr.length !== 4) return null;
+            return {
+                n: { g: arr[0][0], z: arr[0][1] },
+                y: { g: arr[1][0], z: arr[1][1] },
+                r: { g: arr[2][0], z: arr[2][1] },
+                s: { g: arr[3][0], z: arr[3][1] },
+            };
+        }
+
+        // 计算一柱神煞
+        // 计算一柱神煞（已修复：年支不查年柱、日支不查日柱）
+        function calcOneZhu(zhu, bazi, isDayun = false, zhuType = "") {
+            const res = [];
+            const { n, y, r } = bazi;
+
+            // 正确空亡：以日柱定旬
+            // 空亡（年柱空亡 + 日柱空亡，都不查自己）
+            const nianZhu = bazi.n.g + bazi.n.z;
+            const riZhu = bazi.r.g + bazi.r.z;
+
+            if (!isDayun) {
+                if (isNianKong(zhu.z, nianZhu, zhuType)) {
+                    res.push("空亡(年)");
+                }
+                if (isRiKong(zhu.z, riZhu, zhuType)) {
+                    res.push("空亡(日)");
+                }
+            }
+
+            // 神煞匹配
+            rules.forEach((rule) => {
+                let ok = false;
+
+                // ==============================================
+                // 核心修复：年支查 → 不查年柱；日支查 → 不查日柱
+                // ==============================================
+                if (rule.by === "nz") {
+                    if (zhuType === "年") return; // 年支查 → 跳过年柱
+                    ok = rule.f(n.z, zhu.z);
+                } else if (rule.by === "rz") {
+                    if (zhuType === "日") return; // 日支查 → 跳过日柱
+                    ok = rule.f(r.z, zhu.z);
+                } else if (rule.by === "ng") ok = rule.f(n.g, zhu.z);
+                else if (rule.by === "rg") ok = rule.f(r.g, zhu.z);
+                else if (rule.by === "yz") ok = rule.f(y.z, zhu.g);
+
+                if (ok) res.push(rule.n + "(" + rule.s + ")");
+            });
+
+            // 魁罡
+            if (
+                !isDayun &&
+                ["庚戌", "庚辰", "戊戌", "壬辰"].includes(zhu.g + zhu.z)
+            ) {
+                res.push("魁罡");
+            }
+
+            return [...new Set(res)];
+        }
+
+        function gIdx(g) {
+            return tianGan.indexOf(g) + 1;
+        }
+        function zIdx(z) {
+            return diZhi.indexOf(z) + 1;
+        }
+
+        // 年上起月（纯逻辑）
+        function getYueGan(nianGan, yueZhi) {
+            let n = gIdx(nianGan);
+            let yinGanIdx = (n * 2 + 1) % 10;
+            let offset = ((zIdx(yueZhi) + 9) % 12) + 1;
+            let res = (yinGanIdx + offset + 9) % 10;
+            // console.log(res);
+            return tianGan[res - 1];
+        }
+
+        // 日上起时（纯逻辑）
+        function getShiGan(riGan, shiZhi) {
+            let n = gIdx(riGan);
+            let ziGan = (n - 1) * 2 + 1;
+            let offset = zIdx(shiZhi) - 1;
+            let res = ((ziGan + offset - 1) % 10) + 1;
+            return tianGan[res - 1];
+        }
+
+        // 全局计算
+        function compute() {
+            const val = document.getElementById("baziInput").value.trim();
+            const bazi = parseBazi(val);
+            if (!bazi) return alert("请输入正确八字，例：己酉 丙寅 甲子 辛未");
+
+            const errorMsg = document.getElementById("baziError");
+
+            // 4. 年上起月 错误检测
+            let err = "";
+            let trueYg = getYueGan(bazi.n.g, bazi.y.z);
+            if (trueYg !== bazi.y.g) {
+                err += `❌ 月柱错误：${bazi.n.g}年${bazi.y.z}月 应为 ${trueYg}${bazi.y.z}`;
+            }
+
+            // 5. 日上起时 错误检测
+            let trueSg = getShiGan(bazi.r.g, bazi.s.z);
+            if (trueSg !== bazi.s.g) {
+                err += `<br>❌ 时柱错误：${bazi.r.g}日${bazi.s.z}时 应为 ${trueSg}${bazi.s.z}`;
+            }
+
+            if (err) {
+                errorMsg.innerHTML = err;
+                errorMsg.style.display = "block";
+                return;
+            } else {
+                errorMsg.textContent = "格式错误：请输入四个有效的干支";
+                errorMsg.style.display = "none";
+            }
+
+            const isMale =
+                document.querySelector('input[name="gender"]:checked').value ===
+                "qian";
+
+            // 四柱
+            const pillars = [
+                {
+                    t: "年柱",
+                    z: bazi.n.g + bazi.n.z,
+                    ss: calcOneZhu(bazi.n, bazi, false, "年"),
+                },
+                {
+                    t: "月柱",
+                    z: bazi.y.g + bazi.y.z,
+                    ss: calcOneZhu(bazi.y, bazi, false, "月"),
+                },
+                {
+                    t: "日柱",
+                    z: bazi.r.g + bazi.r.z,
+                    ss: calcOneZhu(bazi.r, bazi, false, "日"),
+                },
+                {
+                    t: "时柱",
+                    z: bazi.s.g + bazi.s.z,
+                    ss: calcOneZhu(bazi.s, bazi, false, "时"),
+                },
+            ];
+
+            // 三奇
+            const gans = [bazi.n.g, bazi.y.g, bazi.r.g, bazi.s.g];
+            const sq = checkSanQi(gans);
+
+            document.getElementById("pillars").innerHTML = pillars
+                .map(
+                    (p) => `
+  <div class="pillar">
+    <div class="pillar-title">${p.t}</div>
+    <div class="pillar-bazi">${p.z}</div>
+    <div class="shensha-list">
+      ${sq ? `<div class="shensha ji" onclick="showModal('三奇')">三奇</div>` : ""}
+      ${p.ss
+                            .map((s) => {
+                                const name = s.replace(/\(.*\)/, "");
+                                const cls = ji.includes(name)
+                                    ? "ji"
+                                    : xiong.includes(name)
+                                        ? "xiong"
+                                        : "zhong";
+                                return `<div class="shensha ${cls}" onclick="showModal('${s}')">${s}</div>`;
+                            })
+                            .join("")}
+    </div>
+  </div>`,
+                )
+                .join("");
+
+            // 正宗大运
+            const yueZhu = bazi.y.g + bazi.y.z;
+            const dayunList = calcDayun(yueZhu, bazi.n.g, isMale);
+
+            document.getElementById("dayun").innerHTML = dayunList
+                .reduce((rows, dy, i) => {
+                    // 每4个分为一组
+                    if (i % 4 === 0) rows.push([]);
+                    rows[rows.length - 1].push({ dy, index: i });
+                    return rows;
+                }, [])
+                .map((row) => {
+                    // 每一行是一个flex容器
+                    return `
+        <div class="dayun-row">
+            ${row
+                            .map(({ dy, index }) => {
+                                const zhu = { g: dy[0], z: dy[1] };
+                                const ss = calcOneZhu(zhu, bazi, true);
+                                return `
+                <div class="dy-item">
+                    <div class="dy-title">大运 ${index + 1}</div>
+                    <div class="dy-bazi">${dy}</div>
+                    <div class="shensha-list">
+                        ${ss
+                                        .map((s) => {
+                                            const name = s.replace(/\(.*\)/, "");
+                                            const cls = ji.includes(name)
+                                                ? "ji"
+                                                : xiong.includes(name)
+                                                    ? "xiong"
+                                                    : "zhong";
+                                            return `<div class="shensha ${cls}" onclick="showModal('${s}')">${s}</div>`;
+                                        })
+                                        .join("")}
+                    </div>
+                </div>`;
+                            })
+                            .join("")}
+        </div>`;
+                })
+                .join("");
+        }
+
+        // 弹窗
+        function showModal(name) {
+            const key = name.replace(/\(.*\)/, "");
+            document.getElementById("modalTitle").innerText = name;
+            document.getElementById("modalText").innerText =
+                explain[key] || "暂无解释";
+            document.getElementById("modal").style.display = "flex";
+        }
+        function closeModal() {
+            document.getElementById("modal").style.display = "none";
+        }
+        function toggleRule() {
+            const box = document.getElementById("ruleBox");
+            box.style.display = box.style.display === "block" ? "none" : "block";
+        }
+
+        // 导出图片
+        function exportImage() {
+            html2canvas(document.getElementById("printArea")).then((canvas) => {
+                const a = document.createElement("a");
+                a.href = canvas.toDataURL("image/png");
+                a.download = "神煞排盘结果_" + new Date().getTime() + ".png";
+                a.click();
+            });
+        }
+
+        // window.onload = compute;
+        window.onload = function () {
+            const today = Solar.fromDate(new Date());
+            const eightChar = today.getLunar().getEightChar();
+                
+                // 初始化输入框为当前日期的八字
+            const initialBazi = eightChar.getYear() + ' ' + eightChar.getMonth() + ' ' + eightChar.getDay() + ' ' + eightChar.getTime();
+            console.log(initialBazi);
+            document.getElementById("baziInput").value = initialBazi;
+
+
+            compute();
+            // 隐藏加载提示
+            var loading = document.getElementById('loading');
+            loading.style.opacity = '0';
+            loading.style.transition = 'opacity 0.3s';
+            setTimeout(function () { loading.style.display = 'none'; }, 300);
+        };
+
+    </script>
 </body>
+
 </html>

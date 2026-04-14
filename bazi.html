@@ -3412,12 +3412,14 @@
         }
 
         // 年上起月（纯逻辑）
+        // 年上起月（纯逻辑）
         function getYueGan(nianGan, yueZhi) {
           let n = gIdx(nianGan);
-          let yinGan = (n - 1) * 2 + 3;
-          let offset = zIdx(yueZhi) - 3;
-          let res = ((yinGan + offset - 1) % 10) + 1;
-          return tianGan[res - 1];
+          let yinGanIdx = (n * 2 + 1) % 10;
+          let offset = (zIdx(yueZhi) + 9 ) % 12 + 1;
+          let res = (yinGanIdx + offset + 9 ) % 10;
+          console.log(res);
+          return tianGan[res -1 ];
         }
 
         // 日上起时（纯逻辑）
@@ -3439,7 +3441,9 @@
 
           const parsed = parseBaziInput(input);
           if (!parsed) {
-            alert("请输入正确的八字格式，如：甲子 乙丑 丙寅 丁卯");
+            errorMsg.textContent = '格式错误：请输入四个有效的干支'; 
+            document.getElementById('baziResults').classList.remove('has-results');
+            // alert("请输入正确的八字格式，如：甲子 乙丑 丙寅 丁卯");
             return;
           }
 
@@ -3474,6 +3478,7 @@
           if (err){
             errorMsg.innerHTML = err;
             errorMsg.style.display = "block";
+            document.getElementById('baziResults').classList.remove('has-results');
             return;
           }else{
             errorMsg.textContent = '格式错误：请输入四个有效的干支'; 
