@@ -4,10 +4,11 @@
     <meta charset="UTF-8" />
     <meta
       name="viewport"
-      content="width=device-width, initial-scale=0.6, maximum-scale=1.0, user-scalable=no" />
+      content="width=device-width, initial-scale=0.6, maximum-scale=1.0, user-scalable=no"
+    />
     <title>灵机八字排盘</title>
-    <script
-      src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/lunar-javascript@1.6.12/lunar.min.js"></script>
     <style>
       /* 添加弹窗样式 */
       .modal-overlay {
@@ -124,27 +125,37 @@
       .modal-body::-webkit-scrollbar-thumb:hover {
         background: #a1a1a1;
       }
+
       /* 让干支竖排显示（writing-mode方式）让干支可以点击 */
       .pillar-ganzhi {
         font-size: 1.6rem;
         font-weight: 700;
         color: #8b4513;
-        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
+        margin: 2px auto;
+        /* 上下6px，左右auto实现水平居中 */
         font-family: "Noto Serif SC", serif;
-        cursor: pointer; /* 鼠标变成手型 */
+        cursor: pointer;
+        /* 鼠标变成手型 */
         transition: all 0.2s;
-        padding: 4px 10px; /* 上下padding增大，左右减小 */
+        padding: 4px 10px;
+        /* 上下padding增大，左右减小 */
         border-radius: 6px;
 
         /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
+        writing-mode: vertical-rl;
+        /* 从右到左竖排 */
+        text-orientation: upright;
+        /* 文字直立 */
+        letter-spacing: 4px;
+        /* 增加字间距 */
 
         /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        display: block;
+        /* 块级元素 */
+        text-align: center;
+        /* 文字居中 */
+        width: fit-content;
+        /* 宽度自适应内容 */
       }
 
       .pillar-ganzhi:hover {
@@ -461,6 +472,13 @@
         line-height: 1.4;
       }
 
+      .snaprow {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin: 10px 0;
+      }
+
       .content-area {
         padding: 20px auto;
         padding-left: 20px;
@@ -578,7 +596,8 @@
       .pillar-card {
         display: flex;
         flex-direction: column;
-        align-items: center; /* 子元素水平居中 */
+        align-items: center;
+        /* 子元素水平居中 */
         flex: 0 0 auto;
         min-width: 120px;
         background: linear-gradient(180deg, #fafafa 0%, #f5f5f5 100%);
@@ -703,6 +722,10 @@
         margin-top: 4px;
       }
 
+      .shensha-extra {
+        color: #1677ff;
+      }
+
       .yun-section {
         background: white;
         border-radius: 10px;
@@ -797,16 +820,23 @@
         font-weight: 500;
         color: #8b4513;
         /* margin-bottom: 2px; */
-        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
+        margin: 2px auto;
+        /* 上下6px，左右auto实现水平居中 */
         /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
+        writing-mode: vertical-rl;
+        /* 从右到左竖排 */
+        text-orientation: upright;
+        /* 文字直立 */
+        letter-spacing: 4px;
+        /* 增加字间距 */
 
         /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        display: block;
+        /* 块级元素 */
+        text-align: center;
+        /* 文字居中 */
+        width: fit-content;
+        /* 宽度自适应内容 */
       }
 
       .dayun-item.active .dayun-ganzhi {
@@ -866,16 +896,23 @@
         font-size: 1.5rem;
         font-weight: 500;
         color: #8b4513;
-        margin: 6px auto; /* 上下6px，左右auto实现水平居中 */
+        margin: 6px auto;
+        /* 上下6px，左右auto实现水平居中 */
         /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
+        writing-mode: vertical-rl;
+        /* 从右到左竖排 */
+        text-orientation: upright;
+        /* 文字直立 */
+        letter-spacing: 4px;
+        /* 增加字间距 */
 
         /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        display: block;
+        /* 块级元素 */
+        text-align: center;
+        /* 文字居中 */
+        width: fit-content;
+        /* 宽度自适应内容 */
       }
 
       .liunian-item.active .liunian-ganzhi {
@@ -951,16 +988,23 @@
         font-size: 1.5rem;
         font-weight: 500;
         color: #333;
-        margin: 2px auto; /* 上下6px，左右auto实现水平居中 */
+        margin: 2px auto;
+        /* 上下6px，左右auto实现水平居中 */
         /* 竖排核心代码 */
-        writing-mode: vertical-rl; /* 从右到左竖排 */
-        text-orientation: upright; /* 文字直立 */
-        letter-spacing: 4px; /* 增加字间距 */
+        writing-mode: vertical-rl;
+        /* 从右到左竖排 */
+        text-orientation: upright;
+        /* 文字直立 */
+        letter-spacing: 4px;
+        /* 增加字间距 */
 
         /* 水平居中关键 */
-        display: block; /* 块级元素 */
-        text-align: center; /* 文字居中 */
-        width: fit-content; /* 宽度自适应内容 */
+        display: block;
+        /* 块级元素 */
+        text-align: center;
+        /* 文字居中 */
+        width: fit-content;
+        /* 宽度自适应内容 */
       }
 
       .liuyue-item.active .liuyue-ganzhi {
@@ -988,13 +1032,15 @@
 
       .bazi-input-row {
         display: flex;
-        flex-direction: column; /* 改为垂直排列 */
+        flex-direction: column;
+        /* 改为垂直排列 */
         gap: 8px;
         margin-bottom: 10px;
       }
 
       .bazi-input {
-        width: 100%; /* 确保输入框占满宽度 */
+        width: 100%;
+        /* 确保输入框占满宽度 */
         padding: 8px 10px;
         border: 1px solid #ddd;
         border-radius: 6px;
@@ -1003,7 +1049,8 @@
         outline: none;
         transition: border-color 0.2s;
         letter-spacing: 2px;
-        box-sizing: border-box; /* 确保padding不撑大宽度 */
+        box-sizing: border-box;
+        /* 确保padding不撑大宽度 */
       }
 
       .bazi-input:focus {
@@ -1021,12 +1068,14 @@
       }
 
       .reverse-btn {
-        width: 100%; /* 按钮也占满宽度 */
+        width: 100%;
+        /* 按钮也占满宽度 */
         background: linear-gradient(135deg, #475663 0%, #7c6146 100%);
         color: white;
         border: none;
         border-radius: 6px;
-        padding: 10px 16px; /* 稍微增加上下padding，更易点击 */
+        padding: 10px 16px;
+        /* 稍微增加上下padding，更易点击 */
         font-size: 1rem;
         cursor: pointer;
         transition: all 0.2s;
@@ -1323,7 +1372,8 @@
           padding: 16px;
           overflow-y: visible;
           display: flex;
-          flex-direction: column; /* 改为纵向排列 */
+          flex-direction: column;
+          /* 改为纵向排列 */
           gap: 16px;
         }
 
@@ -1332,7 +1382,8 @@
           border-radius: 10px;
           padding: 12px;
           border: 1px solid #e8e8e8;
-          width: 100%; /* 日历占满整行 */
+          width: 100%;
+          /* 日历占满整行 */
         }
 
         .calendar-header {
@@ -1500,9 +1551,12 @@
 
         .bazi-reverse-section,
         .time-section {
-          flex: 1; /* 两个模块平分宽度 */
-          width: auto; /* 移除固定宽度 */
+          flex: 1;
+          /* 两个模块平分宽度 */
+          width: auto;
+          /* 移除固定宽度 */
         }
+
         .time-section {
           background: #fafafa;
           border-radius: 10px;
@@ -2246,6 +2300,7 @@
           font-size: 1.4rem;
         }
       }
+
       ::-webkit-scrollbar {
         width: 6px;
         height: 6px;
@@ -2296,11 +2351,13 @@
             <select
               class="ym-select"
               id="yearSelect"
-              onchange="onYearMonthChange()"></select>
+              onchange="onYearMonthChange()"
+            ></select>
             <select
               class="ym-select"
               id="monthSelect"
-              onchange="onYearMonthChange()">
+              onchange="onYearMonthChange()"
+            >
               <option value="0">1月</option>
               <option value="1">2月</option>
               <option value="2">3月</option>
@@ -2324,7 +2381,8 @@
             <select
               class="form-select"
               id="hourSelect"
-              onchange="onHourChange()">
+              onchange="onHourChange()"
+            >
               <option value="0">子时 23:00-00:59</option>
               <option value="1">丑时 01:00-02:59</option>
               <option value="2">寅时 03:00-04:59</option>
@@ -2348,7 +2406,8 @@
                   name="lateZiType"
                   value="next"
                   checked
-                  onChange="renderAll()" />
+                  onChange="renderAll()"
+                />
                 <span>日柱算明天</span>
               </label>
               <label class="radio-item">
@@ -2356,7 +2415,8 @@
                   type="radio"
                   name="lateZiType"
                   value="same"
-                  onChange="renderAll()" />
+                  onChange="renderAll()"
+                />
                 <span>日柱算当天</span>
               </label>
             </div>
@@ -2367,7 +2427,8 @@
             <select
               class="form-select"
               id="genderSelect"
-              onchange="renderAll()">
+              onchange="renderAll()"
+            >
               <option value="1">乾造 (男)</option>
               <option value="0">坤造 (女)</option>
             </select>
@@ -2383,11 +2444,13 @@
                 class="bazi-input"
                 placeholder="甲子 乙丑 丙寅 丁卯"
                 maxlength="11"
-                oninput="validateBaziInput()" />
+                oninput="validateBaziInput()"
+              />
               <button
                 class="reverse-btn"
                 onclick="reverseBazi()"
-                id="reverseBtn">
+                id="reverseBtn"
+              >
                 反推
               </button>
             </div>
@@ -2408,29 +2471,36 @@
             💡 23:00-00:00为晚子时，可设置日柱归属<br />
             💡 点击大运/流年/流月卡片可切换上方显示
           </div>
+          <div class="snaprow">
+            <label>
+              <input type="checkbox" id="showExtra" onchange="showShenSha()" />
+              神煞
+            </label>
+            <button onclick="snapAndDownload()">截图保存</button>
+          </div>
         </div>
       </div>
-      <div class="content-area">
+      <div class="content-area" id="contentarea">
         <div class="info-bar">
           <div class="info-item">
-            <span class="info-label">命造： </span><span
-              class="info-value highlight" id="genderText">乾造</span>
+            <span class="info-label">命造： </span
+            ><span class="info-value highlight" id="genderText">乾造</span>
           </div>
           <div class="info-item">
-            <span class="info-label">公历：</span><span class="info-value"
-              id="solarDate">—</span>
+            <span class="info-label">公历：</span
+            ><span class="info-value" id="solarDate">—</span>
           </div>
           <div class="info-item">
-            <span class="info-label">农历：</span><span class="info-value"
-              id="lunarDate">—</span>
+            <span class="info-label">农历：</span
+            ><span class="info-value" id="lunarDate">—</span>
           </div>
           <div class="info-item">
-            <span class="info-label">生肖：</span><span
-              class="info-value highlight" id="shengxiao">—</span>
+            <span class="info-label">生肖：</span
+            ><span class="info-value highlight" id="shengxiao">—</span>
           </div>
           <div class="info-item">
-            <span class="info-label">当月节气：</span><span class="info-value"
-              id="jqInfo">—</span>
+            <span class="info-label">当月节气：</span
+            ><span class="info-value" id="jqInfo">—</span>
           </div>
         </div>
         <div class="sizhu-section">
@@ -2445,7 +2515,8 @@
                 text-align: center;
                 color: #999;
                 padding: 40px;
-              ">
+              "
+            >
               请选择出生日期
             </div>
           </div>
@@ -2456,7 +2527,9 @@
               <h2>⚡ 大运</h2>
               <div class="yun-meta" id="dayunMeta">
                 起运：<span id="qiyunText">—</span> · 交运：<span
-                  id="jiaoyunText">—</span>
+                  id="jiaoyunText"
+                  >—</span
+                >
               </div>
             </div>
             <span class="yun-subtitle">点击选择大运查看流年</span>
@@ -2903,6 +2976,8 @@
                 break;
               }
             }
+
+            document.getElementById("showExtra").checked = false;
             // 下面的两行原来都是0
             currentLiunianIndex = -1;
             currentLiuyueIndex = -1;
@@ -3009,12 +3084,16 @@
             const gan = gz.charAt(0),
               zhi = gz.charAt(1);
             const cangList = cangGan[zhi] || [];
-            const ganShiShen = getShiShen(riGan, gan);
+            let ganShiShen = getShiShen(riGan, gan);
+            if (idx === 2) {
+              ganShiShen = parseInt(genderSelect.value) === 1 ? "元男" : "元女";
+            }
+
             const cangHtml =
               cangList.length > 0
                 ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
                 : "";
-            html += `<div class="pillar-card"><div class="pillar-label">${pillars[idx]}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${gz}', ${idx})">${gz}</div>${cangHtml}<div class="nayin-text">${naYins[idx]}</div></div>`;
+            html += `<div class="pillar-card"><div class="pillar-label">${pillars[idx]}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${gz}', ${idx})">${gz}</div>${cangHtml}<div class="nayin-text" id="nayintext${idx}">${naYins[idx]}</div></div>`;
           });
 
           html += "</div>";
@@ -3038,7 +3117,7 @@
             const dy = daYunList[currentDayunIndex];
             const ageInfo = dy ? `${dy.getStartAge()}-${dy.getEndAge()}岁` : "";
             let idx = 4;
-            html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span>${ageInfo}</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${dayunGanZhi}', ${idx})">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text">${dayunNaYin}</div></div>`;
+            html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span>${ageInfo}</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${dayunGanZhi}', ${idx})">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext4">${dayunNaYin}</div></div>`;
           } else {
             html += `<div class="pillar-card dynamic"><div class="pillar-label">大运</div><div class="pillar-ganzhi">—</div></div>`;
           }
@@ -3057,7 +3136,7 @@
               ? currentLiuNianList[currentLiunianIndex].getYear()
               : "";
             const idx = 5;
-            html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span>${year}年</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liunianGanZhi}', ${idx})">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text">${liunianNaYin}</div></div>`;
+            html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span>${year}年</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liunianGanZhi}', ${idx})">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext5">${liunianNaYin}</div></div>`;
           } else {
             html += `<div class="pillar-card dynamic"><div class="pillar-label">流年</div><div class="pillar-ganzhi">—</div></div>`;
           }
@@ -3088,7 +3167,7 @@
             ];
             const monthName = months[currentLiuyueIndex] || "";
             const idx = 6;
-            html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liuyueGanZhi}', ${idx})">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text">${liuyueNaYin}</div></div>`;
+            html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liuyueGanZhi}', ${idx})">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext6">${liuyueNaYin}</div></div>`;
           } else {
             html += `<div class="pillar-card dynamic"><div class="pillar-label">流月</div><div class="pillar-ganzhi">—</div></div>`;
           }
@@ -3198,6 +3277,7 @@
           currentDayunIndex = index;
           currentLiunianIndex = -1; // 重置为-1，让renderLiuNian自动查找当前年份
           currentLiuyueIndex = -1; // 重置为-1，让renderLiuYue自动查找当前月份
+          document.getElementById("showExtra").checked = false;
           renderDaYun();
         }
 
@@ -3262,6 +3342,7 @@
         function selectLiunian(index) {
           currentLiunianIndex = index;
           currentLiuyueIndex = -1; // 重置为-1，让renderLiuYue自动查找当前月份
+          document.getElementById("showExtra").checked = false;
           renderLiuNian();
         }
 
@@ -3342,6 +3423,7 @@
         function selectLiuyue(index) {
           currentLiuyueIndex = index;
           // console.log(currentLiuyueIndex);
+          document.getElementById("showExtra").checked = false;
           renderLiuYue();
         }
 
@@ -3352,7 +3434,7 @@
           if (!ganZhi || ganZhi.length !== 2) return false;
           const gan = ganZhi.charAt(0);
           const zhi = ganZhi.charAt(1);
-           return tianGan.indexOf(gan) !== -1 && diZhi.indexOf(zhi) !== -1;
+          return tianGan.indexOf(gan) !== -1 && diZhi.indexOf(zhi) !== -1;
         }
 
         // 验证并解析八字输入
@@ -3416,10 +3498,10 @@
         function getYueGan(nianGan, yueZhi) {
           let n = gIdx(nianGan);
           let yinGanIdx = (n * 2 + 1) % 10;
-          let offset = (zIdx(yueZhi) + 9 ) % 12 + 1;
-          let res = (yinGanIdx + offset + 9 ) % 10;
-          console.log(res);
-          return tianGan[res -1 ];
+          let offset = ((zIdx(yueZhi) + 9) % 12) + 1;
+          let res = (yinGanIdx + offset + 9) % 10;
+          // console.log(res);
+          return tianGan[res - 1];
         }
 
         // 日上起时（纯逻辑）
@@ -3441,8 +3523,10 @@
 
           const parsed = parseBaziInput(input);
           if (!parsed) {
-            errorMsg.textContent = '格式错误：请输入四个有效的干支'; 
-            document.getElementById('baziResults').classList.remove('has-results');
+            errorMsg.textContent = "格式错误：请输入四个有效的干支";
+            document
+              .getElementById("baziResults")
+              .classList.remove("has-results");
             // alert("请输入正确的八字格式，如：甲子 乙丑 丙寅 丁卯");
             return;
           }
@@ -3463,27 +3547,28 @@
             sz = s?.[1];
 
           // 4. 年上起月 错误检测
-          let err = '';
+          let err = "";
           let trueYg = getYueGan(ng, yz);
           if (trueYg !== yg) {
-            err +=`❌ 月柱错误：${ng}年${yz}月 应为 ${trueYg}${yz}`;
+            err += `❌ 月柱错误：${ng}年${yz}月 应为 ${trueYg}${yz}`;
           }
 
           // 5. 日上起时 错误检测
           let trueSg = getShiGan(rg, sz);
           if (trueSg !== sg) {
-            err +=`<br>❌ 时柱错误：${rg}日${sz}时 应为 ${trueSg}${sz}`;
+            err += `<br>❌ 时柱错误：${rg}日${sz}时 应为 ${trueSg}${sz}`;
           }
 
-          if (err){
+          if (err) {
             errorMsg.innerHTML = err;
             errorMsg.style.display = "block";
-            document.getElementById('baziResults').classList.remove('has-results');
+            document
+              .getElementById("baziResults")
+              .classList.remove("has-results");
             return;
-          }else{
-            errorMsg.textContent = '格式错误：请输入四个有效的干支'; 
+          } else {
+            errorMsg.textContent = "格式错误：请输入四个有效的干支";
             errorMsg.style.display = "none";
-
           }
 
           // 显示加载状态
@@ -3889,6 +3974,48 @@
         "午寅",
         "卯巳",
         "卯巳",
+      ];
+
+      // 太极贵人
+      const taiji = [
+        "子午",
+        "子午",
+        "酉卯",
+        "酉卯",
+        "辰戌丑未",
+        "辰戌丑未",
+        "寅亥",
+        "寅亥",
+        "巳申",
+        "巳申",
+      ];
+
+      // 禄神
+      const lushen = [
+        "寅",
+        "卯",
+        "巳",
+        "午",
+        "巳",
+        "午",
+        "申",
+        "酉",
+        "亥",
+        "子",
+      ];
+
+      // 红艳
+      const hongyan = [
+        "午",
+        "申",
+        "寅",
+        "未",
+        "午",
+        "申",
+        "卯",
+        "寅",
+        "子",
+        "酉",
       ];
 
       // 文昌贵人以年干、日元查询
@@ -4304,7 +4431,7 @@
         const gan = sizhu.map((s) => s[0]);
         let zhi = sizhu.map((s) => s[1]);
 
-        console.log(currentMingli);
+        // console.log(currentMingli);
 
         // 以下是计算四柱五行个数
         // 拆分一柱（如"甲子" → ["甲","子"]）
@@ -4372,79 +4499,10 @@
           content += `✅ 日主喜忌：${currentMingli[2][0]}，${rizhuxiji[gz[0]]}<br>✅ 十干所喜歌：${ganxige[gz[0]]}<br>`;
         }
 
-        // console.log(gz + idx + "----" + currentMingli[2]);
-        if (
-          yuede[diZhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]
-        ) {
-          shensha += `月德 `;
+        if (getshensha(idx) !== "") {
+          // content += `${shensha}<br>`;
+          content += `✅ 神煞：${getshensha(idx)}<br>`;
         }
-        if (
-          tiande[diZhi.indexOf(currentMingli[1][1])] ===
-            currentMingli[idx][0] ||
-          tiande[diZhi.indexOf(currentMingli[1][1])] === currentMingli[idx][1]
-        ) {
-          shensha += `天德 `;
-        }
-        if (
-          yima[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
-        ) {
-          shensha += `驿马 `;
-        }
-        if (
-          huagai[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
-        ) {
-          shensha += `华盖 `;
-        }
-        if (
-          taohua[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
-        ) {
-          shensha += `桃花 `;
-        }
-        if (
-          jiesha[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
-        ) {
-          shensha += `劫煞 `;
-        }
-        if (
-          jiangxing[diZhi.indexOf(currentMingli[2][1])] ===
-          currentMingli[idx][1]
-        ) {
-          shensha += `将星 `;
-        }
-        if (
-          yangren[diZhi.indexOf(currentMingli[2][0])] === currentMingli[idx][1]
-        ) {
-          shensha += `羊刃 `;
-        }
-        if (
-          tianyi[tianGan.indexOf(currentMingli[2][0])].indexOf(
-            currentMingli[idx][1],
-          ) !== -1
-        ) {
-          shensha += `天乙 `;
-        }
-        if (
-          wenchang[tianGan.indexOf(currentMingli[2][0])].indexOf(
-            currentMingli[idx][1],
-          ) !== -1
-        ) {
-          shensha += `文昌 `;
-        }
-        if (
-          guchen[diZhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
-        ) {
-          shensha += `孤辰 `;
-        }
-        if (
-          guasu[diZhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
-        ) {
-          shensha += `寡宿 `;
-        }
-
-        if (shensha !== "✅ 神煞：") {
-          content += `${shensha}<br>`;
-        }
-
         content += `✅ ${gz[0]}禄在${GanLu[tianGan.indexOf(gz[0])]}，绝在${GanJue[tianGan.indexOf(gz[0])]}。<br></div>`;
         content += `✅ 日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tianGan.indexOf(currentMingli[2][0])][diZhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
 
@@ -5186,6 +5244,152 @@
         }
       }
 
+      function getshensha(idx) {
+        //  console.log(currentMingli);
+        let shensha = "";
+        if (
+          yuede[diZhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]
+        ) {
+          shensha += `月德 `;
+        }
+        if (
+          tiande[diZhi.indexOf(currentMingli[1][1])] ===
+            currentMingli[idx][0] ||
+          tiande[diZhi.indexOf(currentMingli[1][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `天德 `;
+        }
+        if (
+          yima[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `驿马 `;
+        }
+        if (
+          huagai[diZhi.indexOf(currentMingli[2][1])] ===
+            currentMingli[idx][1] &&
+          idx != 2
+        ) {
+          shensha += `华盖 `;
+        }
+        if (
+          taohua[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `桃花 `;
+        }
+        if (
+          jiesha[diZhi.indexOf(currentMingli[2][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `劫煞 `;
+        }
+        if (
+          jiangxing[diZhi.indexOf(currentMingli[2][1])] ===
+            currentMingli[idx][1] &&
+          idx != 2
+        ) {
+          shensha += `将星 `;
+        }
+        if (
+          yangren[diZhi.indexOf(currentMingli[2][0])] === currentMingli[idx][1]
+        ) {
+          shensha += `羊刃 `;
+        }
+        if (
+          tianyi[tianGan.indexOf(currentMingli[2][0])].indexOf(
+            currentMingli[idx][1],
+          ) !== -1
+        ) {
+          shensha += `天乙 `;
+        }
+
+        if (
+          taiji[tianGan.indexOf(currentMingli[2][0])].indexOf(
+            currentMingli[idx][1],
+          ) !== -1
+        ) {
+          shensha += `太极 `;
+        }
+        if (
+          lushen[tianGan.indexOf(currentMingli[2][0])].indexOf(
+            currentMingli[idx][1],
+          ) !== -1
+        ) {
+          shensha += `禄神 `;
+        }
+        if (
+          hongyan[tianGan.indexOf(currentMingli[2][0])].indexOf(
+            currentMingli[idx][1],
+          ) !== -1
+        ) {
+          shensha += `红艳 `;
+        }
+
+        if (
+          wenchang[tianGan.indexOf(currentMingli[2][0])].indexOf(
+            currentMingli[idx][1],
+          ) !== -1
+        ) {
+          shensha += `文昌 `;
+        }
+        if (
+          guchen[diZhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `孤辰 `;
+        }
+        if (
+          guasu[diZhi.indexOf(currentMingli[0][1])] === currentMingli[idx][1]
+        ) {
+          shensha += `寡宿 `;
+        }
+        return shensha;
+      }
+
+      // 四柱下面显示神煞
+      function showShenSha() {
+        const isChecked = document.getElementById("showExtra").checked;
+        const targets = Array.from({ length: 7 }, (_, i) =>
+          document.getElementById(`nayintext${i}`),
+        );
+
+        if (isChecked) {
+          // 只创建一次
+          if (!document.querySelector(".shensha-extra")) {
+            targets.forEach((target, i) => {
+              // 跳过不存在的元素
+              if (!target) return;
+
+              const shenshaText = getshensha(i);
+
+              // 跳过空返回值
+              if (!shenshaText || shenshaText.trim() === "") return;
+
+              const p = document.createElement("p");
+              p.className = "shensha-extra";
+
+              // 用 <br> 分隔神煞名称
+              p.innerHTML = shenshaText.replace(/\s+/g, "<br>");
+
+              target.appendChild(p);
+            });
+          }
+        } else {
+          // 全部删除
+          document
+            .querySelectorAll(".shensha-extra")
+            .forEach((el) => el.remove());
+        }
+      }
+
+      // 截图下载
+      async function snapAndDownload() {
+        const target = document.getElementById("contentarea");
+        const canvas = await html2canvas(target, { scale: 2 });
+
+        const a = document.createElement("a");
+        a.download = "八字_" + new Date().getTime() + ".png";
+        a.href = canvas.toDataURL("image/png");
+        a.click();
+      }
+
       // 关闭弹窗
       function closeModal() {
         document.getElementById("modalOverlay").classList.remove("active");
@@ -5213,7 +5417,8 @@
     <div
       class="modal-overlay"
       id="modalOverlay"
-      onclick="closeModalOnOverlay(event)">
+      onclick="closeModalOnOverlay(event)"
+    >
       <div class="modal-content">
         <div class="modal-header">
           <div class="modal-title" id="modalTitle">标题</div>
