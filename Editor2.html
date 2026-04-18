@@ -1,0 +1,703 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>离线代码编辑器</title>
+<style>
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+html, body {
+  margin: 0; padding: 0; height: 100%;
+  background: #e8e8e8;
+  color: #333;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, monospace;
+  overflow: hidden;
+}
+#header {
+  position: fixed; top: 0; left: 0; width: 100%; height: 48px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex; align-items: center;
+  justify-content: space-between; padding: 0 10px;
+  z-index: 100;
+}
+#filename {
+  font-size: 16px; flex: 1; overflow: hidden;
+  text-overflow: ellipsis; white-space: nowrap; padding: 0 8px;
+  text-align: center; color: #fff;
+}
+#menuBtn, #searchToggleBtn {
+  width: 36px; height: 36px; background: transparent;
+  border: none; color: #fff; font-size: 18px;
+  cursor: pointer; border-radius: 6px;
+  display: flex; align-items: center; justify-content: center;
+}
+#menuBtn:active, #searchToggleBtn:active { background: rgba(255,255,255,0.2); }
+#editorContainer {
+  position: fixed; top: 48px; left: 0; width: 100%;
+  height: calc(100% - 48px);
+  display: flex; background: #e8e8e8;
+}
+#lineNumbers {
+  width: 45px;
+  background: #d0d0d0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.6;
+  padding: 10px 5px;
+  text-align: right;
+  user-select: none;
+  border-right: 1px solid #bbb;
+  font-family: monospace;
+  overflow: hidden;
+  height: 100%;
+}
+#editor {
+  flex: 1;
+  padding: 10px;
+  background: #e8e8e8;
+  color: #333;
+  border: none; outline: none;
+  font-size: 14px; line-height: 1.6;
+  resize: none; overflow: auto;
+  white-space: pre;
+  word-wrap: normal;
+  font-family: monospace;
+  -webkit-overflow-scrolling: touch;
+}
+#editor.wrap {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  word-break: break-all;
+}
+#editor::placeholder {
+  color: #999;
+  white-space: pre-wrap;
+}
+::selection {
+  background-color: #ffff00;
+  color: #000;
+}
+#sideMenu {
+  position: fixed; top: 0; right: -220px; width: 220px; height: 100%;
+  background: #fff; z-index: 200; transition: right 0.25s ease;
+  display: flex; flex-direction: column;
+  box-shadow: -2px 0 10px rgba(0,0,0,0.1);
+}
+#sideMenu.open { right: 0; }
+#menuOverlay {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5); z-index: 150;
+  opacity: 0; visibility: hidden; transition: opacity 0.25s;
+}
+#menuOverlay.show { opacity: 1; visibility: visible; }
+.menuHeader {
+  height: 48px; 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  display: flex;
+  align-items: center; justify-content: space-between;
+  padding: 0 12px;
+}
+.menuTitle { font-size: 16px; font-weight: 500; color: #fff; }
+#closeMenu {
+  width: 28px; height: 28px; background: transparent;
+  border: none; color: #fff; font-size: 20px; cursor: pointer;
+}
+.menuContent { flex: 1; overflow-y: auto; padding: 4px; background: #f5f5f5; }
+.menuSection { margin-bottom: 8px; }
+.menuSectionTitle {
+  font-size: 11px; color: #888; text-transform: uppercase;
+  padding: 6px 12px; letter-spacing: 0.5px;
+}
+.menuItem {
+  display: flex; align-items: center; padding: 12px;
+  color: #333; cursor: pointer; border-radius: 6px;
+  margin: 2px 8px; font-size: 14px; gap: 10px;
+  background: #fff;
+}
+.menuItem:active { background: #667eea; color: #fff; }
+.menuItem .icon { width: 20px; text-align: center; font-size: 16px; }
+.toggleItem {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px; margin: 2px 8px; border-radius: 6px;
+  background: #fff;
+}
+.toggleLabel { display: flex; align-items: center; gap: 10px; font-size: 14px; }
+.switch {
+  position: relative; width: 44px; height: 24px;
+}
+.switch input { opacity: 0; width: 0; height: 0; }
+.slider {
+  position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+  background-color: #ccc; transition: .2s; border-radius: 24px;
+}
+.slider:before {
+  position: absolute; content: ""; height: 18px; width: 18px;
+  left: 3px; bottom: 3px; background-color: white; transition: .2s; border-radius: 50%;
+}
+input:checked + .slider { background-color: #667eea; }
+input:checked + .slider:before { transform: translateX(20px); }
+#searchModal {
+  position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 300; display: none; pointer-events: none;
+}
+#searchModal.show { display: block; }
+#searchModal.show .searchWindow {
+  pointer-events: auto;
+}
+.searchWindow {
+  position: absolute; top: 60px; left: 50%;
+  transform: translateX(-50%);
+  width: calc(100% - 32px); max-width: 340px;
+  background: #fff; color: #333;
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+  user-select: none;
+}
+.searchWindowHeader {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px;
+  cursor: move;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border-radius: 12px 12px 0 0;
+}
+.searchWindowTitle { 
+  font-size: 15px; font-weight: 600; color: #fff;
+  display: flex; align-items: center; gap: 6px;
+  pointer-events: none;
+}
+#matchCount {
+  font-size: 12px; color: rgba(255,255,255,0.8); font-weight: normal;
+}
+#closeSearch {
+  width: 28px; height: 28px; background: rgba(255,255,255,0.2);
+  border: none; color: #fff; font-size: 18px; cursor: pointer;
+  border-radius: 5px; display: flex; align-items: center; justify-content: center;
+}
+#closeSearch:active { background: rgba(255,255,255,0.3); }
+.searchWindowBody {
+  padding: 12px;
+}
+.searchRow {
+  display: flex; gap: 6px; margin-bottom: 10px;
+}
+.searchRow input {
+  flex: 1; height: 36px; padding: 0 10px; font-size: 14px;
+  background: #f5f5f5; color: #333; border: 1px solid #ddd;
+  border-radius: 6px;
+}
+.searchRow input:focus { 
+  border-color: #667eea; outline: none; 
+  background: #fff;
+}
+.iconBtn {
+  width: 36px; height: 36px; background: #f0f0f0;
+  border: 1px solid #ddd; color: #333; font-size: 14px;
+  border-radius: 6px; cursor: pointer; display: flex;
+  align-items: center; justify-content: center;
+  padding: 0;
+}
+.iconBtn:active { background: #e0e0e0; }
+.replaceRow {
+  display: flex; gap: 6px;
+}
+.replaceRow input {
+  flex: 1; height: 36px; padding: 0 10px; font-size: 14px;
+  background: #f5f5f5; color: #333; border: 1px solid #ddd;
+  border-radius: 6px;
+}
+.replaceRow input:focus { 
+  border-color: #667eea; outline: none;
+  background: #fff;
+}
+.replaceBtn {
+  height: 36px; padding: 0 12px; 
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  border: none; color: #fff; font-size: 13px;
+  border-radius: 6px; cursor: pointer; white-space: nowrap;
+}
+.replaceBtn:active { opacity: 0.9; }
+#fileInput { display: none; }
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateX(-50%) translateY(10px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+</style>
+</head>
+<body>
+<div id="header">
+  <div style="width: 36px;"></div>
+  <div id="filename">未命名.txt</div>
+  <button id="searchToggleBtn" onclick="toggleSearchModal()" title="查找替换">🔍</button>
+  <button id="menuBtn" onclick="toggleMenu()" title="菜单">⋮</button>
+</div>
+<div id="searchModal">
+  <div class="searchWindow" id="searchWindow">
+    <div class="searchWindowHeader" id="dragHandle">
+      <div class="searchWindowTitle">查找替换<span id="matchCount"></span></div>
+      <button id="closeSearch" onclick="event.stopPropagation(); closeSearchModal();">×</button>
+    </div>
+    <div class="searchWindowBody">
+      <div class="searchRow">
+        <input type="text" id="searchInput" placeholder="查找" autocomplete="off">
+        <button class="iconBtn" onclick="findPrev()" title="上一个">▲</button>
+        <button class="iconBtn" onclick="findNext()" title="下一个">▼</button>
+      </div>
+      <div class="replaceRow">
+        <input type="text" id="replaceInput" placeholder="替换为" autocomplete="off">
+        <button class="replaceBtn" onclick="replaceText()">替换</button>
+        <button class="replaceBtn" onclick="replaceAll()">全部</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="menuOverlay" onclick="toggleMenu()"></div>
+<div id="sideMenu">
+  <div class="menuHeader">
+    <span class="menuTitle">菜单</span>
+    <button id="closeMenu" onclick="toggleMenu()">×</button>
+  </div>
+  <div class="menuContent">
+    <div class="menuSection">
+      <div class="menuSectionTitle">文件</div>
+      <div class="menuItem" onclick="newFile()"><span class="icon">📄</span><span>新建</span></div>
+      <div class="menuItem" onclick="openFile()"><span class="icon">📂</span><span>打开</span></div>
+      <div class="menuItem" onclick="saveFile()"><span class="icon">💾</span><span>保存</span></div>
+      <div class="menuItem" onclick="saveAs()"><span class="icon">💾+</span><span>另存为</span></div>
+      <div class="menuItem" onclick="closeFile()"><span class="icon">❌</span><span>关闭</span></div>
+      <div class="menuItem" onclick="previewInBrowser()"><span class="icon">🌐</span><span>浏览器打开</span></div>
+    </div>
+    <div class="menuSection">
+      <div class="menuSectionTitle">视图</div>
+      <div class="toggleItem">
+        <div class="toggleLabel"><span class="icon">↩️</span><span>自动折行</span></div>
+        <label class="switch"><input type="checkbox" id="wrapToggle" onchange="toggleWrap()"><span class="slider"></span></label>
+      </div>
+      <div class="menuItem" onclick="increaseFont()"><span class="icon">A+</span><span>字体增大</span></div>
+      <div class="menuItem" onclick="decreaseFont()"><span class="icon">A-</span><span>字体减小</span></div>
+      <div class="menuItem" onclick="resetFont()"><span class="icon">Aa</span><span>重置字体</span></div>
+    </div>
+    <div class="menuSection">
+      <div class="menuSectionTitle">编辑</div>
+      <div class="menuItem" onclick="openSearchFromMenu()"><span class="icon">🔍</span><span>查找替换</span></div>
+    </div>
+  </div>
+</div>
+<div id="editorContainer">
+  <div id="lineNumbers">1</div>
+  <textarea id="editor" spellcheck="false" placeholder="网页版离线编辑器第二版，可编辑文本类的文件，&#10;比如.txt,.html,.js,.css,.json,.md,&#10;在此输入代码..."></textarea>
+</div>
+<input type="file" id="fileInput" accept=".txt,.html,.js,.css,.json,.md">
+<script>
+const editor = document.getElementById('editor');
+const lineNumbers = document.getElementById('lineNumbers');
+const fileInput = document.getElementById('fileInput');
+const searchInput = document.getElementById('searchInput');
+const replaceInput = document.getElementById('replaceInput');
+const sideMenu = document.getElementById('sideMenu');
+const menuOverlay = document.getElementById('menuOverlay');
+const searchModal = document.getElementById('searchModal');
+const searchWindow = document.getElementById('searchWindow');
+const dragHandle = document.getElementById('dragHandle');
+const matchCount = document.getElementById('matchCount');
+const filename = document.getElementById('filename');
+const wrapToggle = document.getElementById('wrapToggle');
+
+let matches = [], currentMatch = -1;
+let fileHandle = null;
+let currentFileName = '未命名.txt';
+let isModified = false;
+let isWrapEnabled = false;
+let isSearchOpen = false;
+let isComposing = false;
+
+// 字体大小相关
+let fontSize = 14;
+const minFont = 10;
+const maxFont = 24;
+const defaultFont = 14;
+
+function updateFontSize() {
+  editor.style.fontSize = fontSize + 'px';
+  lineNumbers.style.fontSize = fontSize + 'px';
+  showToast('字体：' + fontSize + 'px');
+}
+function increaseFont() {
+  if (fontSize < maxFont) {
+    fontSize += 1;
+    updateFontSize();
+  }
+}
+function decreaseFont() {
+  if (fontSize > minFont) {
+    fontSize -= 1;
+    updateFontSize();
+  }
+}
+function resetFont() {
+  fontSize = defaultFont;
+  updateFontSize();
+}
+
+// 预览
+function previewInBrowser() {
+  const content = editor.value.trim();
+  if (!content) { alert('编辑器内容为空，无法预览'); return; }
+  const ext = currentFileName.split('.').pop().toLowerCase();
+  if (!['html', 'htm', 'xhtml'].includes(ext)) { alert('仅支持 HTML 预览'); return; }
+  const blob = new Blob([content], { type: 'text/html;charset=utf-8' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  toggleMenu();
+  showToast('已预览');
+}
+
+// 行号同步
+function updateLineNumbers() {
+  const lines = editor.value.split('\n').length;
+  let html = '';
+  for (let i = 1; i <= lines; i++) {
+    html += `<div>${i}</div>`;
+  }
+  lineNumbers.innerHTML = html;
+}
+editor.addEventListener('scroll', () => {
+  lineNumbers.scrollTop = editor.scrollTop;
+});
+
+// 拖拽搜索框
+let isDragging = false;
+let dragOffsetX = 0, dragOffsetY = 0;
+dragHandle.addEventListener('mousedown', startDrag);
+dragHandle.addEventListener('touchstart', startDrag, { passive: false });
+document.addEventListener('mousemove', drag);
+document.addEventListener('touchmove', drag, { passive: false });
+document.addEventListener('mouseup', stopDrag);
+document.addEventListener('touchend', stopDrag);
+
+function startDrag(e) {
+  if (e.target.closest('#closeSearch')) return;
+  isDragging = true;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  const rect = searchWindow.getBoundingClientRect();
+  dragOffsetX = clientX - rect.left;
+  dragOffsetY = clientY - rect.top;
+  if (e.touches) e.preventDefault();
+}
+function drag(e) {
+  if (!isDragging) return;
+  const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+  const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+  let newX = clientX - dragOffsetX;
+  let newY = clientY - dragOffsetY;
+  const maxX = window.innerWidth - searchWindow.offsetWidth;
+  const maxY = window.innerHeight - searchWindow.offsetWidth;
+  newX = Math.max(0, Math.min(newX, maxX));
+  newY = Math.max(0, Math.min(newY, maxY));
+  searchWindow.style.left = newX + 'px';
+  searchWindow.style.top = newY + 'px';
+  searchWindow.style.transform = 'none';
+  if (e.touches) e.preventDefault();
+}
+function stopDrag() { isDragging = false; }
+
+function toggleMenu() {
+  sideMenu.classList.toggle('open');
+  menuOverlay.classList.toggle('show');
+}
+function openSearchFromMenu() { toggleMenu(); openSearchModal(); }
+function toggleSearchModal() { isSearchOpen ? closeSearchModal() : openSearchModal(); }
+function openSearchModal() {
+  isSearchOpen = true;
+  searchModal.classList.add('show');
+  searchWindow.style.left = '50%';
+  searchWindow.style.top = '60px';
+  searchWindow.style.transform = 'translateX(-50%)';
+  updateMatchDisplay();
+  setTimeout(() => searchInput.focus(), 50);
+}
+function closeSearchModal() {
+  isSearchOpen = false;
+  searchModal.classList.remove('show');
+  editor.focus();
+}
+function toggleWrap() {
+  isWrapEnabled = wrapToggle.checked;
+  isWrapEnabled ? editor.classList.add('wrap') : editor.classList.remove('wrap');
+}
+function updateTitle() {
+  filename.textContent = (isModified ? '● ' : '') + currentFileName;
+}
+function updateMatchDisplay() {
+  matchCount.textContent = matches.length ? `(${currentMatch + 1}/${matches.length})` : '';
+}
+
+editor.addEventListener('input', () => {
+  updateLineNumbers();
+  if (!isModified) { isModified = true; updateTitle(); }
+});
+
+searchInput.addEventListener('compositionstart', () => { isComposing = true; });
+searchInput.addEventListener('compositionend', () => { 
+  isComposing = false; handleSearchInput();
+});
+searchInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter' && !isComposing) { e.preventDefault(); findNext(); }
+});
+searchInput.addEventListener('input', () => {
+  if (!isComposing) handleSearchInput();
+});
+replaceInput.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') { e.preventDefault(); replaceText(); }
+});
+
+function handleSearchInput() {
+  matches = []; currentMatch = -1; findAllMatches();
+  if (matches.length > 0) { currentMatch = 0; updateMatchDisplay(); }
+}
+
+// 新建
+function newFile() {
+  if (isModified && editor.value !== '') {
+    if (!confirm('当前文件未保存，是否放弃更改？')) return;
+  }
+  const inputName = prompt('文件名（含后缀）：', 'index.html');
+  if (!inputName) return;
+  const ext = inputName.split('.').pop().toLowerCase();
+  const templates = {
+    html: `<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <title>文档</title>
+</head>
+<body>
+    <h1>Hello</h1>
+</body>
+</html>`,
+    css: '/* CSS */',
+    js: '// JS',
+    json: '{}',
+    md: '# 标题',
+    txt: ''
+  };
+  editor.value = templates[ext] || '';
+  currentFileName = inputName;
+  updateLineNumbers();
+  fileHandle = null;
+  isModified = false;
+  updateTitle();
+  toggleMenu();
+}
+
+// 关闭文件
+function closeFile() {
+  if (isModified && editor.value !== '') {
+    if (!confirm('是否保存？')) {
+      editor.value = ''; updateLineNumbers(); currentFileName = '未命名.txt'; isModified = false; updateTitle(); toggleMenu(); return;
+    }
+    saveFile().then(() => {
+      editor.value = ''; updateLineNumbers(); fileHandle = null; currentFileName = '未命名.txt'; isModified = false; updateTitle();
+    });
+    toggleMenu();
+    return;
+  }
+  editor.value = ''; updateLineNumbers(); fileHandle = null; currentFileName = '未命名.txt'; isModified = false; updateTitle(); toggleMenu();
+}
+
+// 查找
+function findAllMatches() {
+  const key = searchInput.value;
+  if (!key) { matches = []; currentMatch = -1; updateMatchDisplay(); return 0; }
+  matches = [];
+  const t = editor.value;
+  let pos = 0;
+  while (true) {
+    const i = t.indexOf(key, pos);
+    if (i === -1) break;
+    matches.push(i);
+    pos = i + key.length;
+  }
+  if (matches.length > 0 && currentMatch === -1) currentMatch = 0;
+  updateMatchDisplay();
+  return matches.length;
+}
+function findNext() {
+  const key = searchInput.value.trim();
+  if (!key) return;
+  findAllMatches();
+  if (matches.length === 0) return;
+  currentMatch++;
+  if (currentMatch >= matches.length) currentMatch = 0;
+  selectMatch(key.length);
+}
+function findPrev() {
+  const key = searchInput.value.trim();
+  if (!key) return;
+  findAllMatches();
+  if (matches.length === 0) return;
+  currentMatch--;
+  if (currentMatch < 0) currentMatch = matches.length - 1;
+  selectMatch(key.length);
+}
+function selectMatch(keyLen) {
+  const pos = matches[currentMatch];
+  editor.focus();
+  editor.setSelectionRange(pos, pos + keyLen);
+  updateMatchDisplay();
+  const lines = editor.value.substring(0, pos).split('\n');
+  editor.scrollTop = (lines.length - 5) * 22;
+}
+
+// 替换
+function replaceText() {
+  const key = searchInput.value, val = replaceInput.value;
+  if (!key) return;
+  const s = editor.selectionStart, e = editor.selectionEnd;
+  if (editor.value.substring(s, e) === key) {
+    editor.value = editor.value.substring(0, s) + val + editor.value.substring(e);
+    updateLineNumbers();
+    isModified = true; updateTitle();
+    matches = []; currentMatch = -1; findAllMatches();
+  } else findNext();
+}
+function replaceAll() {
+  const key = searchInput.value.trim(), val = replaceInput.value;
+  if (!key) return;
+  const count = editor.value.split(key).length - 1;
+  if (count === 0) return;
+  if (confirm(`替换全部 ${count} 处？`)) {
+    editor.value = editor.value.split(key).join(val);
+    updateLineNumbers();
+    isModified = true; updateTitle();
+    matches = []; currentMatch = -1; updateMatchDisplay();
+  }
+}
+
+// 打开文件
+async function openFile() {
+  try {
+    if (isModified && editor.value !== '') {
+      if (!confirm('是否放弃当前修改？')) return;
+    }
+    if ('showOpenFilePicker' in window) {
+      [fileHandle] = await window.showOpenFilePicker({
+        types: [{ description: '文本', accept: { 'text/*': ['.txt','.html','.js','.css','.json','.md'] } }],
+        multiple: false
+      });
+      const file = await fileHandle.getFile();
+      editor.value = await file.text();
+      updateLineNumbers();
+      currentFileName = file.name;
+      isModified = false;
+      updateTitle();
+    } else {
+      fileInput.onchange = async (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
+        const reader = new FileReader();
+        reader.onload = (evt) => {
+          editor.value = evt.target.result;
+          updateLineNumbers();
+          currentFileName = file.name;
+          isModified = false;
+          updateTitle();
+        };
+        reader.readAsText(file);
+        fileInput.value = '';
+      };
+      fileInput.click();
+    }
+    if (sideMenu.classList.contains('open')) toggleMenu();
+  } catch (err) {
+    if (err.name !== 'AbortError') alert('打开失败：' + err.message);
+  }
+}
+
+// 保存
+async function saveFile() {
+  try {
+    if (fileHandle) {
+      const writable = await fileHandle.createWritable();
+      await writable.write(editor.value);
+      await writable.close();
+      isModified = false; updateTitle(); showToast('已保存');
+    } else {
+      await saveAs();
+    }
+    if (sideMenu.classList.contains('open')) toggleMenu();
+    return true;
+  } catch (err) {
+    alert('保存失败: ' + err.message);
+    return false;
+  }
+}
+
+// 另存为
+async function saveAs() {
+  try {
+    const ext = currentFileName.split('.').pop().toLowerCase();
+    const typeMap = {
+      html: { mime: 'text/html;charset=utf-8', exts: ['.html','.htm'] },
+      css: { mime: 'text/css;charset=utf-8', exts: ['.css'] },
+      js: { mime: 'application/javascript;charset=utf-8', exts: ['.js'] },
+      json: { mime: 'application/json;charset=utf-8', exts: ['.json'] },
+      md: { mime: 'text/markdown;charset=utf-8', exts: ['.md'] },
+      txt: { mime: 'text/plain;charset=utf-8', exts: ['.txt'] }
+    };
+    const ct = typeMap[ext] || typeMap.txt;
+    const h = await window.showSaveFilePicker({
+      suggestedName: currentFileName,
+      types: [{ accept: { [ct.mime.split(';')[0]]: ct.exts } }]
+    });
+    const w = await h.createWritable();
+    await w.write(editor.value);
+    await w.close();
+    fileHandle = h;
+    currentFileName = (await h.getFile()).name;
+    isModified = false; updateTitle(); showToast('已保存');
+  } catch (err) {
+    const blob = new Blob([editor.value], { type: 'text/plain;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = currentFileName;
+    document.body.appendChild(a);
+    a.click();
+    setTimeout(() => { document.body.removeChild(a); URL.revokeObjectURL(url); }, 500);
+    showToast('已下载');
+  }
+  if (sideMenu.classList.contains('open')) toggleMenu();
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = 'position:fixed;bottom:60px;left:50%;transform:translateX(-50%);background:#667eea;color:#fff;padding:10px 20px;border-radius:20px;font-size:14px;z-index:999;animation:fadeIn 0.3s';
+  document.body.appendChild(t);
+  setTimeout(() => { t.style.opacity = 0; setTimeout(() => t.remove(), 200); }, 1200);
+}
+
+// 快捷键
+document.addEventListener('keydown', (e) => {
+  if (e.ctrlKey && e.key === 'f') { e.preventDefault(); toggleSearchModal(); }
+  if (e.ctrlKey && e.key === 's') { e.preventDefault(); saveFile(); }
+  if (e.key === 'Escape' && isSearchOpen) closeSearchModal();
+  
+  // 字体快捷键
+  if (e.ctrlKey && (e.key === '+' || e.key === '=')) {
+    e.preventDefault(); increaseFont();
+  }
+  if (e.ctrlKey && e.key === '-') {
+    e.preventDefault(); decreaseFont();
+  }
+  if (e.ctrlKey && e.key === '0') {
+    e.preventDefault(); resetFont();
+  }
+});
+
+document.addEventListener('gesturestart', e=>e.preventDefault());
+updateLineNumbers();
+</script>
+</body>
+</html>
