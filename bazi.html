@@ -2755,7 +2755,7 @@
         let selectedMonth = displayMonth;
         let selectedDay = new Date().getDate();
         const today = new Date();
-
+const todayyear=displayYear;
         let currentDayunIndex = 0,
           currentLiunianIndex = -1,
           currentLiuyueIndex = -1;
@@ -2998,9 +2998,11 @@
 
             nianKong = lunar.getYearXunKongExact();
             riKong = lunar.getDayXunKong();
-
+ 
+  const age =todayyear-year+1;
+// alert (todayyear-year+1  ); 
             document.getElementById("genderText").innerText =
-              parseInt(genderSelect.value) === 1 ? "乾造 (男)" : "坤造 (女)";
+              ( parseInt(genderSelect.value) === 1 ? "乾造 (男)" : "坤造 (女)") + ` ，今年${age}岁`  ;
             document.getElementById("solarDate").innerText =
               `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
             document.getElementById("lunarDate").innerText = lunar.toString();
