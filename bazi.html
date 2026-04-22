@@ -35,7 +35,7 @@
         transform: translate(-50%, -50%);
         background: white;
         border-radius: 12px;
-        padding: 24px;
+        padding: 16px 4px 12px 12px;
         max-width: 400px;
         width: 90%;
         box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -96,7 +96,7 @@
       }
 
       .modal-body {
-        font-size: 1rem;
+        font-size: 1.1rem;
         line-height: 1.6;
         color: #555;
         max-height: 60vh;
@@ -476,7 +476,31 @@
         display: flex;
         align-items: center;
         gap: 20px;
-        margin: 10px 0;
+        margin-top: 20px;
+        /* margin: 10px 0; */
+      }
+
+      .snap-label,
+      .snap-btn {
+        padding: 0 10px;
+        font-size: 1rem;
+      }
+
+      /* 单独调整按钮 */
+      .snap-btn {
+        /* width: 100%; */
+        /* 按钮也占满宽度 */
+        background: linear-gradient(135deg, #475663 0%, #7c6146 100%);
+        color: white;
+        border: none;
+        border-radius: 6px;
+        padding: 10px 16px;
+        /* 稍微增加上下padding，更易点击 */
+        font-size: 1rem;
+        cursor: pointer;
+        transition: all 0.2s;
+        font-weight: 500;
+        margin-right: 20px;
       }
 
       .content-area {
@@ -505,13 +529,13 @@
       }
 
       .info-label {
-        font-size: 0.9rem;
+        font-size: 1.1rem;
         color: #888;
       }
 
       .info-value {
-        font-size: 0.9rem;
-        font-weight: 600;
+        font-size: 1.1rem;
+        font-weight: 400;
         color: #333;
       }
 
@@ -531,7 +555,7 @@
       .section-header {
         display: flex;
         justify-content: space-between;
-        align-items: center;
+        align-items: start;
         margin-bottom: 12px;
         padding-bottom: 10px;
         border-bottom: 2px solid #f0f0f0;
@@ -690,6 +714,12 @@
         border-radius: 10px;
         font-size: 0.8rem;
         margin-bottom: 6px;
+        cursor: pointer;
+      }
+
+      .pillar-shishen:hover {
+        background: rgba(139, 69, 19, 0.1);
+        transform: scale(1.05);
       }
 
       .pillar-card.dynamic .pillar-shishen {
@@ -703,17 +733,27 @@
       .canggan-box {
         background: white;
         border-radius: 6px;
-        padding: 6px;
-        margin: 6px 0;
-        font-size: 0.95rem;
+        padding: 4px;
+        margin: 4px 4px;
+        font-size:0.95rem;
         color: #666;
         border: 1px solid #eee;
       }
 
       .canggan-box span {
-        font-size: 0.85rem;
+        font-size: 0.9rem;
+        background: #f3c9ab;
+        border-radius: 4px;
         color: #999;
+        padding:2px; 
         margin-left: 2px;
+        line-height: 1.8;
+        cursor: pointer;
+        transition: all 0.2s;
+      }
+      .canggan-box span:hover {
+        background-color: #e4a87c;
+        color: #222;
       }
 
       .nayin-text {
@@ -760,6 +800,12 @@
         font-size: 0.9rem;
         color: #888;
       }
+#dayunMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
 
       .yun-meta span {
         color: #8b4513;
@@ -1206,7 +1252,7 @@
           transform: translate(-50%, -50%);
           background: white;
           border-radius: 12px;
-          padding: 24px;
+          padding: 16px 4px 12px 12px;
           max-width: 400px;
           width: 90%;
           box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
@@ -1267,7 +1313,7 @@
         }
 
         .modal-body {
-          font-size: 1.4rem;
+          font-size: 1.6rem;
           line-height: 1.6;
           color: #555;
           max-height: 60vh;
@@ -1295,7 +1341,7 @@
 
         /* 让干支竖排显示（writing-mode方式）让干支可以点击 */
         .pillar-ganzhi {
-          font-size: 1.8rem;
+          font-size: 1.9rem;
           font-weight: 700;
           color: #8b4513;
           margin: 2px auto;
@@ -1651,6 +1697,24 @@
           color: #8b4513;
           line-height: 1.4;
         }
+        .snap-label,
+        .snap-btn {
+          font-size: 1.8rem;
+        }
+
+        /* 单独调整按钮 */
+        .snap-btn {
+          background: linear-gradient(135deg, #475663 0%, #7c6146 100%);
+          color: white;
+          border: none;
+          border-radius: 6px;
+          padding: 10px 16px;
+          /* 稍微增加上下padding，更易点击 */
+          cursor: pointer;
+          transition: all 0.2s;
+          font-weight: 500;
+          margin-right: 20px;
+        }
 
         /* 修改：内容区域 */
         .content-area {
@@ -1666,6 +1730,7 @@
           border-radius: 10px;
           padding: 12px 16px;
           display: flex;
+          flex-direction: column;
           flex-wrap: wrap;
           gap: 16px;
           box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
@@ -1679,13 +1744,13 @@
         }
 
         .info-label {
-          font-size: 1.4rem;
+          font-size: 1.6rem;
           color: #888;
         }
 
         .info-value {
-          font-size: 1.4rem;
-          font-weight: 600;
+          font-size: 1.6rem;
+          font-weight: 400;
           color: #333;
         }
 
@@ -1836,7 +1901,7 @@
         }
 
         .pillar-label {
-          font-size: 1rem;
+          font-size: 1.3rem;
           color: #888;
           margin-bottom: 6px;
           font-weight: 500;
@@ -1848,7 +1913,7 @@
           color: white;
           padding: 2px 8px;
           border-radius: 10px;
-          font-size: 1rem;
+          font-size: 1.4rem;
           margin-bottom: 6px;
         }
 
@@ -1863,17 +1928,19 @@
         .canggan-box {
           background: white;
           border-radius: 6px;
-          padding: 6px;
-          margin: 6px 0;
-          font-size: 1.2rem;
+          padding: 2px 2px;
+          margin: 4px 0;
+          font-size: 1.5rem;
           color: #666;
           border: 1px solid #eee;
         }
 
         .canggan-box span {
-          font-size: 1rem;
+          font-size: 1.5rem;
           color: #999;
+          padding :2px 10px; 
           margin-left: 2px;
+          line-height :1.6; 
         }
 
         .nayin-text {
@@ -1912,11 +1979,13 @@
         }
 
         .yun-meta {
-          font-size: 1.2rem;
+          font-size: 1.3rem;
           color: #888;
+          
         }
 
         .yun-meta span {
+         
           color: #8b4513;
           font-weight: 500;
         }
@@ -1971,7 +2040,7 @@
         }
 
         .dayun-ganzhi {
-          font-size: 1.6rem;
+          font-size: 1.8rem;
           font-weight: 500;
           color: #8b4513;
           margin: 2px auto;
@@ -1988,7 +2057,7 @@
         }
 
         .dayun-shishen {
-          font-size: 1rem;
+          font-size: 1.2rem;
           background: #f0f0f0;
           padding: 1px 6px;
           border-radius: 8px;
@@ -2003,7 +2072,7 @@
         }
 
         .dayun-age {
-          font-size: 1rem;
+          font-size: 1.2rem;
           color: #666;
         }
 
@@ -2037,7 +2106,7 @@
         }
 
         .liunian-ganzhi {
-          font-size: 1.6rem;
+          font-size: 1.8rem;
           font-weight: 500;
           color: #8b4513;
           margin: 6px auto;
@@ -2054,7 +2123,7 @@
         }
 
         .liunian-shishen {
-          font-size: 1rem;
+          font-size: 1.2rem;
           background: #f0f0f0;
           padding: 1px 4px;
           border-radius: 6px;
@@ -2069,12 +2138,12 @@
         }
 
         .liunian-year {
-          font-size: 1rem;
+          font-size: 1.2rem;
           color: #888;
         }
 
         .liunian-sui {
-          font-size: 1rem;
+          font-size: 1.2rem;
           color: #888;
         }
 
@@ -2109,7 +2178,7 @@
         }
 
         .liuyue-month {
-          font-size: 1rem;
+          font-size: 1.2rem;
           color: #888;
           margin-bottom: 2px;
         }
@@ -2119,7 +2188,7 @@
         }
 
         .liuyue-ganzhi {
-          font-size: 1.6rem;
+          font-size: 1.8rem;
           font-weight: 500;
           color: #333;
           margin: 2px auto;
@@ -2136,7 +2205,7 @@
         }
 
         .liuyue-shishen {
-          font-size: 1rem;
+          font-size: 1.2rem;
           color: #8b4513;
           margin-top: 1px;
         }
@@ -2472,11 +2541,13 @@
             💡 点击大运/流年/流月卡片可切换上方显示
           </div>
           <div class="snaprow">
-            <label>
+            <button class="snap-btn" onclick="snapAndDownload()">
+              截图保存
+            </button>
+            <!-- <label class="snap-label">
               <input type="checkbox" id="showExtra" onchange="showShenSha()" />
               神煞
-            </label>
-            <button onclick="snapAndDownload()">截图保存</button>
+            </label> -->
           </div>
         </div>
       </div>
@@ -2507,6 +2578,10 @@
           <div class="section-header">
             <h2>🌲 四柱八字</h2>
             <span class="tag" id="rizhuTag">日主：—</span>
+                        <label class="snap-label">
+              <input type="checkbox" id="showExtra" onchange="showShenSha()" />
+              神煞
+            </label>
           </div>
           <div class="pillars-container" id="pillarsContainer">
             <div
@@ -2525,12 +2600,13 @@
           <div class="yun-header">
             <div class="yun-header-main">
               <h2>⚡ 大运</h2>
-              <div class="yun-meta" id="dayunMeta">
-                起运：<span id="qiyunText">—</span> · 交运：<span
-                  id="jiaoyunText"
-                  >—</span
-                >
-              </div>
+
+<div class="yun-meta" id="dayunMeta" style="line-height: 1.2;">
+  <div>起运：<span id="qiyunText">—</span></div>
+  <div style="margin-top:4px;">交运：<span id="jiaoyunText">—</span></div>
+</div>
+
+
             </div>
             <span class="yun-subtitle">点击选择大运查看流年</span>
           </div>
@@ -3091,9 +3167,10 @@
 
             const cangHtml =
               cangList.length > 0
-                ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                ? // ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                  `<div class="canggan-box">${cangList.map((c) => c + "<span  onclick=\"showshishen('" + getShiShen(riGan, c) + "', " + idx + ')">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
                 : "";
-            html += `<div class="pillar-card"><div class="pillar-label">${pillars[idx]}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${gz}', ${idx})">${gz}</div>${cangHtml}<div class="nayin-text" id="nayintext${idx}">${naYins[idx]}</div></div>`;
+            html += `<div class="pillar-card"><div class="pillar-label">${pillars[idx]}</div><div class="pillar-shishen"  onclick="showshishen('${ganShiShen}', ${idx})">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${gz}', ${idx})">${gz}</div>${cangHtml}<div class="nayin-text" id="nayintext${idx}">${naYins[idx]}</div></div>`;
           });
 
           html += "</div>";
@@ -3106,50 +3183,56 @@
 
           // 大运柱
           if (dayunGanZhi) {
+            let idx = 4;
             const gan = dayunGanZhi.charAt(0),
               zhi = dayunGanZhi.charAt(1);
             const cangList = cangGan[zhi] || [];
             const ganShiShen = getShiShen(riGan, gan);
             const cangHtml =
               cangList.length > 0
-                ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                ? `<div class="canggan-box">${cangList.map((c) => c + "<span  onclick=\"showshishen('" + getShiShen(riGan, c) + "', " + idx + ')">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                // ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
                 : "";
             const dy = daYunList[currentDayunIndex];
             const ageInfo = dy ? `${dy.getStartAge()}-${dy.getEndAge()}岁` : "";
-            let idx = 4;
-            html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span>${ageInfo}</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${dayunGanZhi}', ${idx})">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext4">${dayunNaYin}</div></div>`;
+            
+            html += `<div class="pillar-card dynamic" onclick="selectDayunFromPillar()"><div class="pillar-label">大运 <span>${ageInfo}</span></div><div class="pillar-shishen"   onclick="showshishen('${ganShiShen}', ${idx})">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${dayunGanZhi}', ${idx})">${dayunGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext4">${dayunNaYin}</div></div>`;
           } else {
             html += `<div class="pillar-card dynamic"><div class="pillar-label">大运</div><div class="pillar-ganzhi">—</div></div>`;
           }
 
           // 流年柱
           if (liunianGanZhi) {
+            const idx = 5;
             const gan = liunianGanZhi.charAt(0),
               zhi = liunianGanZhi.charAt(1);
             const cangList = cangGan[zhi] || [];
             const ganShiShen = getShiShen(riGan, gan);
             const cangHtml =
               cangList.length > 0
-                ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                ? `<div class="canggan-box">${cangList.map((c) => c + "<span  onclick=\"showshishen('" + getShiShen(riGan, c) + "', " + idx + ')">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                // ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
                 : "";
             const year = currentLiuNianList[currentLiunianIndex]
               ? currentLiuNianList[currentLiunianIndex].getYear()
               : "";
-            const idx = 5;
-            html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span>${year}年</span></div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liunianGanZhi}', ${idx})">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext5">${liunianNaYin}</div></div>`;
+            
+            html += `<div class="pillar-card dynamic" onclick="selectLiunianFromPillar()"><div class="pillar-label">流年 <span>${year}年</span></div><div class="pillar-shishen"   onclick="showshishen('${ganShiShen}', ${idx})">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liunianGanZhi}', ${idx})">${liunianGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext5">${liunianNaYin}</div></div>`;
           } else {
             html += `<div class="pillar-card dynamic"><div class="pillar-label">流年</div><div class="pillar-ganzhi">—</div></div>`;
           }
 
           // 流月柱
           if (liuyueGanZhi) {
+            const idx = 6;
             const gan = liuyueGanZhi.charAt(0),
               zhi = liuyueGanZhi.charAt(1);
             const cangList = cangGan[zhi] || [];
             const ganShiShen = getShiShen(riGan, gan);
             const cangHtml =
               cangList.length > 0
-                ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                ? `<div class="canggan-box">${cangList.map((c) => c + "<span  onclick=\"showshishen('" + getShiShen(riGan, c) + "', " + idx + ')">' + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
+                // ? `<div class="canggan-box">${cangList.map((c) => c + "<span>" + getShiShen(riGan, c) + "</span>").join("<br> ")}</div>`
                 : "";
             const months = [
               "正月",
@@ -3166,8 +3249,8 @@
               "腊月",
             ];
             const monthName = months[currentLiuyueIndex] || "";
-            const idx = 6;
-            html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liuyueGanZhi}', ${idx})">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext6">${liuyueNaYin}</div></div>`;
+            
+            html += `<div class="pillar-card dynamic active"><div class="pillar-label">流月 ${monthName}</div><div class="pillar-shishen"  onclick="showshishen('${ganShiShen}', ${idx})">${ganShiShen}</div><div class="pillar-ganzhi"  onclick="showModal('${liuyueGanZhi}', ${idx})">${liuyueGanZhi}</div>${cangHtml}<div class="nayin-text" id="nayintext6">${liuyueNaYin}</div></div>`;
           } else {
             html += `<div class="pillar-card dynamic"><div class="pillar-label">流月</div><div class="pillar-ganzhi">—</div></div>`;
           }
@@ -3904,6 +3987,59 @@
         壬: "壬-用戊土，又用庚辛发源。<br>壬乐戊土为堤岸，又喜庚金发水源。<br>甲丙两般皆酌用，当分旺衰理亦明。<br>",
         癸: "癸-用庚辛，冬用丙。<br>癸用庚辛别无取，辛金清秀又为隆。<br>若逢水冷金寒候，丙火解冻有奇功。<br>",
       };
+      const tianganxingge = {
+        甲: `🌳 甲木（阳木·大树）<br>
+        - 性情：正直、有担当、天生领袖，光明磊落、敢闯敢干、护人有方。<br>
+        - 梁氏：“甲不离庚”（需庚金裁制成材）；有根则能做主，无根易随波逐流；气来得急，好面子、固执，不善变通。<br>
+        - 关键词：栋梁、刚直、好面子、不耐久、需规制。<br>`,
+
+        乙:`🌿 乙木（阴木·花草藤蔓）<br>
+        - 性情：温柔柔韧、善变通、情商高、依附性强、细腻敏感。<br>
+        - 梁氏：“乙不离癸”（需癸水滋养）；外柔内刚，暗藏企图心，擅参谋、幕后布局；气慢消，心软易受骗，心思多不专一。<br>
+        - 关键词：藤蔓、婉转、善交际、需滋养、易多思。<br>`,
+
+        丙:`☀️ 丙火（阳火·太阳）<br>
+        - 性情：热情外向、坦荡慷慨、感染力强、爱表现、行动力快。<br>
+        - 梁氏：“丙不离壬”（壬水调衡见格局）；光热足但易急躁，情绪来得快去得快，虎头蛇尾；人群中显眼，适合台前社交类。<br>
+        - 关键词：太阳、开朗、冲动、喜调衡、不耐久。<br>`,
+
+        丁:`🔥 丁火（阴火·灯烛星火）<br>
+        - 性情：温润内敛、细腻专注、观察力强、守礼重诺、外柔内坚。<br>
+        - 梁氏：“丁不离甲”（甲木为薪则火久）；沉稳细致，重细节、内秀有才，不张扬；多疑内耗，想得多、耐心不足，适合幕后精细类。<br>
+        - 关键词：灯火、内敛、重细节、需薪火、易内耗。<br>`,
+
+        戊:`⛰️ 戊土（阳土·高山厚土）<br>
+        - 性情：稳重踏实、诚信包容、有担当、守成可靠、气场厚重。<br>
+        - 梁氏：“戊不离甲”（甲木疏土方有用）；反应偏慢、固执保守，抗压抗挫，大器晚成；不善创新，适合稳重型管理、土建。<br>
+        - 关键词：高山、厚重、守成、需疏解、偏固执。<br>`,
+
+        己:`🌾 己土（阴土·田园沃土）<br>
+        - 性情：温和宽厚、善滋养、同理心强、耐心周到、朴实勤劳。<br>
+        - 梁氏：“己不离丙癸”（丙暖癸润方活）；包容但心软，易操劳、委屈自己，边界不清；适合滋养型岗位（教育、医护、服务）。<br>
+        - 关键词：田园、温润、善育养、需暖润、易操劳。<br>`,
+
+        庚:`⚔️ 庚金（阳金·刀剑金刚）<br>
+        - 性情：刚毅果决、原则性强、杀伐果断、执行力猛、不畏艰难。<br>
+        - 梁氏：“庚不离丁”（丁火炼金成器）；刚硬直接，说话尖刻，好胜心重，不近人情；适合军警、法律、工程攻坚类。<br>
+        - 关键词：刀剑、果决、刚硬、需淬炼、易伤人。<br>`,
+
+        辛:`💎 辛金（阴金·珠宝美玉）<br>
+        - 性情：精致优雅、温润聪慧、审美极佳、心思细腻、外柔内刚。<br>
+        - 梁氏：“辛不离壬”（壬水淘沙见真金）；挑剔追求完美，心思细密易内耗，文雅有礼；不擅激烈冲突，适合珠宝、美妆、精细工艺。<br>
+        - 关键词：珠宝、精致、重审美、需淘洗、易计较。<br>`,
+
+        壬:`🌊 壬水（阳水·江河大海）<br>
+        - 性情：聪慧豁达、眼界开阔、应变力强、随机应变、敢冒险。<br>
+        - 梁氏：“壬不离戊”（戊土堤岸定水势）；灵动开阔但易漂浮，定性不足，自由散漫；适合贸易、传媒、创意、流动型行业。<br>
+        - 关键词：江河、多智、喜变动、需规制、易漂泊。<br>`,
+
+        癸:`💧 癸水（阴水·雨露溪流）<br>
+        - 性情：聪慧内敛、直觉敏锐、心思深邃、隐忍低调、耐力极强。<br>
+        - 梁氏：“癸不离丙甲”（丙暖甲护方长久）；内秀智慧，敏感多思，偏被动，适合玄学、科研、文秘、精细艺术；不善张扬，重长期主义。<br>
+        - 关键词：雨露、内秀、重直觉、需暖护、易多虑。<br>`,
+      };
+
+
       // 天干禄绝"甲", "乙", "丙", "丁", "戊", "己", "庚", "辛", "壬","癸"
       const GanLu = [
         "寅",
@@ -4421,6 +4557,103 @@
         { name: "亥亥自刑", zhi: "亥" },
       ];
 
+      function showshishen(shishen, idx) {
+        // 十神：性格 + 年/月/日/时柱含义
+        const godCharacter = {
+          比肩: {
+            desc: "自我、固执、自尊心强、朋友缘一般、易破财",
+            年柱: "早年家境普通，难靠父母，多有兄弟姐妹",
+            月柱: "青年竞争多，朋友多助力少，感情不稳",
+            日柱: "自我中心，夫妻易争执，同床异梦",
+            时柱: "晚年劳碌闲不住，为子女操心多",
+          },
+          劫财: {
+            desc: "豪爽、冲动、讲义气、花钱猛、易破财",
+            年柱: "祖上普通或破败，早年多辛苦",
+            月柱: "青年多竞争，易被朋友拖累",
+            日柱: "婚姻争吵多，钱财守不住",
+            时柱: "晚年耗财，为子女奔波操劳",
+          },
+          正印: {
+            desc: "善良、温和、爱学习、依赖性强、偏懒",
+            年柱: "出身安稳，父母有文化，幼年少灾",
+            月柱: "学业顺利，多得长辈、上司照顾",
+            日柱: "配偶体贴顾家，婚姻安稳",
+            时柱: "晚年享福，子女孝顺，受人尊敬",
+          },
+          偏印: {
+            desc: "聪明敏感、孤僻、玄学缘重、想得多",
+            年柱: "幼年多小病，父母陪伴少",
+            月柱: "想法多不稳定，易转行，爱钻研",
+            日柱: "婚姻偏冷淡，精神压力大",
+            时柱: "晚年孤独，喜宗教、养生、玄学",
+          },
+          正官: {
+            desc: "规矩、负责、正直保守、适合公职",
+            年柱: "家教严格，幼年乖巧懂事",
+            月柱: "青年早担责任，事业稳，得上司赏识",
+            日柱: "婚姻稳定，配偶正派顾家",
+            时柱: "晚年有名望，子女有出息",
+          },
+          七杀: {
+            desc: "果断敢闯、魄力强、脾气爆、不服管",
+            年柱: "幼年多波折，家庭压力大",
+            月柱: "青年动荡多，适合创业或变动行业",
+            日柱: "婚姻紧张，中年压力大、波折多",
+            时柱: "晚年仍操劳，子女强势有能力",
+          },
+          正财: {
+            desc: "务实节俭、勤劳顾家、重现实",
+            年柱: "家境尚可，幼年衣食无忧",
+            月柱: "青年能赚钱，自食其力",
+            日柱: "配偶会持家，婚姻务实稳定",
+            时柱: "晚年富足，生活安稳有积蓄",
+          },
+          偏财: {
+            desc: "豪爽大方、人缘好、机会多、不存钱",
+            年柱: "祖上有财，幼年家境不错",
+            月柱: "青年机遇多，赚钱路子广",
+            日柱: "异性缘好，婚姻浪漫，财运旺",
+            时柱: "晚年仍有财源，生活享乐安逸",
+          },
+          食神: {
+            desc: "温和有福、爱吃享受、才华好、脾气好",
+            年柱: "幼年幸福，衣食无忧，性格乖巧",
+            月柱: "青年多才多艺，生活轻松",
+            日柱: "婚姻和谐，配偶体贴，中年享福",
+            时柱: "晚年安享清福，子女孝顺长寿",
+          },
+          伤官: {
+            desc: "聪明傲气、才华强、叛逆敢说、易得罪人",
+            年柱: "幼年聪明调皮，难管教",
+            月柱: "青年才华外露，不稳定易跳槽",
+            日柱: "婚姻挑剔，中年是非口舌多",
+            时柱: "子女有出息但不省心，晚年仍操心",
+          },
+        };
+        // 通用函数：传入神煞名，自动拼接所有内容返回字符串
+        function getDeityStr(name) {
+          const d = godCharacter[name];
+          if (!d) return null;
+          // return `${d.desc}。<br>年柱：${d.年柱}，<br>月柱：${d.月柱}，<br>日柱：${d.日柱}，<br>时柱：${d.时柱}`;
+          return `性格：${d.desc}。\n\n年柱：${d.年柱}。\n月柱：${d.月柱}。\n日柱：${d.日柱}。\n时柱：${d.时柱}。`;
+        }
+
+        // 调用魁罡
+        // const kuigang = getDeityStr("魁罡");
+        // console.log(kuigang);
+
+        const zhuNames = ["年柱", "月柱", "日柱", "时柱", "大运", "流年", "流月"];
+        if (shishen === "元男" || shishen === "元女") {
+          shishen = "比肩";
+        }
+        alert(zhuNames[idx] + "*" + shishen + "\n" + getDeityStr(shishen));
+
+        // document.getElementById("modalTitle").textContent = zhuNames[idx] + '*' +shishen;
+        // document.getElementById("modalBody").innerHTML = getDeityStr(shishen);
+        // document.getElementById("modalOverlay").classList.add("active");
+      }
+
       // 显示弹窗
       function showModal(gz, idx) {
         let title = pillars[idx] + "：" + gz;
@@ -4506,6 +4739,7 @@
         content += `✅ ${gz[0]}禄在${GanLu[tianGan.indexOf(gz[0])]}，绝在${GanJue[tianGan.indexOf(gz[0])]}。<br></div>`;
         content += `✅ 日干${currentMingli[2][0]}在${currentMingli[idx][1]}是  ${changsheng[tianGan.indexOf(currentMingli[2][0])][diZhi.indexOf(currentMingli[idx][1])]}。<br></div>`;
 
+        content += `<br>${tianganxingge[gz[0]]}<br>`;
         // ============ 核心工具函数 ============
 
         /**
@@ -5087,7 +5321,7 @@
         // 示例1：仅四柱（包含子卯相刑测试）
         const sizhuOnly = currentMingli.slice(0, 4);
 
-        content += `<br><br>=== 四柱分析 ===`;
+        content += `=== 四柱分析 ===`;
         // content += `<br><br>=== 四柱分析（含三刑测试） ===`;
         // content += `四柱：${sizhuOnly.join(" | ")}`;
 
@@ -5245,7 +5479,7 @@
       }
 
       function getshensha(idx) {
-        //  console.log(currentMingli);
+         console.log(currentMingli);
         let shensha = "";
         if (
           yuede[diZhi.indexOf(currentMingli[1][1])] === currentMingli[idx][0]
@@ -5340,7 +5574,154 @@
         ) {
           shensha += `寡宿 `;
         }
+
+        if (
+         ["庚戌", "庚辰", "戊戌", "壬辰"].includes(currentMingli[idx])
+        ) {
+          shensha += `魁罡 `;
+        }
         return shensha;
+      }
+
+      function shenshajieshi(shishen) {
+        // 神煞性格 + 四柱
+        const deityCharacter = {
+          天乙: {
+            desc: "人缘好、贵人相助、逢凶化吉",
+            年柱: "祖上有德，幼年安稳，少灾少难",
+            月柱: "同辈贵人多，上司提携，青年顺利",
+            日柱: "配偶为贵人，婚姻有助力",
+            时柱: "晚年安稳，子女孝顺，遇事有救",
+          },
+          桃花: {
+            desc: "魅力强、异性缘好、多情浪漫、艺术气质、易有感情纠葛",
+            年柱: "幼年可爱，招人喜欢",
+            月柱: "青年多情，感情丰富",
+            日柱: "婚姻浪漫，异性缘旺",
+            时柱: "晚年仍有魅力，子女相貌佳",
+          },
+          华盖: {
+            desc: "聪明孤独、艺术玄学缘重、内心清高",
+            年柱: "幼年安静，爱独处，不喜热闹",
+            月柱: "青年爱艺术、宗教，不合群",
+            日柱: "婚姻偏淡，精神世界丰富",
+            时柱: "晚年信佛修道，安宁但略孤独",
+          },
+          羊刃: {
+            desc: "刚烈刚强、急躁好胜、敢拼易伤、暴力倾向、胆大",
+            年柱: "幼年多磕碰、易受伤",
+            月柱: "青年冲动好强，竞争激烈",
+            日柱: "婚姻争执多，脾气刚烈",
+            时柱: "晚年强势，注意血光、健康",
+          },
+          将星: {
+            desc: "领导力强、有魄力、适合掌权",
+            年柱: "幼年有主见，孩子王",
+            月柱: "青年得权，适合管理岗位",
+            日柱: "中年掌权，事业有地位",
+            时柱: "晚年有威望，受人敬重",
+          },
+          魁罡: {
+            desc: "刚强果断、聪明不服输、掌权之人",
+            年柱: "极少见于年柱",
+            月柱: "极少见于月柱",
+            日柱: "性格强硬，有权威，婚姻偏强势",
+            时柱: "极少见于时柱",
+          },
+          文昌: {
+            desc: "聪明好学、文才出众、考试运佳",
+            年柱: "祖上书香，早年学业顺",
+            月柱: "青年考试得利，事业与文化相关",
+            日柱: "配偶有文才，本人聪明",
+            时柱: "晚年仍有学问，子女聪明",
+          },
+
+          驿马: {
+            desc: "好动不安、喜迁移、变动大、适合外务",
+            年柱: "祖上迁移，早年多动",
+            月柱: "青年奔波，事业多变动",
+            日柱: "配偶外地人或婚姻有变动",
+            时柱: "晚年仍动，子女远行发展",
+          },
+          禄神: {
+            desc: "福禄丰厚、衣食无忧、自身强健、福气安稳",
+            年柱: "祖上家境不错，生来有福，幼年衣食充足",
+            月柱: "青年福气旺盛，事业稳定，财运平顺，少劳碌",
+            日柱: "自身福气深厚，一生安稳，身体健康，财运自给",
+            时柱: "晚年福禄双全，生活富足，子女孝顺有福",
+          },
+          天德: {
+            desc: "第一大吉神，心地善良、逢凶化吉、一生少灾、贵人庇佑",
+            年柱: "祖上积德，天性仁善，一生灾厄极少，童年平安",
+            月柱: "青年心性温和，人缘极佳，遇难呈祥，多得帮扶",
+            日柱: "自身福运深厚，性格宽厚，婚姻安稳，祸事不侵",
+            时柱: "晚年安康长寿，心地慈悲，子女善良有福",
+          },
+          月德: {
+            desc: "次大吉神，性情温和、化解灾煞、人缘和顺、平稳安康",
+            年柱: "童年安稳，少病少灾，家庭氛围和睦",
+            月柱: "青年性格柔顺，待人宽厚，事业平顺，少波折",
+            日柱: "心性平和，婚姻和睦，能化解自身凶煞戾气",
+            时柱: "晚年平安清闲，福气绵长，家庭和美",
+          },
+          太极: {
+            desc: "悟性极高、佛道玄学缘深、心境通透、智慧超群",
+            年柱: "自幼灵性强，想法独特，亲近神秘文化",
+            月柱: "青年悟性过人，适合哲学易学，性格淡然脱俗",
+            日柱: "内心通透豁达，精神世界丰富，不喜世俗纷争",
+            时柱: "晚年心境清静，修身养性，安稳自在",
+          },
+          红艳: {
+            desc: "姿色出众、风情魅力足、异性缘极旺、情感细腻多情",
+            年柱: "长相清秀，天生有魅力，幼年气质出众",
+            月柱: "青年异性缘旺盛，感情机会多，心思细腻浪漫",
+            日柱: "自身魅力极强，感情丰富，婚姻情缘浓厚",
+            时柱: "晚年气质犹存，子女颜值出众，情感细腻",
+          },
+          劫煞: {
+            desc: "易破财、小人多、竞争耗财、易有纠纷、凡事多波折",
+            年柱: "祖上财运不稳，童年家境起伏，易有意外损耗",
+            月柱: "青年朋友同辈易劫财，合作易吃亏，花销较大",
+            日柱: "自身财运易破，感情易有竞争，凡事多阻碍",
+            时柱: "晚年防钱财损耗，防亲友拖累，守财为主",
+          },
+          孤辰: {
+            desc: "性格孤僻、内心孤独、不喜热闹、情感淡薄、六亲缘浅",
+            年柱: "幼年缺少陪伴，性格内向，亲情缘分较薄",
+            月柱: "青年孤独感重，朋友少，内心寂寞，不喜社交",
+            日柱: "婚姻缘薄，内心孤独，精神孤单，感情难圆满",
+            时柱: "晚年多独处，子女缘稍淡，生活清静孤寂",
+          },
+          寡宿: {
+            desc: "清冷寡淡、内向安静、夫妻缘薄、晚年易孤、心性冷淡",
+            年柱: "童年内心清冷，家庭温情不足，性格安静内敛",
+            月柱: "青年情感冷淡，不善表达，异性缘分薄弱",
+            日柱: "婚姻多冷淡疏离，夫妻隔阂，容易聚少离多",
+            时柱: "晚年孤独，宜修身静养，内心多寂寥",
+          },
+        };
+
+        // 通用函数：传入神煞名，自动拼接所有内容返回字符串
+        function getDeityStr(name) {
+          const d = deityCharacter[name];
+          if (!d) return null;
+          // return `${d.desc}。<br>年柱：${d.年柱}，<br>月柱：${d.月柱}，<br>日柱：${d.日柱}，<br>时柱：${d.时柱}`;
+          return `性格：${d.desc}。\n\n年柱：${d.年柱}。\n月柱：${d.月柱}。\n日柱：${d.日柱}。\n时柱：${d.时柱}。`;
+        }
+
+        // 调用魁罡
+        // const kuigang = getDeityStr("魁罡");
+        // console.log(kuigang);
+
+        // const zhuNames = ["年柱", "月柱", "日柱", "时柱"];
+        // if (shishen === "元男" || shishen === "元女") {
+        //   shishen = "比肩";
+        // }
+        alert("神煞：" + shishen + "\n" + getDeityStr(shishen));
+
+        // document.getElementById("modalTitle").textContent = zhuNames[idx] + '*' +shishen;
+        // document.getElementById("modalBody").innerHTML = getDeityStr(shishen);
+        // document.getElementById("modalOverlay").classList.add("active");
       }
 
       // 四柱下面显示神煞
@@ -5364,9 +5745,25 @@
 
               const p = document.createElement("p");
               p.className = "shensha-extra";
-
+              console.log(shenshaText);
+              console.log(shenshaText.length);
+              console.log(shenshaText.trim().length);
               // 用 <br> 分隔神煞名称
-              p.innerHTML = shenshaText.replace(/\s+/g, "<br>");
+              // p.innerHTML = shenshaText.replace(/\s+/g, "<br>");
+
+              const shenshaArr = shenshaText.trim().split(" "); // 先把字符串拆成数组：['桃花','太极','文昌']
+              console.log(shenshaArr);
+              const cangHtml =
+                shenshaArr.length > 0
+                  ? `<div class="canggan-box">${shenshaArr
+                      .map(
+                        (name) =>
+                          `<span onclick="shenshajieshi('${name}')">${name}</span>`,
+                      )
+                      .join('<br>')}</div>`
+                  : "";
+
+              p.innerHTML = cangHtml;
 
               target.appendChild(p);
             });
