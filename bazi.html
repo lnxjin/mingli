@@ -708,7 +708,7 @@
 
       .pillar-shishen {
         display: inline-block;
-        background: #8b4513;
+        background: #967763;
         color: white;
         padding: 2px 8px;
         border-radius: 10px;
@@ -718,7 +718,8 @@
       }
 
       .pillar-shishen:hover {
-        background: rgba(139, 69, 19, 0.1);
+        background-color: #e4a87c;
+        color: #222;
         transform: scale(1.05);
       }
 
@@ -727,7 +728,7 @@
       }
 
       .pillar-card.dynamic.active .pillar-shishen {
-        background: rgba(255, 255, 255, 0.25);
+        background: rgba(100, 150, 60, 0.25);
       }
 
       .canggan-box {
@@ -755,6 +756,12 @@
         background-color: #e4a87c;
         color: #222;
       }
+
+      .shensha-extra .canggan-box span {
+        border: 1px solid rgb(170, 5, 247);
+        padding:1px; 
+      }
+
 
       .nayin-text {
         font-size: 0.9rem;
@@ -2755,7 +2762,8 @@
         let selectedMonth = displayMonth;
         let selectedDay = new Date().getDate();
         const today = new Date();
-const todayyear=displayYear;
+        const todayyear = displayYear;
+
         let currentDayunIndex = 0,
           currentLiunianIndex = -1,
           currentLiuyueIndex = -1;
@@ -2998,11 +3006,11 @@ const todayyear=displayYear;
 
             nianKong = lunar.getYearXunKongExact();
             riKong = lunar.getDayXunKong();
- 
-  const age =todayyear-year+1;
-// alert (todayyear-year+1  ); 
+
+            const age = todayyear-year +1;
+
             document.getElementById("genderText").innerText =
-              ( parseInt(genderSelect.value) === 1 ? "乾造 (男)" : "坤造 (女)") + ` ，今年${age}岁`  ;
+              (parseInt(genderSelect.value) === 1 ? "乾造 (男)" : "坤造 (女)") + `，今年${age}岁`;
             document.getElementById("solarDate").innerText =
               `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")} ${String(hour).padStart(2, "0")}:${String(minute).padStart(2, "0")}`;
             document.getElementById("lunarDate").innerText = lunar.toString();
