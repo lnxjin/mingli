@@ -3590,23 +3590,30 @@
         }
 
         // 年上起月（纯逻辑）
-        // 年上起月（纯逻辑）
-        function getYueGan(nianGan, yueZhi) {
-          let n = gIdx(nianGan);
-          let yinGanIdx = (n * 2 + 1) % 10;
-          let offset = ((zIdx(yueZhi) + 9) % 12) + 1;
-          let res = (yinGanIdx + offset + 9) % 10;
-          // console.log(res);
-          return tianGan[res - 1];
-        }
+function getYueGan(nianGan, yueZhi) {
+  const n = tianGan.indexOf(nianGan);  // 年干索引 0-9
+  const z = diZhi.indexOf(yueZhi);      // 月支索引 0-11
+  
+  // 寅月天干索引：甲己丙(2)、乙庚戊(4)、丙辛庚(6)、丁壬壬(8)、戊癸甲(0)
+  const yinGanIdx = (n * 2 + 2) % 10;
+  
+  // 从寅月(索引2)到目标月支的偏移
+  const offset = (z - 2 + 12) % 12;
+  
+  // 天干顺推
+  return tianGan[(yinGanIdx + offset) % 10];
+}
+
+// 验证
+//console.assert(getYueGan('丁', '卯') === '癸');  // ✅ 癸卯
 
         // 日上起时（纯逻辑）
         function getShiGan(riGan, shiZhi) {
           let n = gIdx(riGan);
           let ziGan = (n - 1) * 2 + 1;
           let offset = zIdx(shiZhi) - 1;
-          let res = ((ziGan + offset - 1) % 10) + 1;
-          return tianGan[res - 1];
+          let res = (ziGan + offset - 1) % 10;
+          return tianGan[res];
         }
 
         // 执行八字反推
@@ -3645,6 +3652,7 @@
           // 4. 年上起月 错误检测
           let err = "";
           let trueYg = getYueGan(ng, yz);
+//alert(trueYg);
           if (trueYg !== yg) {
             err += `❌ 月柱错误：${ng}年${yz}月 应为 ${trueYg}${yz}`;
           }
