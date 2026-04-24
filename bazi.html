@@ -3359,8 +3359,11 @@
             if (ganzhi === "") {
               ganzhi = ".";
             }
+            const shishen = index === 0 ? '' : getShiShen(riGan, ganzhi.charAt(0)) ;
+
             // html += `<div class="dayun-item ${index === currentDayunIndex ? 'active' : ''}" onclick="selectDayun(${index})"><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
-            html += `<div class="dayun-item ${index === currentDayunIndex ? "active" : ""}" onclick="selectDayun(${index})"><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
+            // html += `<div class="dayun-item ${index === currentDayunIndex ? "active" : ""}" onclick="selectDayun(${index})"><div class="dayun-shishen">${getShiShen(riGan, ganzhi.charAt(0))}</div><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
+            html += `<div class="dayun-item ${index === currentDayunIndex ? "active" : ""}" onclick="selectDayun(${index})"><div class="dayun-shishen">${shishen}</div><div class="dayun-ganzhi">${ganzhi}</div><div class="dayun-age">${dy.getStartAge()}-${dy.getEndAge()}岁</div></div>`;
           });
           document.getElementById("dayunContainer").innerHTML = html;
           renderLiuNian();

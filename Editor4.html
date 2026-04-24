@@ -264,7 +264,7 @@
         position: fixed;
         top: 0;
         right: -210px;
-        width: 210px;
+        width: 160px;
         height: 100%;
         background: var(--menu-bg);
         z-index: 200;
@@ -519,6 +519,8 @@
   <body>
     <div id="header">
       <div id="filename">未命名.txt</div>
+<button class="iconBtnHead" onclick="undo()" title="撤销">↩️</button>
+   <button class="iconBtnHead" onclick="redo()" title="恢复">↪️</button>
       <button
         class="iconBtnHead"
         onclick="toggleSearchModal()"
@@ -641,7 +643,7 @@
       <textarea
         id="editor"
         spellcheck="false"
-        placeholder="网页版离线文本编辑器第四版，可编辑文本类的文件，&#10;比如.txt,.html,.js,.css,.json,.md,支持HTML和Markdown文件的在线编辑和预览。&#10;在此输入代码..."
+        placeholder="网页版离线文本编辑器第四版，可编辑文本类的文件，比如.txt,.html,.js,.css,.json,.md,支持HTML和Markdown文件的在线编辑和预览。默认扩展名可在函数newFile()中修改。&#10;在此输入代码..."
       ></textarea>
       <iframe id="previewPane" frameborder="0"></iframe>
       <div id="previewMd"></div>
@@ -680,12 +682,62 @@
         maxFont = 24,
         defaultFont = 14;
       let isPreview = false;
+// 新增：撤销/恢复历史栈
+ let historyStack = [];
+ let historyIndex = -1;
+ let isUndoRedo = false; // 避免执行撤销时重复入栈
 
       function updateFontSize() {
         editor.style.fontSize = fontSize + "px";
         lineNumbers.style.fontSize = fontSize + "px";
         showToast("字体：" + fontSize + "px");
       }
+
+// 保存编辑历史
+function saveHistory() {
+  if (isUndoRedo) return; // 撤销/恢复操作不保存历史
+  // 截断当前位置之后的历史
+  historyStack = historyStack.slice(0, historyIndex + 1);
+  // 限制最大历史数
+  if (historyStack.length > 50) historyStack.shift();
+  // 存入当前内容
+  historyStack.push(editor.value);
+  historyIndex = historyStack.length - 1;
+}
+
+// 撤销
+function undo() {
+  if (historyIndex <= 0) {
+    showToast("已到最早步骤");
+    return;
+  }
+  isUndoRedo = true;
+  historyIndex--;
+  editor.value = historyStack[historyIndex];
+  updateLineNumbers();
+  isModified = true;
+  updateTitle();
+  setTimeout(() => (isUndoRedo = false), 50);
+  showToast("撤销完成");
+}
+
+// 恢复
+function redo() {
+  if (historyIndex >= historyStack.length - 1) {
+    showToast("已到最新步骤");
+    return;
+  }
+  isUndoRedo = true;
+  historyIndex++;
+  editor.value = historyStack[historyIndex];
+  updateLineNumbers();
+  isModified = true;
+  updateTitle();
+  setTimeout(() => (isUndoRedo = false), 50);
+  showToast("恢复完成");
+}
+
+
       function increaseFont() {
         if (fontSize < maxFont) {
           fontSize++;
@@ -1075,6 +1127,11 @@
         isModified = false;
         updateTitle();
         toggleMenu();
+// 清空历史栈
+historyStack = [];
+historyIndex = -1;
+saveHistory();
+
       }
       function closeFile() {
         if (isModified && editor.value !== "") {
@@ -1084,6 +1141,11 @@
             currentFileName = "未命名.txt";
             isModified = false;
             updateTitle();
+// 清空历史栈
+historyStack = [];
+historyIndex = -1;
+saveHistory();
+
             toggleMenu();
             return;
           }
@@ -1094,6 +1156,11 @@
             currentFileName = "未命名.txt";
             isModified = false;
             updateTitle();
+// 清空历史栈
+historyStack = [];
+historyIndex = -1;
+saveHistory();
+
           });
           toggleMenu();
           return;
@@ -1104,6 +1171,11 @@
         currentFileName = "未命名.txt";
         isModified = false;
         updateTitle();
+// 清空历史栈
+historyStack = [];
+historyIndex = -1;
+saveHistory();
+
         toggleMenu();
       }
       async function openFile() {
@@ -1129,6 +1201,11 @@
             currentFileName = file.name;
             isModified = false;
             updateTitle();
+// 清空历史栈
+historyStack = [];
+historyIndex = -1;
+saveHistory();
+
           } else {
             fileInput.onchange = (e) => {
               const file = e.target.files[0];
@@ -1140,6 +1217,11 @@
                 currentFileName = file.name;
                 isModified = false;
                 updateTitle();
+// 清空历史栈
+historyStack = [];
+historyIndex = -1;
+saveHistory();
+
               };
               reader.readAsText(file);
               fileInput.value = "";
@@ -1229,6 +1311,8 @@
           isModified = true;
           updateTitle();
         }
+// 输入时保存历史
+  saveHistory();
       });
       document.addEventListener("keydown", (e) => {
         if (e.ctrlKey && e.key === "f") {
@@ -1266,6 +1350,9 @@
       window.addEventListener("DOMContentLoaded", function () {
         previewPane.classList.remove("active");
         previewPane.style.display = "none";
+// 初始化历史
+  saveHistory();
+
       });
     </script>
   </body>
