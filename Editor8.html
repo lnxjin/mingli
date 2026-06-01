@@ -1,0 +1,1980 @@
+<!doctype html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>离线代码编辑器</title>
+    <style>
+      :root {
+        --bg: #e8e8e8;
+        --editor-bg: #e8e8e8;
+        --editor-color: #333;
+        --line-bg: #d0d0d0;
+        --line-color: #666;
+        --line-border: #bbb;
+        --menu-bg: #fff;
+        --menu-item-bg: #fff;
+        --menu-color: #333;
+        --search-bg: #fff;
+        --input-bg: #f5f5f5;
+        --input-color: #333;
+      }
+      :root.dark {
+        --bg: #1c1c1c;
+        --editor-bg: #1e1e1e;
+        --editor-color: #d4d4d4;
+        --line-bg: #252525;
+        --line-color: #858585;
+        --line-border: #333;
+        --menu-bg: #252525;
+        --menu-item-bg: #2d2d2d;
+        --menu-color: #eee;
+        --search-bg: #252525;
+        --input-bg: #333;
+        --input-color: #eee;
+      }
+      * {
+        box-sizing: border-box;
+        -webkit-tap-highlight-color: transparent;
+      }
+      html,
+      body {
+        margin: 0;
+        padding: 0;
+        height: 100%;
+        background: var(--bg);
+        color: var(--editor-color);
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, monospace;
+        overflow: hidden;
+        transition: all 0.2s;
+      }
+      #header {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 44px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 8px;
+        z-index: 100;
+      }
+      #filename {
+        font-size: 15px;
+        flex: 1;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+        padding: 0 6px;
+        text-align: center;
+        color: #fff;
+      }
+      .iconBtnHead {
+        width: 34px;
+        height: 34px;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 17px;
+        cursor: pointer;
+        border-radius: 6px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .iconBtnHead:active {
+        background: rgba(255, 255, 255, 0.2);
+      }
+
+      #editorContainer {
+        position: fixed;
+        top: 44px;
+        left: 0;
+        width: 100%;
+        height: calc(100% - 44px);
+        display: flex;
+        background: var(--bg);
+      }
+      #lineNumbers {
+        width: 42px;
+        background: var(--line-bg);
+        color: var(--line-color);
+        font-size: 14px;
+        line-height: 1.6;
+        padding: 8px 4px;
+        text-align: right;
+        user-select: none;
+        border-right: 1px solid var(--line-border);
+        font-family: monospace;
+        overflow: hidden;
+        height: 100%;
+      }
+      #editor {
+        flex: 1;
+        padding: 8px;
+        background: var(--editor-bg);
+        color: var(--editor-color);
+        border: none;
+        outline: none;
+        font-size: 14px;
+        line-height: 1.6;
+        resize: none;
+        overflow: auto;
+        white-space: pre;
+        word-wrap: normal;
+        font-family: monospace;
+        -webkit-overflow-scrolling: touch;
+        transition: all 0.2s;
+      }
+      #editor.wrap {
+        white-space: pre-wrap;
+        word-wrap: break-word;
+        word-break: break-all;
+      }
+      #editor::placeholder {
+        color: #999;
+      }
+      ::selection {
+        background-color: #ffff00;
+        color: #000;
+      }
+
+      /* ===================== 【重点修改】预览外层容器 ===================== */
+      #previewPane {
+        /* 核心：默认隐藏时 宽度为0、不参与flex分配、不挤压编辑区 */
+        flex: 0 0 0;
+        width: 0;
+        background: var(--editor-bg);
+        overflow: auto;
+        display: none;
+        border: none;
+      }
+
+      /* 只有HTML预览需要展开占宽时，才恢复flex宽度 */
+      #previewPane.show {
+        flex: 1;
+        width: auto;
+        display: block;
+      }
+
+      /* ===================== 【重点修改】MD预览内容 增加滚动条 ===================== */
+      #previewMd {
+        padding: 2rem;
+        height: 100%;
+        overflow-y: auto !important; /*垂直滚动条 永久解决无滚动 */
+        overflow-x: hidden;
+        max-width: 100%;
+        margin: 0 auto;
+        line-height: 1.6;
+        font-size: 16px;
+        display: none;
+
+        font-family:
+          -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      }
+
+      #previewMd h1,
+      #previewMd h2,
+      #previewMd h3,
+      #previewMd h4,
+      #previewMd h5,
+      #previewMd h6 {
+        margin: 1.2em 0 0.8em;
+        font-weight: 600;
+        color: var(--editor-color);
+      }
+      #previewMd p {
+        margin: 0.8em 0;
+        color: var(--editor-color);
+      }
+      #previewMd a {
+        color: #58a6ff;
+        text-decoration: none;
+      }
+      #previewMd a:hover {
+        text-decoration: underline;
+      }
+      #previewMd img {
+        max-width: 100%;
+        border-radius: 4px;
+      }
+      #previewMd blockquote {
+        border-left: 4px solid #667eea;
+        padding: 0.5em 1em;
+        margin: 1em 0;
+        background: rgba(102, 126, 234, 0.1);
+        color: #888;
+      }
+      #previewMd code {
+        background: rgba(102, 126, 234, 0.1);
+        color: #d4a5ff;
+        padding: 2px 6px;
+        border-radius: 4px;
+        font-family: monospace;
+      }
+      #previewMd pre {
+        background: #252525;
+        padding: 1rem;
+        border-radius: 8px;
+        overflow: auto;
+        margin: 1em 0;
+      }
+      #previewMd pre code {
+        background: none;
+        color: #eee;
+        padding: 0;
+      }
+      #previewMd ul,
+      #previewMd ol {
+        padding-left: 1.8em;
+        margin: 0.8em 0;
+      }
+      #previewMd li {
+        margin: 0.4em 0;
+      }
+      #previewMd table {
+        border-collapse: collapse;
+        width: 100%;
+        margin: 1em 0;
+      }
+      #previewMd th,
+      #previewMd td {
+        border: 1px solid #444;
+        padding: 0.6em;
+        text-align: left;
+      }
+      #previewMd th {
+        background: rgba(102, 126, 234, 0.1);
+        font-weight: 600;
+      }
+      #previewMd hr {
+        border: none;
+        border-top: 1px solid #444;
+        margin: 1.5em 0;
+      }
+
+      #sideMenu {
+        position: fixed;
+        top: 0;
+        right: -210px;
+        width: 160px;
+        height: 100%;
+        background: var(--menu-bg);
+        z-index: 200;
+        transition: right 0.25s ease;
+        box-shadow: -2px 0 8px rgba(0, 0, 0, 0.15);
+      }
+      #sideMenu.open {
+        right: 0;
+      }
+      #menuOverlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 150;
+        opacity: 0;
+        visibility: hidden;
+        transition: opacity 0.25s;
+      }
+      #menuOverlay.show {
+        opacity: 1;
+        visibility: visible;
+      }
+      .menuHeader {
+        height: 44px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 10px;
+      }
+      .menuTitle {
+        font-size: 15px;
+        color: #fff;
+      }
+      #closeMenu {
+        width: 28px;
+        height: 28px;
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+      }
+      .menuContent {
+        flex: 1;
+        overflow-y: auto;
+        padding: 4px 2px;
+        background: var(--bg);
+      }
+
+      /* 新增：菜单折叠样式 */
+      .menuSection {
+        margin-bottom: 6px;
+      }
+      .menuSection.collapsed .menuSectionTitle::after {
+        content: " ▶";
+        font-size: 10px;
+      }
+      .menuSection:not(.collapsed) .menuSectionTitle::after {
+        content: " ▼";
+        font-size: 10px;
+      }
+      .menuSection.collapsed .menuItem,
+      .menuSection.collapsed .toggleItem {
+        display: none;
+      }
+      .menuSectionTitle {
+        font-size: 13px;
+        color: #888;
+        text-transform: uppercase;
+        padding: 4px 10px;
+        letter-spacing: 0.4px;
+        cursor: pointer; /* 新增：手型光标 */
+        user-select: none; /* 新增：禁止选中 */
+      }
+      .menuSectionTitle:hover {
+        color: #667eea; /* 新增：悬停高亮 */
+      }
+
+      .menuItem {
+        display: flex;
+        align-items: center;
+        padding: 9px 10px;
+        color: var(--menu-color);
+        cursor: pointer;
+        border-radius: 5px;
+        margin: 1px 6px;
+        font-size: 13px;
+        gap: 8px;
+        background: var(--menu-item-bg);
+      }
+      .menuItem:active {
+        background: #667eea;
+        color: #fff;
+      }
+      .menuItem .icon {
+        width: 18px;
+        text-align: center;
+        font-size: 15px;
+      }
+      .toggleItem {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 9px 10px;
+        margin: 1px 6px;
+        border-radius: 5px;
+        background: var(--menu-item-bg);
+      }
+      .toggleLabel {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+      }
+      .switch {
+        position: relative;
+        width: 40px;
+        height: 22px;
+      }
+      .switch input {
+        opacity: 0;
+        width: 0;
+        height: 0;
+      }
+      .slider {
+        position: absolute;
+        cursor: pointer;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background-color: #ccc;
+        transition: 0.2s;
+        border-radius: 22px;
+      }
+      .slider:before {
+        position: absolute;
+        content: "";
+        height: 16px;
+        width: 16px;
+        left: 3px;
+        bottom: 3px;
+        background-color: white;
+        transition: 0.2s;
+        border-radius: 50%;
+      }
+      input:checked + .slider {
+        background-color: #667eea;
+      }
+      input:checked + .slider:before {
+        transform: translateX(18px);
+      }
+      #searchModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        z-index: 300;
+        display: none;
+        pointer-events: none;
+      }
+      #searchModal.show {
+        display: block;
+      }
+      #searchModal.show .searchWindow {
+        pointer-events: auto;
+      }
+      .searchWindow {
+        position: absolute;
+        top: 50px;
+        left: 50%;
+        transform: translateX(-50%);
+        width: calc(100% - 20px);
+        max-width: 320px;
+        background: var(--search-bg);
+        color: var(--editor-color);
+        border-radius: 10px;
+        box-shadow: 0 3px 15px rgba(0, 0, 0, 0.3);
+      }
+      .searchWindowHeader {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 10px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border-radius: 10px 10px 0 0;
+        cursor: move;
+      }
+      .searchWindowTitle {
+        font-size: 14px;
+        color: #fff;
+      }
+      #matchCount {
+        font-size: 12px;
+        color: rgba(255, 255, 255, 0.8);
+        margin-left: 4px;
+      }
+      #closeSearch {
+        width: 28px;
+        height: 28px;
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: #fff;
+        font-size: 16px;
+        cursor: pointer;
+        border-radius: 5px;
+      }
+      .searchWindowBody {
+        padding: 10px;
+      }
+      .searchRow,
+      .replaceRow {
+        display: flex;
+        gap: 5px;
+        margin-bottom: 8px;
+      }
+      .searchRow input,
+      .replaceRow input {
+        flex: 1;
+        height: 34px;
+        padding: 0 8px;
+        font-size: 13px;
+        background: var(--input-bg);
+        color: var(--input-color);
+        border: 1px solid #555;
+        border-radius: 5px;
+        outline: none;
+      }
+      .smallBtn {
+        width: 34px;
+        height: 34px;
+        background: var(--input-bg);
+        border: 1px solid #555;
+        color: var(--input-color);
+        font-size: 13px;
+        border-radius: 5px;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .replaceBtn {
+        height: 34px;
+        padding: 0 10px;
+        font-size: 13px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        border: none;
+        color: #fff;
+        border-radius: 5px;
+        cursor: pointer;
+      }
+      #fileInput {
+        display: none;
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ===== 关于弹窗样式 ===== */
+      #aboutModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 500;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      #aboutModal.show {
+        display: flex;
+        opacity: 1;
+      }
+      .aboutWindow {
+        width: calc(100% - 40px);
+        max-width: 420px;
+        max-height: 80vh;
+        background: var(--menu-bg);
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        overflow: hidden;
+        transform: scale(0.9);
+        transition: transform 0.25s ease;
+      }
+      #aboutModal.show .aboutWindow {
+        transform: scale(1);
+      }
+      .aboutHeader {
+        height: 44px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 14px;
+      }
+      .aboutTitle {
+        font-size: 15px;
+        color: #fff;
+        font-weight: 500;
+      }
+      .aboutClose {
+        width: 28px;
+        height: 28px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .aboutClose:active {
+        background: rgba(255,255,255,0.35);
+      }
+      .aboutBody {
+        padding: 16px 18px;
+        overflow-y: auto;
+        max-height: calc(80vh - 44px);
+        color: var(--editor-color);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .aboutBody h3 {
+        margin: 14px 0 8px;
+        font-size: 14px;
+        color: #667eea;
+        font-weight: 600;
+      }
+      .aboutBody h3:first-child {
+        margin-top: 0;
+      }
+      .aboutBody ul {
+        margin: 6px 0;
+        padding-left: 1.4em;
+      }
+      .aboutBody li {
+        margin: 3px 0;
+      }
+      .aboutBody .shortcut {
+        display: flex;
+        gap: 12px;
+        margin: 3px 0;
+      }
+      .aboutBody .shortcut kbd {
+        font-family: monospace;
+        background: var(--line-bg);
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid var(--line-border);
+        min-width: 90px;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aboutBody .shortcut span {
+        flex: 1;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="header">
+      <div id="filename">未命名.txt</div>
+      <button class="iconBtnHead" onclick="undo()" title="撤销">↩️</button>
+      <button class="iconBtnHead" onclick="redo()" title="恢复">↪️</button>
+      <button
+        class="iconBtnHead"
+        onclick="toggleSearchModal()"
+        title="查找替换">
+        🔍
+      </button>
+      <button
+        class="iconBtnHead"
+        id="previewToggle"
+        title="编辑/预览切换"
+        onclick="toggleEditPreview()">
+        👁
+      </button>
+      <button
+        class="iconBtnHead"
+        id="darkToggle"
+        title="暗黑模式"
+        onclick="toggleDark()">
+        🌙
+      </button>
+      <button class="iconBtnHead" onclick="toggleMenu()" title="菜单">
+        ☰
+      </button>
+    </div>
+
+    <div id="searchModal">
+      <div class="searchWindow" id="searchWindow">
+        <div class="searchWindowHeader" id="dragHandle">
+          <div class="searchWindowTitle">
+            查找替换<span id="matchCount"></span>
+          </div>
+          <button id="closeSearch" onclick="closeSearchModal()">×</button>
+        </div>
+        <div class="searchWindowBody">
+          <div class="searchRow">
+            <input type="text" id="searchInput" placeholder="查找" />
+            <button class="smallBtn" onclick="findPrev()">↑</button>
+            <button class="smallBtn" onclick="findNext()">↓</button>
+          </div>
+          <div class="replaceRow">
+            <input type="text" id="replaceInput" placeholder="替换为" />
+            <button class="replaceBtn" onclick="replaceText()">替换</button>
+            <button class="replaceBtn" onclick="replaceAll()">全部</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="menuOverlay" onclick="toggleMenu()"></div>
+    <div id="sideMenu">
+      <div class="menuHeader">
+        <span class="menuTitle">菜单</span>
+        <button id="closeMenu" onclick="toggleMenu()">×</button>
+      </div>
+      <div class="menuContent">
+        <div class="menuSection">
+          <div class="menuSectionTitle" onclick="toggleSection(this)">文件</div>
+
+          <div class="menuItem" onclick="newFile()">
+            <span class="icon">📄</span><span>新建</span>
+          </div>
+          <div class="menuItem" onclick="openFile()">
+            <span class="icon">📂</span><span>打开</span>
+          </div>
+          <div class="menuItem" onclick="saveFile()">
+            <span class="icon">💾</span><span>保存</span>
+          </div>
+          <div class="menuItem" onclick="saveAs()">
+            <span class="icon">💾+</span><span>另存为</span>
+          </div>
+          <div class="menuItem" onclick="closeFile()">
+            <span class="icon">❌</span><span>关闭</span>
+          </div>
+          <div class="menuItem" onclick="openInBrowser()">
+            <span class="icon">🌐</span><span>浏览器打开</span>
+          </div>
+          <div class="menuItem" onclick="about()">
+            <span class="icon">ℹ️</span><span>关于</span>
+          </div>
+        </div>
+        <div class="menuSection collapsed">
+          <div class="menuSectionTitle" onclick="toggleSection(this)">视图</div>
+          <div class="toggleItem">
+            <div class="toggleLabel">
+              <span class="icon">↩️</span><span>自动折行</span>
+            </div>
+            <label class="switch"><input
+                type="checkbox"
+                id="wrapToggle"
+                onchange="toggleWrap()" /><span class="slider"></span></label>
+          </div>
+          <div class="menuItem" onclick="increaseFont()">
+            <span class="icon">A+</span><span>字体增大</span>
+          </div>
+          <div class="menuItem" onclick="decreaseFont()">
+            <span class="icon">A-</span><span>字体减小</span>
+          </div>
+          <div class="menuItem" onclick="resetFont()">
+            <span class="icon">Aa</span><span>重置字体</span>
+          </div>
+        </div>
+        <div class="menuSection collapsed">
+          <div class="menuSectionTitle" onclick="toggleSection(this)">编辑</div>
+          <div class="menuItem" onclick="openSearchFromMenu()">
+            <span class="icon">🔍</span><span>查找替换</span>
+          </div>
+          <div class="menuItem" onclick="gotoLine()">
+            <span class="icon">📍</span><span>转到行...</span>
+          </div>
+          <div class="menuItem" onclick="formatCode()">
+            <span class="icon">✨</span><span>一键格式化</span>
+          </div>
+          <div class="menuItem" onclick="deleteLine()">
+            <span class="icon">🗑</span><span>删除当前行</span>
+          </div>
+          <div class="menuItem" onclick="copyLine()">
+            <span class="icon">📋</span><span>复制当前行</span>
+          </div>
+          <div class="menuItem" onclick="toggleComment()">
+            <span class="icon">💬</span><span>切换注释</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div id="editorContainer">
+      <div id="lineNumbers">1</div>
+      <textarea
+        id="editor"
+        spellcheck="false"
+        placeholder="网页版离线文本编辑器第八版。&#10;在此输入代码..."></textarea>
+      <iframe id="previewPane" frameborder="0"></iframe>
+      <div id="previewMd"></div>
+    </div>
+
+    <input type="file" id="fileInput" accept=".txt,.html,.js,.css,.json,.md" />
+
+    <script>
+      const editor = document.getElementById("editor");
+      const lineNumbers = document.getElementById("lineNumbers");
+      const fileInput = document.getElementById("fileInput");
+      const searchInput = document.getElementById("searchInput");
+      const replaceInput = document.getElementById("replaceInput");
+      const sideMenu = document.getElementById("sideMenu");
+      const menuOverlay = document.getElementById("menuOverlay");
+      const searchModal = document.getElementById("searchModal");
+      const searchWindow = document.getElementById("searchWindow");
+      const dragHandle = document.getElementById("dragHandle");
+      const filename = document.getElementById("filename");
+      const wrapToggle = document.getElementById("wrapToggle");
+      const matchCount = document.getElementById("matchCount");
+      const previewPane = document.getElementById("previewPane");
+      const previewMd = document.getElementById("previewMd");
+      const previewToggle = document.getElementById("previewToggle");
+
+      let matches = [],
+      currentMatch = -1;
+      let fileHandle = null;
+      let lastDirHandle = null;  // 记录上次操作的目录，用于下次定位
+      let currentFileName = "未命名.txt";
+      let isModified = false;
+      let isWrapEnabled = false;
+      let isSearchOpen = false;
+      let isComposing = false;
+      let fontSize = 14;
+      const minFont = 10,
+        maxFont = 24,
+        defaultFont = 14;
+      let isPreview = false;
+      // 新增：撤销/恢复历史栈
+      let historyStack = [];
+      let historyIndex = -1;
+      let isUndoRedo = false; // 避免执行撤销时重复入栈
+
+      function about() {
+        toggleMenu();
+        const aboutHtml = `
+          <h3>离线代码编辑器 v8.0</h3>
+          <h3>主要功能</h3>
+          <ul>
+            <li>支持编辑 .txt、.html、.js、.css、.json、.md 等文本文件</li>
+            <li>支持 HTML 和 Markdown 文件的实时预览</li>
+            <li>支持文件的新建、打开、保存、另存为</li>
+            <li>支持撤销/恢复操作</li>
+            <li>支持查找替换功能</li>
+            <li>支持自动折行、字体大小调整</li>
+            <li>支持暗黑/亮色模式切换</li>
+            <li>支持一键格式化代码</li>
+            <li>支持浏览器中打开 HTML/MD 文件</li>
+          </ul>
+          <h3>提示</h3>
+          <ul>
+            <li>默认扩展名可在函数 newFile() 中修改</li>
+            <li>另存时修改扩展名，会自动添加当前扩展名</li>
+          </ul>
+          <h3>快捷键</h3>
+          <div class="shortcut"><kbd>Ctrl + F</kbd><span>查找替换</span></div>
+          <div class="shortcut"><kbd>Ctrl + S</kbd><span>保存文件</span></div>
+          <div class="shortcut"><kbd>Ctrl + G</kbd><span>转到指定行</span></div>
+          <div class="shortcut"><kbd>Ctrl + D</kbd><span>删除当前行</span></div>
+          <div class="shortcut"><kbd>Ctrl + Shift + D</kbd><span>复制当前行</span></div>
+          <div class="shortcut"><kbd>Ctrl + /</kbd><span>切换注释</span></div>
+          <div class="shortcut"><kbd>Ctrl + +</kbd><span>字体增大</span></div>
+          <div class="shortcut"><kbd>Ctrl + -</kbd><span>字体减小</span></div>
+          <div class="shortcut"><kbd>Ctrl + 0</kbd><span>重置字体</span></div>
+          <div class="shortcut"><kbd>Esc</kbd><span>关闭查找框 / 退出预览模式</span></div>
+        `;
+        document.getElementById('aboutBody').innerHTML = aboutHtml;
+        document.getElementById('aboutModal').classList.add('show');
+      }
+      function closeAbout(e) {
+        if (e && e.target !== document.getElementById('aboutModal')) return;
+        document.getElementById('aboutModal').classList.remove('show');
+      }
+
+      function updateFontSize() {
+        editor.style.fontSize = fontSize + "px";
+        lineNumbers.style.fontSize = fontSize + "px";
+        showToast("字体：" + fontSize + "px");
+      }
+
+      // 保存编辑历史
+      function saveHistory() {
+        if (isUndoRedo) return; // 撤销/恢复操作不保存历史
+        // 截断当前位置之后的历史
+        historyStack = historyStack.slice(0, historyIndex + 1);
+        // 限制最大历史数
+        if (historyStack.length > 50) historyStack.shift();
+        // 存入当前内容
+        historyStack.push(editor.value);
+        historyIndex = historyStack.length - 1;
+      }
+
+      // 撤销
+      function undo() {
+        if (historyIndex <= 0) {
+          showToast("已到最早步骤");
+          return;
+        }
+        isUndoRedo = true;
+        historyIndex--;
+        editor.value = historyStack[historyIndex];
+        updateLineNumbers();
+        isModified = true;
+        updateTitle();
+        setTimeout(() => (isUndoRedo = false), 50);
+        showToast("撤销完成");
+      }
+
+      // 恢复
+      function redo() {
+        if (historyIndex >= historyStack.length - 1) {
+          showToast("已到最新步骤");
+          return;
+        }
+        isUndoRedo = true;
+        historyIndex++;
+        editor.value = historyStack[historyIndex];
+        updateLineNumbers();
+        isModified = true;
+        updateTitle();
+        setTimeout(() => (isUndoRedo = false), 50);
+        showToast("恢复完成");
+      }
+      function deleteLine() {
+        const text = editor.value;
+        const start = editor.selectionStart;
+
+        // 找到当前光标所在行的起始和结束位置
+        let lineStart = text.lastIndexOf("\n", start - 1) + 1;
+        let lineEnd = text.indexOf("\n", start);
+        if (lineEnd === -1) lineEnd = text.length;
+
+        // 删除该行（包含换行符）
+        const before = text.substring(0, lineStart);
+        const after = text.substring(lineEnd + (lineEnd < text.length ? 1 : 0));
+
+        editor.value = before + after;
+
+        // 光标定位到被删除行的位置
+        editor.setSelectionRange(lineStart, lineStart);
+        editor.focus();
+
+        updateLineNumbers();
+        isModified = true;
+        updateTitle();
+        saveHistory();
+        showToast("已删除当前行");
+      }
+
+      function copyLine() {
+        const text = editor.value;
+        const start = editor.selectionStart;
+
+        // 找到当前光标所在行的起始和结束位置
+        let lineStart = text.lastIndexOf("\n", start - 1) + 1;
+        let lineEnd = text.indexOf("\n", start);
+        if (lineEnd === -1) lineEnd = text.length;
+
+        // 提取当前行内容（不含换行符）
+        const lineContent = text.substring(lineStart, lineEnd);
+
+        // 在下一行开头插入复制的内容 + 换行符
+        const insertPos = lineEnd < text.length ? lineEnd + 1 : text.length;
+        const before = text.substring(0, insertPos);
+        const after = text.substring(insertPos);
+
+        editor.value = before + lineContent + "\n" + after;
+
+        // 光标定位到复制出来的新行末尾
+        const newCursor = insertPos + lineContent.length;
+        editor.setSelectionRange(newCursor, newCursor);
+        editor.focus();
+
+        updateLineNumbers();
+        isModified = true;
+        updateTitle();
+        saveHistory();
+        showToast("已复制当前行");
+      }
+
+      // 注释符号配置表
+      const commentSymbols = {
+        html: { start: "<!--", end: "-->" },
+        htm: { start: "<!--", end: "-->" },
+        css: { start: "/*", end: "*/" },
+        js: { start: "//", end: null }, // null 表示单行注释
+        json: { start: "//", end: null },
+        md: null, // Markdown 不支持注释
+        txt: null, // 纯文本不支持注释
+      };
+
+      function toggleComment() {
+        const ext = currentFileName.split(".").pop().toLowerCase();
+        let sym = commentSymbols[ext];
+
+        // HTML 文件中，如果在 <script> 标签内，使用 JS 注释
+        if (
+          (ext === "html" || ext === "htm") &&
+          isInsideScriptTag(editor.selectionStart)
+        ) {
+          sym = commentSymbols.js;
+        }
+
+        if (!sym) {
+          showToast("当前文件类型不支持注释");
+          return;
+        }
+
+        const text = editor.value;
+        const start = editor.selectionStart;
+        const end = editor.selectionEnd;
+
+        // 找到选中区域所在行的范围
+        let lineStart = text.lastIndexOf("\n", start - 1) + 1;
+        let lineEnd = text.indexOf("\n", end);
+        if (lineEnd === -1) lineEnd = text.length;
+
+        const selectedLines = text.substring(lineStart, lineEnd);
+        const lines = selectedLines.split("\n");
+
+        // 判断是否已经注释
+        const firstLineTrim = lines[0].trim();
+        const isCommented = sym.end
+          ? firstLineTrim.startsWith(sym.start) &&
+            selectedLines.trim().endsWith(sym.end)
+          : firstLineTrim.startsWith(sym.start);
+
+        let result;
+        if (isCommented) {
+          // 取消注释
+          if (sym.end) {
+            result = selectedLines
+              .replace(
+                new RegExp("^\\s*" + escapeRegExp(sym.start) + "\\s*"),
+                "",
+              )
+              .replace(
+                new RegExp("\\s*" + escapeRegExp(sym.end) + "\\s*$"),
+                "",
+              );
+          } else {
+            result = lines
+              .map((line) => {
+                const trimmed = line.trimStart();
+                if (trimmed.startsWith(sym.start)) {
+                  const indent = line.length - trimmed.length;
+                  return " ".repeat(indent) + trimmed.slice(sym.start.length);
+                }
+                return line;
+              })
+              .join("\n");
+          }
+        } else {
+          // 添加注释
+          if (sym.end) {
+            const indent = lines[0].match(/^\s*/)[0];
+            result =
+              indent + sym.start + " " + selectedLines.trim() + " " + sym.end;
+          } else {
+            result = lines
+              .map((line) => {
+                if (line.trim() === "") return line;
+                const indent = line.match(/^\s*/)[0];
+                return indent + sym.start + " " + line.slice(indent.length);
+              })
+              .join("\n");
+          }
+        }
+
+        const before = text.substring(0, lineStart);
+        const after = text.substring(lineEnd);
+        editor.value =
+          before + result + (lineEnd < text.length ? "\n" : "") + after;
+
+        const newStart = lineStart;
+        const newEnd = lineStart + result.length;
+        editor.setSelectionRange(newStart, newEnd);
+        editor.focus();
+
+        updateLineNumbers();
+        isModified = true;
+        updateTitle();
+        saveHistory();
+        showToast(isCommented ? "已取消注释" : "已添加注释");
+      }
+
+      // 判断光标位置是否在 起始script...结尾script标签内部
+      function isInsideScriptTag(pos) {
+        const text = editor.value.substring(0, pos); 
+        // 从后往前遍历，找到包含光标位置的那个script块
+        let searchPos = 0;
+        while (true) {
+          const scriptOpen = text.indexOf("<script", searchPos);
+          if (scriptOpen === -1) break;
+
+          // 找到这个 script 的闭合处
+          const tagEnd = text.indexOf(">", scriptOpen);
+          if (tagEnd === -1) break; // 标签未闭合，不算在内
+
+          // 找到对应的 script的结尾处
+          const scriptClose = text.indexOf("<\/script>", tagEnd);
+
+          // 如果光标在这个 script的起始与 script结尾之间
+          if (tagEnd < pos && (scriptClose === -1 || scriptClose >= pos)) {
+            return true;
+          } // 继续往后找下一个script的起始处
+          searchPos = scriptOpen + 1;
+        }
+
+        return false;
+      }
+
+      function escapeRegExp(string) {
+        return string.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+      }
+
+      function increaseFont() {
+        if (fontSize < maxFont) {
+          fontSize++;
+          updateFontSize();
+        }
+      }
+      function decreaseFont() {
+        if (fontSize > minFont) {
+          fontSize--;
+          updateFontSize();
+        }
+      }
+      function resetFont() {
+        fontSize = defaultFont;
+        updateFontSize();
+      }
+      function toggleDark() {
+        document.documentElement.classList.toggle("dark");
+        const isDark = document.documentElement.classList.contains("dark");
+        document.getElementById("darkToggle").textContent = isDark
+          ? "☀️"
+          : "🌙";
+        showToast(isDark ? "暗黑模式已开启" : "亮色模式已开启");
+      }
+
+      function parseMarkdown(md) {
+        if (!md) return "";
+
+        // 先保护代码块
+        let codeBlocks = [];
+        md = md.replace(/```([\s\S]*?)```/gm, function (match) {
+          codeBlocks.push(match);
+          return "\n___CODEBLOCK_" + (codeBlocks.length - 1) + "___\n";
+        });
+
+        // 保护行内代码
+        let inlineCodes = [];
+        md = md.replace(/`([^`]+)`/gm, function (match, p1) {
+          inlineCodes.push(p1);
+          return "___INLINECODE_" + (inlineCodes.length - 1) + "___";
+        });
+
+        // ========== 表格解析（必须在换行转<br>之前，且使用行分割）==========
+        // 按行处理，识别表格块
+        let lines = md.split("\n");
+        let result = [];
+        let i = 0;
+        while (i < lines.length) {
+          let line = lines[i];
+          // 检测表格行：以 | 开头或结尾，且包含至少两个 |
+          if (
+            /^\s*\|.*\|\s*$/.test(line) &&
+            (line.match(/\|/g) || []).length >= 2
+          ) {
+            // 收集整个表格块
+            let tableLines = [];
+            while (
+              i < lines.length &&
+              /^\s*\|.*\|\s*$/.test(lines[i]) &&
+              (lines[i].match(/\|/g) || []).length >= 2
+            ) {
+              tableLines.push(lines[i]);
+              i++;
+            }
+            // 解析表格
+            result.push(parseTable(tableLines));
+          } else {
+            result.push(line);
+            i++;
+          }
+        }
+        let html = result.join("\n");
+
+        // 其他 Markdown 解析（块级元素）
+        html = html
+          .replace(/^### (.*$)/gim, "<h3>$1</h3>")
+          .replace(/^## (.*$)/gim, "<h2>$1</h2>")
+          .replace(/^# (.*$)/gim, "<h1>$1</h1>")
+          .replace(/^> (.*$)/gim, "<blockquote>$1</blockquote>")
+          .replace(/^---$/gim, "<hr>");
+
+        // 行内元素
+        html = html
+          .replace(/\*\*(.*?)\*\*/gim, "<strong>$1</strong>")
+          .replace(/\*(.*?)\*/gim, "<em>$1</em>")
+          .replace(/!\[(.*?)\]\((.*?)\)/gim, '<img alt="$1" src="$2">')
+          .replace(
+            /\[(.*?)\]\((.*?)\)/gim,
+            '<a href="$2" target="_blank">$1</a>',
+          );
+
+        // 恢复行内代码
+        inlineCodes.forEach((code, i) => {
+          html = html.replace(
+            "___INLINECODE_" + i + "___",
+            "<code>" + code + "</code>",
+          );
+        });
+
+        // 恢复代码块
+        codeBlocks.forEach((block, i) => {
+          let code = block.replace(/```/g, "").trim();
+          html = html.replace(
+            "___CODEBLOCK_" + i + "___",
+            "<pre><code>" + code + "</code></pre>",
+          );
+        });
+
+        // 最后处理换行
+        html = html.replace(/\n/gim, "<br>");
+
+        return html;
+      }
+
+      // 独立的表格解析函数
+      function parseTable(lines) {
+        if (lines.length < 2) return lines.join("\n");
+
+        let result = "<table>";
+        let isFirstRow = true;
+
+        lines.forEach((row, idx) => {
+          // 跳过分隔行 |---|---|
+          if (/^\s*\|?\s*:?-+:?\s*(\|\s*:?-+:?\s*)*\|?\s*$/.test(row)) {
+            isFirstRow = false; // 分隔行后，下一行开始是 td
+            return;
+          }
+
+          // 提取单元格：按 | 分割，去掉首尾空字符串，trim
+          let cells = row
+            .split("|")
+            .map((c) => c.trim())
+            .filter((c) => c !== "");
+
+          if (cells.length === 0) return;
+
+          let tag = isFirstRow ? "th" : "td";
+          result += "<tr>";
+          cells.forEach((cell) => {
+            result += "<" + tag + ">" + cell + "</" + tag + ">";
+          });
+          result += "</tr>";
+
+          if (isFirstRow) isFirstRow = false;
+        });
+
+        result += "</table>";
+        return result;
+      }
+
+      function toggleEditPreview() {
+        isPreview = !isPreview;
+        previewToggle.textContent = isPreview ? "✏️" : "👁";
+
+        if (isPreview) {
+          // 先全部隐藏重置
+          editor.style.display = "none";
+          lineNumbers.style.display = "none";
+          previewPane.classList.remove("show");
+          previewPane.style.display = "none";
+          previewMd.style.display = "none";
+
+          const ext = currentFileName.split(".").pop().toLowerCase();
+          const content = editor.value;
+
+          if (ext === "html" || ext === "htm") {
+            // HTML预览：展开右侧面板占宽
+            previewPane.classList.add("show");
+            previewPane.style.display = "block";
+            previewPane.srcdoc = content;
+            showToast("HTML 完整预览");
+          } else if (ext === "md") {
+            // MD预览：只显示内容，外层previewPane不占宽、铺满全屏
+            previewMd.style.display = "block";
+            previewMd.innerHTML = parseMarkdown(content);
+            showToast("Markdown 预览（GitHub 风格）");
+          } else {
+            // 不支持格式回退
+            isPreview = false;
+            previewToggle.textContent = "👁";
+            editor.style.display = "block";
+            lineNumbers.style.display = "block";
+            showToast("仅支持 HTML/MD 预览");
+          }
+        } else {
+          // 切回编辑模式：全部恢复，预览容器全部隐藏归零
+          editor.style.display = "block";
+          lineNumbers.style.display = "block";
+          previewPane.classList.remove("show");
+          previewPane.style.display = "none";
+          previewMd.style.display = "none";
+          showToast("已回到编辑模式");
+        }
+      }
+
+      function openInBrowser() {
+        const content = editor.value.trim();
+        if (!content) {
+          alert("编辑器内容为空");
+          return;
+        }
+        const ext = currentFileName.split(".").pop().toLowerCase();
+
+        if (ext === "html" || ext === "htm") {
+          const blob = new Blob([content], { type: "text/html;charset=utf-8" });
+          window.open(URL.createObjectURL(blob), "_blank");
+        } else if (ext === "md") {
+          const mdHtml = `
+                <!DOCTYPE html>
+                <html lang="zh-CN">
+                <head>
+                <meta charset="UTF-8">
+                <title>Markdown 预览</title>
+                <meta name="viewport" content="width=device-width, initial-scale=1.0">
+                <style>
+                body{max-width:100%;margin:0 auto;padding:2rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;line-height:1.6;background:#fff;color:#222;}
+                h1,h2,h3,h4,h5,h6{margin:1.2em 0 0.8em;font-weight:600;}
+                a{color:#0969da;text-decoration:none;}
+                a:hover{text-decoration:underline;}
+                img{max-width:100%;border-radius:4px;}
+                blockquote{border-left:4px solid #0969da;padding:0.5em 1em;margin:1em 0;background:#f6f8fa;color:#656d76;}
+                code{background:#f1f3f4;padding:2px 6px;border-radius:4px;font-family:monospace;}
+                pre{background:#f6f8fa;padding:1rem;border-radius:8px;overflow:auto;margin:1em 0;}
+                pre code{background:none;padding:0;}
+                ul,ol{padding-left:1.8em;margin:0.8em 0;}
+                li{margin:0.4em 0;}
+                table{border-collapse:collapse;width:100%;margin:1em 0;}
+                th,td{border:1px solid #d1d9e0;padding:0.6em;text-align:left;}
+                th{background:#f6f8fa;}
+                hr{border:none;border-top:1px solid #d1d9e0;margin:1.5em 0;}
+            
+      /* ===== 关于弹窗样式 ===== */
+      #aboutModal {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0,0,0,0.6);
+        z-index: 500;
+        display: none;
+        align-items: center;
+        justify-content: center;
+        opacity: 0;
+        transition: opacity 0.25s ease;
+      }
+      #aboutModal.show {
+        display: flex;
+        opacity: 1;
+      }
+      .aboutWindow {
+        width: calc(100% - 40px);
+        max-width: 420px;
+        max-height: 80vh;
+        background: var(--menu-bg);
+        border-radius: 12px;
+        box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        overflow: hidden;
+        transform: scale(0.9);
+        transition: transform 0.25s ease;
+      }
+      #aboutModal.show .aboutWindow {
+        transform: scale(1);
+      }
+      .aboutHeader {
+        height: 44px;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 0 14px;
+      }
+      .aboutTitle {
+        font-size: 15px;
+        color: #fff;
+        font-weight: 500;
+      }
+      .aboutClose {
+        width: 28px;
+        height: 28px;
+        background: rgba(255,255,255,0.2);
+        border: none;
+        color: #fff;
+        font-size: 18px;
+        cursor: pointer;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+      }
+      .aboutClose:active {
+        background: rgba(255,255,255,0.35);
+      }
+      .aboutBody {
+        padding: 16px 18px;
+        overflow-y: auto;
+        max-height: calc(80vh - 44px);
+        color: var(--editor-color);
+        font-size: 13px;
+        line-height: 1.7;
+      }
+      .aboutBody h3 {
+        margin: 14px 0 8px;
+        font-size: 14px;
+        color: #667eea;
+        font-weight: 600;
+      }
+      .aboutBody h3:first-child {
+        margin-top: 0;
+      }
+      .aboutBody ul {
+        margin: 6px 0;
+        padding-left: 1.4em;
+      }
+      .aboutBody li {
+        margin: 3px 0;
+      }
+      .aboutBody .shortcut {
+        display: flex;
+        gap: 12px;
+        margin: 3px 0;
+      }
+      .aboutBody .shortcut kbd {
+        font-family: monospace;
+        background: var(--line-bg);
+        padding: 1px 6px;
+        border-radius: 4px;
+        border: 1px solid var(--line-border);
+        min-width: 90px;
+        text-align: center;
+        font-size: 12px;
+      }
+      .aboutBody .shortcut span {
+        flex: 1;
+      }
+    </style>
+                </head>
+                <body>${parseMarkdown(content)}</body>
+                </html>`;
+          const blob = new Blob([mdHtml], { type: "text/html;charset=utf-8" });
+          window.open(URL.createObjectURL(blob), "_blank");
+        } else {
+          alert("仅支持 HTML/MD 在浏览器打开");
+        }
+        toggleMenu();
+      }
+
+      function previewInBrowser() {
+        openInBrowser();
+      }
+
+      // —————————— 转到行功能（修复滚动定位）——————————
+      function gotoLine() {
+        toggleMenu();
+        const total = editor.value.split("\n").length;
+        const line = prompt(`转到行（共 ${total} 行）`, "");
+        if (line === null || line.trim() === "") return;
+
+        const num = parseInt(line.trim(), 10);
+        if (isNaN(num) || num < 1 || num > total) {
+          showToast("无效行号");
+          return;
+        }
+
+        // 计算光标位置
+        const lines = editor.value.split("\n");
+        let pos = 0;
+        for (let i = 0; i < num - 1; i++) pos += lines[i].length + 1;
+
+        // 定位光标
+        editor.focus();
+        editor.setSelectionRange(pos, pos);
+
+        // ———— 修复滚动：精准计算行高 ————
+        const lineHeight = parseFloat(getComputedStyle(editor).lineHeight);
+        // 向上偏移4行，让目标行显示在视野中间
+        editor.scrollTop = (num - 4) * lineHeight;
+
+        showToast(`已跳转到第 ${num} 行`);
+      }
+
+      function formatCode() {
+        let v = editor.value;
+        if (!v.trim()) return;
+        try {
+          let lines = v.split("\n").map((l) => l.trimEnd());
+          let indent = 0,
+            res = [];
+          for (let line of lines) {
+            let t = line.trim();
+            if (!t) {
+              res.push("");
+              continue;
+            }
+            if (t.endsWith(">") && !t.startsWith("</")) indent++;
+            if (t.startsWith("</")) indent = Math.max(0, indent - 1);
+            res.push("  ".repeat(indent) + t);
+            if (t.startsWith("</")) indent = Math.max(0, indent - 1);
+          }
+          editor.value = res.join("\n");
+          updateLineNumbers();
+          isModified = true;
+          updateTitle();
+          showToast("格式化完成（仅排版）");
+        } catch (e) {
+          showToast("格式化失败");
+        }
+      }
+
+      function updateLineNumbers() {
+        const lines = editor.value.split("\n").length;
+        let html = "";
+        for (let i = 1; i <= lines; i++) html += `<div>${i}</div>`;
+        lineNumbers.innerHTML = html;
+      }
+      editor.addEventListener("scroll", () => {
+        lineNumbers.scrollTop = editor.scrollTop;
+      });
+      let isDragging = false;
+      let dragOffsetX = 0,
+        dragOffsetY = 0;
+      dragHandle.addEventListener("mousedown", startDrag);
+      dragHandle.addEventListener("touchstart", startDrag, { passive: false });
+      document.addEventListener("mousemove", drag);
+      document.addEventListener("touchmove", drag, { passive: false });
+      document.addEventListener("mouseup", stopDrag);
+      document.addEventListener("touchend", stopDrag);
+      function startDrag(e) {
+        if (e.target.closest("#closeSearch")) return;
+        isDragging = true;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        const rect = searchWindow.getBoundingClientRect();
+        dragOffsetX = clientX - rect.left;
+        dragOffsetY = clientY - rect.top;
+        if (e.touches) e.preventDefault();
+      }
+      function drag(e) {
+        if (!isDragging) return;
+        const clientX = e.touches ? e.touches[0].clientX : e.clientX;
+        const clientY = e.touches ? e.touches[0].clientY : e.clientY;
+        let newX = clientX - dragOffsetX;
+        let newY = clientY - dragOffsetY;
+        const maxX = window.innerWidth - searchWindow.offsetWidth;
+        const maxY = window.innerHeight - searchWindow.offsetHeight;
+        newX = Math.max(0, Math.min(newX, maxX));
+        newY = Math.max(0, Math.min(newY, maxY));
+        searchWindow.style.left = newX + "px";
+        searchWindow.style.top = newY + "px";
+        searchWindow.style.transform = "none";
+        if (e.touches) e.preventDefault();
+      }
+      function stopDrag() {
+        isDragging = false;
+      }
+      function toggleMenu() {
+        sideMenu.classList.toggle("open");
+        menuOverlay.classList.toggle("show");
+      }
+      function toggleWrap() {
+        isWrapEnabled = wrapToggle.checked;
+        isWrapEnabled
+          ? editor.classList.add("wrap")
+          : editor.classList.remove("wrap");
+      }
+      function updateMatchDisplay() {
+        if (matches.length === 0) {
+          matchCount.textContent = "";
+        } else {
+          matchCount.textContent = `(${currentMatch + 1}/${matches.length})`;
+        }
+      }
+      function findAllMatches() {
+        const key = searchInput.value.trim();
+        matches = [];
+        if (!key) {
+          currentMatch = -1;
+          updateMatchDisplay();
+          return;
+        }
+        const text = editor.value;
+        let pos = 0;
+        while ((pos = text.indexOf(key, pos)) !== -1) {
+          matches.push(pos);
+          pos += key.length;
+        }
+        currentMatch = matches.length > 0 ? 0 : -1;
+        updateMatchDisplay();
+      }
+      function selectCurrentMatch() {
+        if (currentMatch < 0 || currentMatch >= matches.length) return;
+        const key = searchInput.value.trim();
+        const pos = matches[currentMatch];
+        editor.focus();
+        editor.setSelectionRange(pos, pos + key.length);
+        const lineCount = editor.value.substring(0, pos).split("\n").length;
+        editor.scrollTop = (lineCount - 4) * 22;
+        updateMatchDisplay();
+      }
+      function findNext() {
+        const key = searchInput.value.trim();
+        if (!key || matches.length === 0) return;
+        currentMatch = (currentMatch + 1) % matches.length;
+        selectCurrentMatch();
+      }
+      function findPrev() {
+        const key = searchInput.value.trim();
+        if (!key || matches.length === 0) return;
+        currentMatch = (currentMatch - 1 + matches.length) % matches.length;
+        selectCurrentMatch();
+      }
+      function toggleSearchModal() {
+        isSearchOpen ? closeSearchModal() : openSearchModal();
+      }
+      function openSearchModal() {
+        isSearchOpen = true;
+        searchModal.classList.add("show");
+        searchWindow.style.left = "50%";
+        searchWindow.style.top = "60px";
+        searchWindow.style.transform = "translateX(-50%)";
+        findAllMatches();
+        setTimeout(() => searchInput.focus(), 50);
+      }
+      function closeSearchModal() {
+        isSearchOpen = false;
+        searchModal.classList.remove("show");
+        matchCount.textContent = "";
+        editor.focus();
+      }
+      function openSearchFromMenu() {
+        toggleMenu();
+        openSearchModal();
+      }
+      function replaceText() {
+        const key = searchInput.value.trim();
+        const val = replaceInput.value;
+        if (!key || currentMatch < 0 || currentMatch >= matches.length) return;
+        const pos = matches[currentMatch];
+        editor.value =
+          editor.value.substring(0, pos) +
+          val +
+          editor.value.substring(pos + key.length);
+        updateLineNumbers();
+        isModified = true;
+        updateTitle();
+        findAllMatches();
+      }
+      function replaceAll() {
+        const key = searchInput.value.trim();
+        const val = replaceInput.value;
+        if (!key) return;
+        editor.value = editor.value.split(key).join(val);
+        updateLineNumbers();
+        isModified = true;
+        updateTitle();
+        findAllMatches();
+        showToast("全部替换完成");
+      }
+      searchInput.addEventListener("input", () => {
+        findAllMatches();
+      });
+      function updateTitle() {
+        filename.textContent = (isModified ? "● " : "") + currentFileName;
+      }
+
+      // 新增：菜单折叠切换
+      function toggleSection(el) {
+        el.parentElement.classList.toggle("collapsed");
+      }
+
+      function newFile() {
+        if (isModified && editor.value !== "") {
+          if (!confirm("当前文件未保存，是否放弃更改？")) return;
+        }
+        const inputName = prompt("文件名（含后缀）：", "未命名.md");
+        if (!inputName) return;
+        const ext = inputName.split(".").pop().toLowerCase();
+        const templates = {
+          html: `<!DOCTYPE html>
+                <html lang="zh-CN">
+                <head>
+                    <meta charset="UTF-8">
+                    <title>文档</title>
+                </head>
+                <body>
+                    <h1>Hello</h1>
+                </body>
+                </html>`,
+          css: "/* CSS */",
+          js: "// JS",
+          json: "{}",
+          md: '# 标题\n## 二级标题\n**粗体** *斜体*\n> 引用\n`代码`\n```js\nconsole.log("hello")\n```',
+          txt: "",
+        };
+        editor.value = templates[ext] || "";
+        currentFileName = inputName;
+        updateLineNumbers();
+        fileHandle = null;
+        isModified = false;
+        updateTitle();
+        toggleMenu();
+        // 清空历史栈
+        historyStack = [];
+        historyIndex = -1;
+        saveHistory();
+      }
+      function closeFile() {
+        if (isModified && editor.value !== "") {
+          if (!confirm("是否保存？")) {
+            editor.value = "";
+            updateLineNumbers();
+            currentFileName = "未命名.txt";
+            isModified = false;
+            updateTitle();
+            // 清空历史栈
+            historyStack = [];
+            historyIndex = -1;
+            saveHistory();
+
+            toggleMenu();
+            return;
+          }
+          saveFile().then(() => {
+            editor.value = "";
+            updateLineNumbers();
+            fileHandle = null;
+            currentFileName = "未命名.txt";
+            isModified = false;
+            updateTitle();
+            // 清空历史栈
+            historyStack = [];
+            historyIndex = -1;
+            saveHistory();
+          });
+          toggleMenu();
+          return;
+        }
+        editor.value = "";
+        updateLineNumbers();
+        fileHandle = null;
+        currentFileName = "未命名.txt";
+        isModified = false;
+        updateTitle();
+        // 清空历史栈
+        historyStack = [];
+        historyIndex = -1;
+        saveHistory();
+
+        toggleMenu();
+      }
+
+      async function openFile() {
+        try {
+          if (isModified && editor.value !== "") {
+            if (!confirm("是否放弃当前修改？")) return;
+          }
+
+          if ("showOpenFilePicker" in window) {
+            [fileHandle] = await window.showOpenFilePicker({
+              types: [
+                {
+                  description: "文本",
+                  accept: {
+                    "text/*": [".txt", ".html", ".js", ".css", ".json", ".md"],
+                  },
+                },
+              ],
+              multiple: false,
+              // 优先使用上次保存/打开的目录，其次使用当前文件句柄，最后回退到桌面
+              startIn: lastDirHandle || fileHandle || 'desktop',
+            });
+            // 记录本次打开的目录，供下次使用
+            try {
+              if (fileHandle && 'getDirectory' in FileSystemFileHandle.prototype) {
+                lastDirHandle = await fileHandle.getDirectory();
+              }
+            } catch (e) {
+              // 部分浏览器不支持 getDirectory，静默忽略
+            }
+            const file = await fileHandle.getFile();
+            editor.value = await file.text();
+            updateLineNumbers();
+            currentFileName = file.name;
+            isModified = false;
+            updateTitle();
+            // 清空历史栈
+            historyStack = [];
+            historyIndex = -1;
+            saveHistory();
+          } else {
+            fileInput.onchange = (e) => {
+              const file = e.target.files[0];
+              if (!file) return;
+              const reader = new FileReader();
+              reader.onload = (evt) => {
+                editor.value = evt.target.result;
+                updateLineNumbers();
+                currentFileName = file.name;
+                isModified = false;
+                updateTitle();
+                // 清空历史栈
+                historyStack = [];
+                historyIndex = -1;
+                saveHistory();
+              };
+              reader.readAsText(file);
+              fileInput.value = "";
+            };
+            fileInput.click();
+          }
+          if (sideMenu.classList.contains("open")) toggleMenu();
+        } catch (err) {
+          if (err.name !== "AbortError") alert("打开失败");
+        }
+      }
+
+      async function saveFile() {
+        try {
+          if (fileHandle) {
+            const writable = await fileHandle.createWritable();
+            await writable.write(editor.value);
+            await writable.close();
+            isModified = false;
+            updateTitle();
+            showToast("已保存");
+          } else {
+            await saveAs();
+          }
+          if (sideMenu.classList.contains("open")) toggleMenu();
+          return true;
+        } catch (err) {
+          alert("保存失败");
+          return false;
+        }
+      }
+      async function saveAs() {
+        try {
+          const ext = currentFileName.split(".").pop().toLowerCase();
+          const typeMap = {
+            html: { mime: "text/html;charset=utf-8", exts: [".html", ".htm"] },
+            css: { mime: "text/css;charset=utf-8", exts: [".css"] },
+            js: { mime: "application/javascript;charset=utf-8", exts: [".js"] },
+            json: { mime: "application/json;charset=utf-8", exts: [".json"] },
+            md: { mime: "text/markdown;charset=utf-8", exts: [".md"] },
+            txt: { mime: "text/plain;charset=utf-8", exts: [".txt"] },
+          };
+          const ct = typeMap[ext] || typeMap.txt;
+          const h = await window.showSaveFilePicker({
+            suggestedName: currentFileName,
+            types: [{ accept: { [ct.mime.split(";")[0]]: ct.exts } }],
+            // 优先使用上次保存/打开的目录，其次使用当前文件句柄，最后回退到桌面
+            startIn: lastDirHandle || fileHandle || 'desktop',
+          });
+          // 记录本次保存的目录，供下次使用
+          try {
+            if (h && 'getDirectory' in FileSystemFileHandle.prototype) {
+              lastDirHandle = await h.getDirectory();
+            }
+          } catch (e) {
+            // 部分浏览器不支持 getDirectory，静默忽略
+          }
+          const w = await h.createWritable();
+          await w.write(editor.value);
+          await w.close();
+          fileHandle = h;
+          currentFileName = (await h.getFile()).name;
+          isModified = false;
+          updateTitle();
+          showToast("已保存");
+        } catch (err) {
+          // 判断：是用户手动取消弹窗，直接退出，不下载
+          if (err.name === 'AbortError') {
+            showToast("已取消保存");
+            return;
+          }
+
+           // 真正的异常（浏览器不支持API、权限问题等）再走下载兜底
+          const blob = new Blob([editor.value], {
+            type: "text/plain;charset=utf-8",
+          });
+          const url = URL.createObjectURL(blob);
+          const a = document.createElement("a");
+          a.href = url;
+          a.download = currentFileName;
+          document.body.appendChild(a);
+          a.click();
+          setTimeout(() => {
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+          }, 500);
+          showToast("已下载");
+        }
+        if (sideMenu.classList.contains("open")) toggleMenu();
+      }
+      function showToast(msg) {
+        const t = document.createElement("div");
+        t.textContent = msg;
+        t.style.cssText =
+          "position:fixed;bottom:50px;left:50%;transform:translateX(-50%);background:#667eea;color:#fff;padding:8px 16px;border-radius:20px;font-size:13px;z-index:999;animation:fadeIn 0.3s";
+        document.body.appendChild(t);
+        setTimeout(() => {
+          t.style.opacity = 0;
+          setTimeout(() => t.remove(), 200);
+        }, 1200);
+      }
+      editor.addEventListener("input", () => {
+        updateLineNumbers();
+        if (!isModified) {
+          isModified = true;
+          updateTitle();
+        }
+        // 输入时保存历史
+        saveHistory();
+      });
+      document.addEventListener("keydown", (e) => {
+        if (e.ctrlKey && e.key === "f") {
+          e.preventDefault();
+          openSearchModal();
+        }
+        if (e.ctrlKey && e.key === "s") {
+          e.preventDefault();
+          saveFile();
+        }
+        if (e.ctrlKey && e.key === "g") {
+          e.preventDefault();
+          gotoLine();
+        }
+        if (e.ctrlKey && e.key === "d") {
+          e.preventDefault();
+          deleteLine();
+        }
+        if (e.ctrlKey && e.shiftKey && e.key === "D") {
+          e.preventDefault();
+          copyLine();
+        }
+        if (e.ctrlKey && e.key === "/") {
+          e.preventDefault();
+          toggleComment();
+        }
+
+        if (e.ctrlKey && (e.key === "+" || e.key === "=")) {
+          e.preventDefault();
+          increaseFont();
+        }
+        if (e.ctrlKey && e.key === "-") {
+          e.preventDefault();
+          decreaseFont();
+        }
+        if (e.ctrlKey && e.key === "0") {
+          e.preventDefault();
+          resetFont();
+        }
+        if (e.key === "Escape" && isSearchOpen) closeSearchModal();
+        if (e.key === "Escape" && isPreview) toggleEditPreview();
+      });
+      updateLineNumbers();
+
+      // 页面刚加载完成强制初始化布局，首次打开编辑区直接占满
+      window.addEventListener("DOMContentLoaded", function () {
+        previewPane.classList.remove("active");
+        previewPane.style.display = "none";
+        // 初始化历史
+        saveHistory();
+      });
+    </script>
+    <!-- 关于弹窗 -->
+    <div id="aboutModal" onclick="closeAbout(event)">
+      <div class="aboutWindow" onclick="event.stopPropagation()">
+        <div class="aboutHeader">
+          <span class="aboutTitle">关于</span>
+          <button class="aboutClose" onclick="closeAbout()">×</button>
+        </div>
+        <div class="aboutBody" id="aboutBody"></div>
+      </div>
+    </div>
+  </body>
+</html>
