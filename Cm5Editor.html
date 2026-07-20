@@ -555,7 +555,7 @@ line-height: var(--editor-line-height, 1.6);
     }
     .shortcut-hint.show { display: block; }
     .shortcut-hint h4 { margin-bottom: 8px; color: #fff; }
-    .shortcut-hint div { margin: 3px 0; }
+    .shortcut-hint div { margin: 5px 0; }
     .shortcut-hint kbd {
       background: #3c3c3c; border: 1px solid #555;
       padding: 1px 5px; border-radius: 3px;
@@ -1158,8 +1158,9 @@ line-height: var(--editor-line-height, 1.6);
         <div class="menu-item" data-action="deleteline"><span class="menu-label"><span class="menu-icon">🗑</span>删除当前行</span> <span class="menu-hint">Ctrl+D</span></div>
         <div class="menu-item" data-action="clearall"><span class="menu-label"><span class="menu-icon">🧹</span>清空文档</span></div>
     <div class="toggle-item" onclick="event.stopPropagation()"><span class="menu-label"><span class="menu-icon">📋</span>智能复制多行 </span><label class="switch"><input type="checkbox" id="copy-mode-checkbox" checked onchange="toggleCopyMode()"><span class="slider"></span> </label></div>
-        <div class="menu-item" data-action="copyline"><span class="menu-label"><span class="menu-icon">📋</span>复制当前行</span> <span class="menu-hint">Ctrl+Shift+D</span></div>
-        <div class="menu-item" data-action="copyall"><span class="menu-label"><span class="menu-icon">📄</span>复制全部内容</span></div>
+        <div class="menu-item" data-action="copyline"><span class="menu-label"><span class="menu-icon">📋</span>克隆当前行</span> </div>
+        <div class="menu-item" data-action="copyLineToClipboard"><span class="menu-label"><span class="menu-icon">📋</span>复制当前行</span> <span class="menu-hint">Ctrl+Shift+D</span></div>
+        <div class="menu-item" data-action="copyall"><span class="menu-label"><span class="menu-icon">📄</span>复制文档</span></div>
 
       </div>
       <div class="menu-divider"></div>
@@ -1170,8 +1171,8 @@ line-height: var(--editor-line-height, 1.6);
       </div>
       <div class="menu-divider"></div>
 
-      <div class="menu-group-title" data-group="view">视图</div>
-      <div class="menu-group-content" data-group="view">
+      <div class="menu-group-title collapsed" data-group="view">视图</div>
+      <div class="menu-group-content collapsed" data-group="view">
         <div class="toggle-item">
           <span class="menu-label"><span class="menu-icon">↩️</span>自动折行</span>
           <label class="switch"><input type="checkbox" id="wrapToggle" /><span class="slider"></span></label>
@@ -1188,8 +1189,8 @@ line-height: var(--editor-line-height, 1.6);
       </div>
       <div class="menu-divider"></div>
 
-      <div class="menu-group-title" data-group="help">帮助</div>
-      <div class="menu-group-content" data-group="help">
+      <div class="menu-group-title collapsed" data-group="help">帮助</div>
+      <div class="menu-group-content collapsed" data-group="help">
         <div class="menu-item" data-action="shortcut"><span class="menu-label"><span class="menu-icon">⌨️</span>快捷键列表</span></div>
         <div class="menu-item" data-action="about"><span class="menu-label"><span class="menu-icon">ℹ️</span>关于</span></div>
       </div>
@@ -1790,15 +1791,43 @@ function simpleFormatHTML(html) {
       }
 
       // ========== 复制当前行 ==========
-      // function copyLine() {
-        // if (!editor) return;
-        // var cursor = editor.getCursor();
-        // var line = cursor.line;
-        // var lineContent = editor.getLine(line);
-        // editor.replaceRange(lineContent + '\n', {line: line + 1, ch: 0});
-        // showToast('已复制当前行');
-      // }
-// ========== 复制当前行 / 选中区域 ==========
+function copyLineToClipboard() {
+  if (!editor) return;
+  
+  var cursor = editor.getCursor();
+  var line = cursor.line;
+  var lineContent = editor.getLine(line);
+  
+  // 创建隐藏 textarea
+  var textarea = document.createElement('textarea');
+  textarea.value = lineContent;
+  textarea.style.cssText = 'position:fixed;left:-9999px;top:-9999px;opacity:0;';
+  document.body.appendChild(textarea);
+  
+  // 选中文本
+  textarea.select();
+  textarea.setSelectionRange(0, lineContent.length);
+  
+  try {
+    // 执行复制
+    var success = document.execCommand('copy');
+    document.body.removeChild(textarea);
+    
+    if (success) {
+      showToast('已复制到剪贴板');
+    } else {
+      showToast('复制失败');
+    }
+  } catch (err) {
+    document.body.removeChild(textarea);
+    showToast('复制失败: ' + err.message);
+  }
+}
+
+  
+  
+  
+// ========== 克隆--复制当前行 / 选中区域 ==========
 // 模式：'line' = 始终复制整行（即使有多行选中，也复制光标所在行）
 //       'selection' = 如果有选中多行，复制整个选区；否则复制当前行
 let copyLineMode = 'selection'; // 默认智能模式
@@ -2627,9 +2656,12 @@ th{background:#f6f8fa;}hr{border:none;border-top:1px solid #d1d9e0;margin:1.5em 
             case 'deleteline':
               deleteLine();
               break;
-            case 'copyline':
-              copyLine();
+            case 'copyLineToClipboard':
+              copyLineToClipboard();
               break;
+          case 'copyline':
+              copyLine();
+              break;    
             case 'moveupline':
               moveUpLine();
               break;          
